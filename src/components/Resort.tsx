@@ -1,22 +1,12 @@
 import { motion } from "motion/react";
 import { Bed, Coffee, MapPin, Star, Phone } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-
 export function Resort() {
-  const navigate = useNavigate();
-
   const handleBookNow = () => {
     const hostname = window.location.hostname;
     if (hostname.includes('localhost') || hostname.includes('run.app')) {
-      // In preview, we need to maintain the subdomain param if it exists, 
-      // but checkout is usually a main app route. 
-      // However, for simplicity in this demo, we'll just navigate to /checkout.
-      // If the user is on ?subdomain=resort, navigating to /checkout might lose the subdomain context 
-      // unless we handle it. 
-      // But usually checkout is global.
-      navigate('/checkout');
+      // Navigate to origin without subdomain query param so the main app's /checkout route renders
+      window.location.href = window.location.origin + '/checkout';
     } else {
-      // In production, checkout might be on the main domain
       window.location.href = 'https://chamtaburu.in/checkout';
     }
   };
