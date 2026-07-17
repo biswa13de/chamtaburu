@@ -1,10 +1,14 @@
 import { motion } from "motion/react";
 import { MapPin, Users, Info, Home as HomeIcon, Coffee, Star, Heart, Music } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 export function Village() {
+  const navigate = useNavigate();
+
   const handleBookNow = () => {
     const hostname = window.location.hostname;
     if (hostname.includes('localhost') || hostname.includes('run.app')) {
-      window.location.href = window.location.origin + '/checkout';
+      navigate('/checkout');
     } else {
       window.location.href = 'https://chamtaburu.in/checkout';
     }
