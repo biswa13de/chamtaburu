@@ -41,26 +41,31 @@ smaller, and no secret-shaped value exists anywhere in the repo.
 
 *The consolidation. Two conflicting designs become one.*
 
-- [ ] Define the palette from [01-strategy.md](01-strategy.md) §4 as Tailwind `@theme`
+- [x] Define the palette from [01-strategy.md](01-strategy.md) §4 as Tailwind `@theme`
       tokens; verify AA contrast for every text/background pair
-- [ ] Self-host Inter + Cormorant Garamond as subset WOFF2; remove the render-blocking
+- [x] Self-host Inter + Cormorant Garamond as subset WOFF2; remove the render-blocking
       Google Fonts `@import` at [index.css:1](../src/index.css#L1)
-- [ ] Build the shared component library: `Header`, `Footer`, `Section`, `Hero`,
+- [x] Build the shared component library: `Header`, `Footer`, `Section`, `Hero`,
       `Button`, `Card`, `Gallery`, `Lightbox`, `Prose`, `Breadcrumbs`
-- [ ] Build the `Image` component: `srcset`, AVIF/WebP, LQIP, explicit dimensions,
+- [x] Build the `Image` component: `srcset`, AVIF/WebP, LQIP, explicit dimensions,
       required `alt`
-- [ ] Mobile navigation — keyboard accessible, focus-trapped, `prefers-reduced-motion`
+- [x] Mobile navigation — keyboard accessible, focus-trapped, `prefers-reduced-motion`
       respected
-- [ ] **Delete the duplicate implementation.** [Home.tsx](../src/components/Home.tsx),
+- [x] **Delete the duplicate implementation.** [Home.tsx](../src/components/Home.tsx),
       [Resort.tsx](../src/components/Resort.tsx), [Village.tsx](../src/components/Village.tsx)
       and the page components inside [App.tsx](../src/App.tsx) are two different designs
       for the same properties; one survives
-- [ ] Delete the cookie banner ([App.tsx:93](../src/App.tsx#L93)) — it sets no cookie and
+- [x] Delete the cookie banner ([App.tsx:93](../src/App.tsx#L93)) — it sets no cookie and
       stores no consent
-- [ ] Strip decorative entry animations; keep motion for menu and lightbox only
+- [x] Strip decorative entry animations; keep motion for menu and lightbox only
 
 **Done when:** one visual language, a Storybook-less but documented component set, and
 `App.tsx` is under 100 lines.
+
+> Note: `Image.tsx` accepts `srcSet`/`sizes` props but real AVIF/WebP/LQIP generation is
+> Phase 3 (the `sharp` pipeline doesn't exist yet). `Home`/`Accommodations`/`Contact`/
+> `Legal` under `src/components/pages/` are placeholder compositions proving the design
+> system renders end to end — real routing, content, and site-specific pages are Phase 2/4.
 
 ---
 
