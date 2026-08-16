@@ -1,8 +1,27 @@
+# dependencies
 node_modules/
-build/
+
+# build output
 dist/
+build/
 coverage/
+
+# raw source photography — processed into public/img by `npm run photos`;
+# originals are large and don't belong in git history
+photos/*/
+!photos/CHAMTABURU ECO VILLAGE.docx
+
+# generated responsive images (regenerate with `npm run photos`)
+# uncomment once the pipeline exists and originals are safely stored elsewhere:
+# public/img/generated/
+
+# editor / OS
 .DS_Store
 *.log
-.env*
-!.env.example
+.vscode/*
+!.vscode/extensions.json
+
+# env
+.env
+.env.local
+.env.*.local

@@ -1,5 +1,10 @@
 import { motion } from "motion/react";
-import { Bed, Coffee, MapPin, Star, Phone } from "lucide-react";
+import { Bed, Coffee, Star } from "lucide-react";
+import { VideoTrigger } from "./VideoModal";
+import { heroImages, heroVideos, resortRooms, type AmenityDetail } from "../data/content";
+
+const amenityIcons: Record<AmenityDetail['icon'], typeof Bed> = { bed: Bed, coffee: Coffee, star: Star };
+
 export function Resort() {
   const handleBookNow = () => {
     const hostname = window.location.hostname;
@@ -12,9 +17,9 @@ export function Resort() {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       className="min-h-screen bg-stone-100 text-stone-900 font-sans"
       id="resort-page"
     >
@@ -32,14 +37,14 @@ export function Resort() {
 
       <main>
         <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
-          <img 
-            src="https://picsum.photos/seed/resort-luxury/1920/1080" 
-            alt="Resort Luxury" 
+          <img
+            src={heroImages.resortStandalone}
+            alt="Resort Luxury"
             className="absolute inset-0 w-full h-full object-cover brightness-50"
             referrerPolicy="no-referrer"
           />
           <div className="relative z-10 text-center text-white px-4">
-            <motion.h1 
+            <motion.h1
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -47,7 +52,7 @@ export function Resort() {
             >
               Luxury in Nature
             </motion.h1>
-            <motion.p 
+            <motion.p
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
@@ -61,97 +66,48 @@ export function Resort() {
         <section id="rooms" className="py-24 px-6 max-w-6xl mx-auto">
           <h2 className="text-3xl font-serif italic mb-12 text-center">Our Accommodations</h2>
           <div className="grid md:grid-cols-2 gap-12">
-            {/* Special Bamboo Cottage */}
-            <div className="group overflow-hidden rounded-3xl bg-white shadow-sm border border-stone-200">
-              <img 
-                src="https://picsum.photos/seed/bamboo-cottage/800/600" 
-                alt="Special Bamboo Cottage" 
-                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-                referrerPolicy="no-referrer"
-              />
-              <div className="p-8">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-2xl font-serif italic">Special Bamboo Cottage</h3>
-                  <span className="text-xl font-bold text-stone-700">₹2,000<span className="text-sm font-normal text-stone-400">/night</span></span>
+            {resortRooms.map((room) => (
+              <div key={room.id} className="group overflow-hidden rounded-3xl bg-white shadow-sm border border-stone-200">
+                {room.video ? (
+                  <VideoTrigger videoUrl={room.video}>
+                    <img
+                      src={room.img}
+                      alt={room.title}
+                      className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                      referrerPolicy="no-referrer"
+                    />
+                  </VideoTrigger>
+                ) : (
+                  <img
+                    src={room.img}
+                    alt={room.title}
+                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+                <div className="p-8">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-2xl font-serif italic">{room.title}</h3>
+                    <span className="text-xl font-bold text-stone-700">
+                      {room.price.split(' / ')[0]}
+                      <span className="text-sm font-normal text-stone-400">/{room.price.split(' / ')[1]}</span>
+                    </span>
+                  </div>
+                  <p className="text-stone-600 mb-6">{room.desc}</p>
+                  <div className="flex flex-wrap gap-4 text-stone-500 text-sm mb-8">
+                    {room.amenities?.map((amenity) => {
+                      const Icon = amenityIcons[amenity.icon];
+                      return (
+                        <div key={amenity.label} className="flex items-center gap-1">
+                          <Icon className="w-4 h-4" /> {amenity.label}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <button onClick={handleBookNow} className="w-full bg-stone-900 text-white py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-stone-700 transition-colors">Book Now</button>
                 </div>
-                <p className="text-stone-600 mb-6">Experience the charm of bamboo living. Includes complimentary breakfast and attached bathroom with geyser.</p>
-                <div className="flex flex-wrap gap-4 text-stone-500 text-sm mb-8">
-                  <div className="flex items-center gap-1"><Bed className="w-4 h-4" /> 2 Adults + 1 Child (up to 5y)</div>
-                  <div className="flex items-center gap-1"><Coffee className="w-4 h-4" /> Breakfast Included</div>
-                  <div className="flex items-center gap-1"><Star className="w-4 h-4" /> Geyser Attached</div>
-                </div>
-                <button onClick={handleBookNow} className="w-full bg-stone-900 text-white py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-stone-700 transition-colors">Book Now</button>
               </div>
-            </div>
-
-            {/* Double Bed Cottage */}
-            <div className="group overflow-hidden rounded-3xl bg-white shadow-sm border border-stone-200">
-              <img 
-                src="https://picsum.photos/seed/double-cottage/800/600" 
-                alt="Double Bed Cottage" 
-                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-                referrerPolicy="no-referrer"
-              />
-              <div className="p-8">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-2xl font-serif italic">Double Bed Cottage</h3>
-                  <span className="text-xl font-bold text-stone-700">₹1,800<span className="text-sm font-normal text-stone-400">/night</span></span>
-                </div>
-                <p className="text-stone-600 mb-6">Comfortable and cozy cottages for a perfect getaway. Includes complimentary breakfast and attached bathroom with geyser.</p>
-                <div className="flex flex-wrap gap-4 text-stone-500 text-sm mb-8">
-                  <div className="flex items-center gap-1"><Bed className="w-4 h-4" /> 2 Adults + 1 Child</div>
-                  <div className="flex items-center gap-1"><Coffee className="w-4 h-4" /> Breakfast Included</div>
-                  <div className="flex items-center gap-1"><Star className="w-4 h-4" /> Geyser Attached</div>
-                </div>
-                <button onClick={handleBookNow} className="w-full bg-stone-900 text-white py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-stone-700 transition-colors">Book Now</button>
-              </div>
-            </div>
-
-            {/* Quardruple Cottage */}
-            <div className="group overflow-hidden rounded-3xl bg-white shadow-sm border border-stone-200">
-              <img 
-                src="https://picsum.photos/seed/quad-cottage/800/600" 
-                alt="Quardruple Cottage" 
-                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-                referrerPolicy="no-referrer"
-              />
-              <div className="p-8">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-2xl font-serif italic">Quardruple Cottage</h3>
-                  <span className="text-xl font-bold text-stone-700">₹2,400<span className="text-sm font-normal text-stone-400">/night</span></span>
-                </div>
-                <p className="text-stone-600 mb-6">Spacious cottage with 2 queen size beds, perfect for groups. Includes complimentary breakfast and attached bathroom with geyser.</p>
-                <div className="flex flex-wrap gap-4 text-stone-500 text-sm mb-8">
-                  <div className="flex items-center gap-1"><Bed className="w-4 h-4" /> 4 Adults (2 Queen Beds)</div>
-                  <div className="flex items-center gap-1"><Coffee className="w-4 h-4" /> Breakfast Included</div>
-                  <div className="flex items-center gap-1"><Star className="w-4 h-4" /> Geyser Attached</div>
-                </div>
-                <button onClick={handleBookNow} className="w-full bg-stone-900 text-white py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-stone-700 transition-colors">Book Now</button>
-              </div>
-            </div>
-
-            {/* Family Cottage */}
-            <div className="group overflow-hidden rounded-3xl bg-white shadow-sm border border-stone-200">
-              <img 
-                src="https://picsum.photos/seed/family-cottage/800/600" 
-                alt="Family Cottage" 
-                className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-                referrerPolicy="no-referrer"
-              />
-              <div className="p-8">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-2xl font-serif italic">Family Cottage</h3>
-                  <span className="text-xl font-bold text-stone-700">₹3,599<span className="text-sm font-normal text-stone-400">/night</span></span>
-                </div>
-                <p className="text-stone-600 mb-6">Our largest cottage with 2 king size beds for the whole family. Includes complimentary breakfast and attached bathroom with geyser.</p>
-                <div className="flex flex-wrap gap-4 text-stone-500 text-sm mb-8">
-                  <div className="flex items-center gap-1"><Bed className="w-4 h-4" /> 6 Adults (2 King Beds)</div>
-                  <div className="flex items-center gap-1"><Coffee className="w-4 h-4" /> Breakfast Included</div>
-                  <div className="flex items-center gap-1"><Star className="w-4 h-4" /> Geyser Attached</div>
-                </div>
-                <button onClick={handleBookNow} className="w-full bg-stone-900 text-white py-3 rounded-full text-xs font-bold tracking-widest uppercase hover:bg-stone-700 transition-colors">Book Now</button>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
       </main>

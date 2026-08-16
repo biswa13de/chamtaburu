@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Home as HomeIcon, MapPin, Info, Phone } from "lucide-react";
+import { heroImages } from "../data/content";
 
 export function Home() {
   return (
@@ -23,9 +24,9 @@ export function Home() {
 
       <main>
         <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
-          <img 
-            src="https://picsum.photos/seed/chamtaburu-nature/1920/1080" 
-            alt="Chamtaburu Nature" 
+          <img
+            src={heroImages.home}
+            alt="Chamtaburu Nature"
             className="absolute inset-0 w-full h-full object-cover brightness-50"
             referrerPolicy="no-referrer"
           />

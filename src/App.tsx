@@ -32,6 +32,20 @@ import { Home as MainHome } from './components/Home';
 import { Resort as ResortHome } from './components/Resort';
 import { Village as VillageHome } from './components/Village';
 import { Junction as JunctionHome } from './components/Junction';
+import { VideoTrigger, VideoButton } from './components/VideoModal';
+import {
+  heroImages,
+  heroVideos,
+  storyImages,
+  bannerImage,
+  pageHeroImages,
+  contactMapImage,
+  portalImages,
+  resortRooms,
+  resortActivities,
+  villageRooms,
+  villageActivities,
+} from './data/content';
 
 // --- Components ---
 
@@ -115,25 +129,25 @@ const GroupPortal = () => {
   const units = [
     { 
       id: 'resort', 
-      name: 'Chamtaburu Eco Resort', 
-      desc: 'Luxury meets nature in our premium resort facilities.', 
-      img: 'https://picsum.photos/seed/resort-portal/800/600',
+      name: 'Chamtaburu Eco Resort',
+      desc: 'Luxury meets nature in our premium resort facilities.',
+      img: portalImages.resort,
       url: getSubdomainUrl('resort'),
       color: 'bg-primary'
     },
-    { 
-      id: 'village', 
-      name: 'Chamtaburu Eco Village', 
-      desc: 'Sustainable living and authentic tribal experiences.', 
-      img: 'https://picsum.photos/seed/village-portal/800/600',
+    {
+      id: 'village',
+      name: 'Chamtaburu Eco Village',
+      desc: 'Sustainable living and authentic tribal experiences.',
+      img: portalImages.village,
       url: getSubdomainUrl('village'),
       color: 'bg-primary/80'
     },
-    { 
-      id: 'junction', 
-      name: 'Chamtaburu Junction', 
-      desc: 'Our upcoming hub for community and commerce.', 
-      img: 'https://picsum.photos/seed/junction-portal/800/600',
+    {
+      id: 'junction',
+      name: 'Chamtaburu Junction',
+      desc: 'Our upcoming hub for community and commerce.',
+      img: portalImages.junction,
       url: getSubdomainUrl('junction'),
       color: 'bg-gray-400',
       comingSoon: true
@@ -332,13 +346,19 @@ const Home = () => {
     <div className="space-y-24 pb-24">
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
-        <img 
-          src={isResort ? "https://picsum.photos/seed/resort-hero/1920/1080" : "https://picsum.photos/seed/village-hero/1920/1080"} 
-          alt="Hero" 
+        <img
+          src={isResort ? heroImages.resort : heroImages.village}
+          alt="Hero"
           className="absolute inset-0 w-full h-full object-cover"
           referrerPolicy="no-referrer"
         />
         <div className="absolute inset-0 bg-black/30" />
+        {(isResort ? heroVideos.resort : heroVideos.village) && (
+          <VideoButton
+            videoUrl={(isResort ? heroVideos.resort : heroVideos.village)!}
+            className="absolute bottom-8 right-8 z-10"
+          />
+        )}
         <div className="relative z-10 text-center text-white px-4 max-w-4xl">
           <motion.h1 
             initial={{ y: 30, opacity: 0 }}
@@ -381,9 +401,9 @@ const Home = () => {
             </div>
           </div>
           <div className="relative">
-            <img 
-              src={isResort ? "https://picsum.photos/seed/resort-story/800/600" : "https://picsum.photos/seed/village-story/800/600"} 
-              alt="Story" 
+            <img
+              src={isResort ? storyImages.resort : storyImages.village}
+              alt="Story"
               className="rounded-2xl shadow-xl w-full"
               referrerPolicy="no-referrer"
             />
@@ -427,9 +447,9 @@ const Home = () => {
 
       {/* Stay Connected Banner */}
       <section className="relative h-[50vh] flex items-center justify-center overflow-hidden mx-4 sm:mx-8 rounded-3xl">
-        <img 
-          src="https://picsum.photos/seed/forest-footer/1920/600" 
-          alt="Forest" 
+        <img
+          src={bannerImage}
+          alt="Forest"
           className="absolute inset-0 w-full h-full object-cover"
           referrerPolicy="no-referrer"
         />
@@ -464,24 +484,14 @@ const Accommodations = () => {
   const location = useLocation();
   const isResort = location.pathname.startsWith('/eco-resort');
   
-  const items = isResort ? [
-    { id: 1, title: 'Special Bamboo Cottage', desc: 'Experience the charm of bamboo living. Includes complimentary breakfast and attached bathroom with geyser.', price: '₹2,000 / night', img: 'https://picsum.photos/seed/bamboo-cottage/400/300' },
-    { id: 2, title: 'Double Bed Cottage', desc: 'Comfortable and cozy cottages for a perfect getaway. Includes complimentary breakfast and attached bathroom with geyser.', price: '₹1,800 / night', img: 'https://picsum.photos/seed/double-cottage/400/300' },
-    { id: 3, title: 'Quardruple Cottage', desc: 'Spacious cottage with 2 queen size beds, perfect for groups. Includes complimentary breakfast and attached bathroom with geyser.', price: '₹2,400 / night', img: 'https://picsum.photos/seed/quad-cottage/400/300' },
-    { id: 4, title: 'Family Cottage', desc: 'Our largest cottage with 2 king size beds for the whole family. Includes complimentary breakfast and attached bathroom with geyser.', price: '₹3,599 / night', img: 'https://picsum.photos/seed/family-cottage/400/300' },
-    { id: 7, title: 'Guided Nature Walk', desc: '3-hour guided tour with an expert naturalist. Binoculars provided.', price: '₹1,200 / person', img: 'https://picsum.photos/seed/walk/400/300' },
-    { id: 8, title: 'Organic Farming Workshop', desc: 'Hands-on workshop on sustainable farming techniques. Farm-to-table lunch included.', price: '₹2,000 / person', img: 'https://picsum.photos/seed/farming/400/300' },
-  ] : [
-    { id: 1, title: 'Traditional Mud House', desc: 'Stay in a beautifully decorated traditional mud house. Cool in summer and warm in winter. Authentic village experience.', price: '₹1,200 / night', img: 'https://picsum.photos/seed/mud-house/400/300' },
-    { id: 2, title: 'Tree Top Cabin', desc: 'Elevated wooden cabin offering a unique perspective of the village and surrounding greenery. Perfect for nature lovers.', price: '₹1,500 / night', img: 'https://picsum.photos/seed/tree-cabin/400/300' },
-    { id: 3, title: 'Tribal Pottery Workshop', desc: 'Learn the ancient art of pottery from local masters. Take home your own creation.', price: '₹800 / person', img: 'https://picsum.photos/seed/pottery/400/300' },
-    { id: 4, title: 'Traditional Weaving Class', desc: 'Discover the intricate patterns and techniques of tribal weaving. Materials included.', price: '₹1,000 / person', img: 'https://picsum.photos/seed/weaving/400/300' },
-  ];
+  const items = isResort
+    ? [...resortRooms, ...resortActivities]
+    : [...villageRooms, ...villageActivities];
 
   return (
     <div className="pb-24">
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden mb-16">
-        <img src="https://picsum.photos/seed/services-hero/1920/400" alt="Services" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
+        <img src={pageHeroImages.accommodations} alt="Services" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-4xl md:text-5xl serif font-medium mb-4">{isResort ? 'Resort' : 'Village'} Accommodations & Services</h1>
@@ -494,7 +504,13 @@ const Accommodations = () => {
           {items.map((item) => (
             <div key={item.id} className="card group">
               <div className="relative h-64 overflow-hidden">
-                <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
+                {item.video ? (
+                  <VideoTrigger videoUrl={item.video}>
+                    <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
+                  </VideoTrigger>
+                ) : (
+                  <img src={item.img} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
+                )}
               </div>
               <div className="p-6 space-y-3">
                 <h3 className="text-lg font-bold">{item.title}</h3>
@@ -532,7 +548,7 @@ const Contact = () => {
   return (
     <div className="pb-24">
       <section className="relative h-[40vh] flex items-center justify-center overflow-hidden mb-16">
-        <img src="https://picsum.photos/seed/contact-hero/1920/400" alt="Contact" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
+        <img src={pageHeroImages.contact} alt="Contact" className="absolute inset-0 w-full h-full object-cover" referrerPolicy="no-referrer" />
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-5xl serif font-medium">Contact Us</h1>
@@ -603,9 +619,9 @@ const Contact = () => {
           <div className="h-[600px] rounded-2xl overflow-hidden shadow-lg bg-gray-100 relative">
             {/* Mock Map */}
             <div className="absolute inset-0 bg-[#e5e3df] flex items-center justify-center">
-              <img 
-                src="https://picsum.photos/seed/map/800/1000" 
-                alt="Map" 
+              <img
+                src={contactMapImage}
+                alt="Map"
                 className="w-full h-full object-cover opacity-50 grayscale"
                 referrerPolicy="no-referrer"
               />
