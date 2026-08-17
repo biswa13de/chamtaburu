@@ -3,17 +3,23 @@ import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
 import { Button } from '../ui/Button';
 import { Image } from '../ui/Image';
-import { heroImages, storyImages } from '../../data/content';
+import { village } from '../../content/village';
 
-// Placeholder home composition proving the design system renders end to end.
-// Real per-site content (seven cottages, story, experiences) is Phase 2/4 work.
+// TODO(Phase 4): site selection should be driven by VITE_SITE, not a
+// hardcoded import of the village content. Defaulting to village here is
+// deliberate for Phase 2 — Phase 4 builds real per-site routing.
 export function Home() {
   return (
     <div className="space-y-24 pb-24">
       <Hero
-        image={{ src: heroImages.village, alt: 'Chamtaburu Eco Village in the Ajodhya Hills', width: 1920, height: 1080 }}
-        heading="Chamtaburu Eco Village"
-        subheading="Nature, Tribal Culture & Modern Comfort in Harmony."
+        image={{
+          src: '/img/village/shared-pool/village-hero-hills.jpg',
+          alt: 'Ajodhya Hills at Chamtaburu Eco Village, Purulia',
+          width: 1920,
+          height: 1080,
+        }}
+        heading={village.name}
+        subheading={village.tagline}
         cta={
           <Button to="/accommodations" variant="primary">
             Explore Stays
@@ -27,15 +33,15 @@ export function Home() {
             <h2 className="font-serif text-4xl font-medium">Our Story</h2>
             <div className="space-y-4 text-sm leading-relaxed text-stone">
               <p>
-                Chamtaburu Eco Village is a testament to our commitment to the land and its people, nestled in the
-                Ajodhya Hills of Purulia.
+                {village.name} is nestled in the Ajodhya Hills of {village.address.district}, {village.address.region}
+                {' '}— {village.tagline.toLowerCase()}
               </p>
-              <p>Seven named cottages, each with its own character — full stories are coming in Phase 2.</p>
+              <p>Seven named cottages, each with its own character. Read each cottage&rsquo;s story below.</p>
             </div>
           </div>
           <Image
-            src={storyImages.village}
-            alt="Chamtaburu Eco Village grounds"
+            src="/img/village/shared-pool/village-exterior.jpg"
+            alt="Cottage exterior with white walls and red tile roof at Chamtaburu Eco Village, Ajodhya Hills, Purulia"
             width={800}
             height={600}
             className="w-full rounded-2xl shadow-xl"

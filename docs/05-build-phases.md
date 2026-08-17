@@ -73,17 +73,28 @@ smaller, and no secret-shaped value exists anywhere in the repo.
 
 *Everything editable becomes data.*
 
-- [ ] `src/content/types.ts` — the schema from [03-content-model.md](03-content-model.md)
-- [ ] `src/content/village.ts` — site config, all seven cottages with stories transcribed
+- [x] `src/content/types.ts` — the schema from [03-content-model.md](03-content-model.md)
+- [x] `src/content/village.ts` — site config, all seven cottages with stories transcribed
       from the vision doc, experiences
-- [ ] `src/content/resort.ts` — site config, accommodation (prices flagged `TBD`)
-- [ ] `src/content/shared.ts` — legal text, group info, social links
-- [ ] Apply the contact corrections: `info@chamtaburu.in`, remove the invalid 9-digit
+- [x] `src/content/resort.ts` — site config, accommodation (prices flagged `TBD`)
+- [x] `src/content/shared.ts` — legal text, group info, social links
+- [x] Apply the contact corrections: `info@chamtaburu.in`, remove the invalid 9-digit
       phone, split addresses by property, add GSTIN
-- [ ] Build-time validation so a malformed entry fails the build rather than the site
+- [x] Build-time validation so a malformed entry fails the build rather than the site
 
 **Done when:** no user-visible string is hardcoded in a component, and changing a price
 is a one-line edit.
+
+> Note: `Cottage.price`/`occupancy`/`beds` use a `number | 'TBD'`-style union rather than
+> inventing figures — none exist yet ([06-open-questions.md](06-open-questions.md) Q2).
+> Resort `accommodation` is an empty array, not a TBD-priced placeholder list — the room
+> *types* themselves are unverified prototype fiction (Q3), and empty is more honest than
+> invented structure. All seven cottages are `available: false` pending Q1. Cottage images
+> reference a shared placeholder pool at `/img/village/shared-pool/...` (Phase 3's sharp
+> pipeline will populate real files at that convention) since no per-cottage photography
+> exists yet. Validation runs via `npm run prebuild` using Vite's `ssrLoadModule`, since
+> `vite build` alone never executes application code (SSR/prerendering is Phase 4) — a
+> plain throw-at-import in the content files would otherwise be invisible to the build.
 
 ---
 

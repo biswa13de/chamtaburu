@@ -9,6 +9,8 @@
   },
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
+    "validate:content": "node scripts/validate-content.mjs",
+    "prebuild": "npm run validate:content",
     "build": "vite build",
     "preview": "vite preview --port=4173",
     "typecheck": "tsc --noEmit",

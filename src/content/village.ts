@@ -1,0 +1,311 @@
+/**
+ * Content for chamtaburu.in — Chamtaburu Eco Village.
+ *
+ * Site config values are the confirmed values from docs/03-content-model.md §2,
+ * used verbatim. Cottage content is transcribed from
+ * docs/Chamtaburu_Eco_Village_Seven_Cottage_Plan.md — story text and taglines
+ * are verbatim quotes, not paraphrases. Slugs are frozen (already printed on
+ * QR-code-bound story cards per that doc) — never change them.
+ *
+ * Price/occupancy/beds are not in the vision doc (docs/06-open-questions.md
+ * Q2) and are marked 'TBD' — see src/content/types.ts for why 'TBD' rather
+ * than a fake number. `available: false` on every cottage until
+ * docs/06-open-questions.md Q1 (which of the seven are actually built) is
+ * answered.
+ *
+ * Images: no per-cottage photography exists yet (docs/04-photography.md §3,
+ * "the seven-cottage problem") — all seven cottages reference the same
+ * shared pool of raw village photos under /photos/eco_village/. Real
+ * responsive AVIF/WebP output (Phase 3, public/img/...) doesn't exist yet,
+ * so pointing at /photos/... (the raw source, served as-is by Vite's public
+ * dir semantics would require moving it — see note below) is the honest
+ * choice for *now*, but Phase 3 is documented to replace these paths with
+ * public/img/village/... See the SHARED_GALLERY comment for the concrete
+ * path convention chosen.
+ */
+
+import type { Cottage, Experience, ImageRef, SiteConfig } from './types';
+import { validateCottages, validateExperiences, validateSiteConfig } from './validate';
+
+export const village: SiteConfig = {
+  key: 'village',
+  name: 'Chamtaburu Eco Village',
+  legalName: 'Chamtaburu Eco Village & Resort Pvt. Ltd.',
+  tagline: 'Nature, Tribal Culture & Modern Comfort in Harmony.',
+  domain: 'chamtaburu.in',
+  whatsapp: '919242748100',
+  phones: ['+91 92427 48100'],
+  email: 'info@chamtaburu.in',
+  address: {
+    street: 'Matha, Matha Forest',
+    locality: 'Baghmundi',
+    district: 'Purulia',
+    region: 'West Bengal',
+    postalCode: '723152',
+    country: 'IN',
+  },
+  // Not yet known — docs/06-open-questions.md Q6. Do not invent coordinates.
+  geo: undefined,
+  mapsUrl: undefined,
+  gstin: '19AAUFC4653K1ZR',
+  // No confirmed social URLs exist yet (docs/06-open-questions.md Q9).
+  social: {},
+};
+
+/**
+ * Shared representative-photo pool used by every cottage page, per
+ * docs/04-photography.md §3 ("the seven-cottage problem" / launch approach):
+ * cottage pages lead with story and character, and share a clearly-labelled
+ * "representative photographs" gallery until each cottage gets its own
+ * nameplate/photo-point shoot.
+ *
+ * Path convention chosen: `/img/village/shared-pool/<original-filename>`
+ * rather than pointing directly at `/photos/eco_village/...`.
+ *
+ * Why: `photos/` is the git-ignored raw source directory (see
+ * docs/04-photography.md §4 and .gitignore) — it is not served by Vite and
+ * won't exist in a production build at all. `/img/village/shared-pool/...`
+ * is a placeholder path in the convention Phase 3's sharp pipeline will
+ * actually produce (`public/img/<site>/...`, per docs/04-photography.md §4),
+ * just without the responsive suffixes/format variants yet. This means
+ * Phase 3 only has to add real files at (approximately) these paths and
+ * regenerate — it does not have to touch village.ts's image references at
+ * all. The alternative (referencing /photos/... directly) would need a
+ * find-and-replace across this file once Phase 3 lands.
+ *
+ * These files do not exist in public/ yet — that's Phase 3's job (moving/
+ * processing photos/eco_village/* into public/img/village/shared-pool/*).
+ * This is content-layer scaffolding, not a runtime image pipeline.
+ */
+const SHARED_GALLERY: ImageRef[] = [
+  {
+    src: '/img/village/shared-pool/village-room-bed.jpg',
+    alt: 'Made-up cottage bed with tan leather headboard and white linen at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  {
+    src: '/img/village/shared-pool/village-room-wide.jpg',
+    alt: 'Wide cottage bedroom interior showing bed, desk area and wood floor at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  {
+    src: '/img/village/shared-pool/village-bathroom-shower.jpg',
+    alt: 'Modern cottage bathroom with marble tile and rain shower at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  {
+    src: '/img/village/shared-pool/village-bathroom-basin.jpg',
+    alt: 'Cottage bathroom basin, mirror and shower at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  {
+    src: '/img/village/shared-pool/village-entrance-steps.jpg',
+    alt: 'Granite entrance steps with potted plants at a Chamtaburu Eco Village cottage, Ajodhya Hills',
+  },
+  {
+    src: '/img/village/shared-pool/village-window.jpg',
+    alt: 'Cottage window with curtains open to trees beyond at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  {
+    src: '/img/village/shared-pool/village-exterior.jpg',
+    alt: 'Cottage exterior with white walls and red tile roof at Chamtaburu Eco Village, Ajodhya Hills, Purulia',
+  },
+];
+
+export const cottages: Cottage[] = [
+  {
+    slug: 'shal-shanti',
+    number: '01',
+    name: 'Shal Shanti',
+    tagline: 'Where the forest whispers peace.',
+    theme: 'Forest & Peace',
+    inspiration:
+      'Inspired by the Sal forests surrounding Purulia and the peaceful feeling of staying close to nature.',
+    story:
+      'The Sal tree is deeply connected with the forests of this region. Shal Shanti celebrates the quiet strength of the forest and the peace that comes from slowing down and reconnecting with nature.\n\nSit back, breathe deeply and let the forest do the rest.',
+    interiorNotes: [
+      'Natural wooden elements',
+      'Green accents',
+      'Small Sal-leaf-inspired artwork',
+      'Earth-tone accessories',
+      'Warm lighting',
+    ],
+    photoPoint: 'A small wooden bench or chair near greenery with a Sal-inspired sign.',
+    occupancy: { adults: 'TBD' },
+    beds: 'TBD',
+    price: 'TBD',
+    amenities: [],
+    images: SHARED_GALLERY,
+    available: false,
+  },
+  {
+    slug: 'mahua-ghar',
+    number: '02',
+    name: 'Mahua Ghar',
+    tagline: 'A warm stay inspired by village life.',
+    theme: 'Village & Tradition',
+    inspiration:
+      'The Mahua tree has a strong cultural and traditional association with communities across eastern India.',
+    story:
+      'The Mahua tree has long been part of rural life and traditional communities in this region.\n\nMahua Ghar celebrates the warmth of village hospitality, community and the simple pleasures of life close to nature.',
+    interiorNotes: [
+      'Warm wooden tones',
+      'Bamboo accessories',
+      'Traditional basket',
+      'Earthy fabrics',
+      'Simple village-inspired artwork',
+    ],
+    photoPoint: 'A rustic wooden chair with a small Mahua-inspired information board.',
+    occupancy: { adults: 'TBD' },
+    beds: 'TBD',
+    price: 'TBD',
+    amenities: [],
+    images: SHARED_GALLERY,
+    available: false,
+  },
+  {
+    slug: 'palash-kunja',
+    number: '03',
+    name: 'Palash Kunja',
+    tagline: 'Where Purulia blooms in colour.',
+    theme: 'Colour & Spring',
+    inspiration:
+      'Inspired by the brilliant orange-red Palash flowers that are strongly associated with the landscape of Purulia.',
+    story:
+      'When Palash blooms, the landscape of Purulia comes alive with vibrant colour.\n\nPalash Kunja is a celebration of that natural beauty — warm, colourful and full of life.',
+    interiorNotes: [
+      'Subtle orange accents',
+      'Natural wood',
+      'Floral artwork',
+      'Warm bedside lighting',
+      'Minimal decorative elements',
+    ],
+    photoPoint: 'Create a small Palash-themed garden corner outside the cottage.',
+    occupancy: { adults: 'TBD' },
+    beds: 'TBD',
+    price: 'TBD',
+    amenities: [],
+    images: SHARED_GALLERY,
+    available: false,
+  },
+  {
+    slug: 'pahari-chaya',
+    number: '04',
+    name: 'Pahari Chaya',
+    tagline: 'Rest in the shade of the hills.',
+    theme: 'Hills & Relaxation',
+    inspiration: 'Inspired by the Ajodhya Hills and the surrounding landscape.',
+    story:
+      'The hills of Purulia create a landscape that invites you to slow down.\n\nPahari Chaya is a place to escape the rush of everyday life, relax and simply enjoy the quiet presence of the hills.',
+    interiorNotes: ['Grey and green tones', 'Mountain artwork', 'Natural wood', 'Minimal décor', 'Soft warm lighting'],
+    photoPoint: 'A small outdoor seating area facing greenery.',
+    occupancy: { adults: 'TBD' },
+    beds: 'TBD',
+    price: 'TBD',
+    amenities: [],
+    images: SHARED_GALLERY,
+    available: false,
+  },
+  {
+    slug: 'jharna-neer',
+    number: '05',
+    name: 'Jharna Neer',
+    tagline: 'A refreshing escape into nature.',
+    theme: 'Streams & Freshness',
+    inspiration: 'Inspired by the waterfalls, streams and natural water bodies of the Ajodhya Hills region.',
+    story:
+      'Water brings life, movement and freshness to the hills.\n\nJharna Neer draws inspiration from the streams and waterfalls of the region — a reminder to slow down, refresh and enjoy the journey.',
+    interiorNotes: ['Blue-green accents', 'Natural textures', 'Water-inspired artwork', 'Bamboo accessories', 'Soft lighting'],
+    photoPoint: 'A small water-themed garden installation or stone feature.',
+    occupancy: { adults: 'TBD' },
+    beds: 'TBD',
+    price: 'TBD',
+    amenities: [],
+    images: SHARED_GALLERY,
+    available: false,
+  },
+  {
+    slug: 'karam-kunja',
+    number: '06',
+    name: 'Karam Kunja',
+    tagline: 'Rooted in culture, connected to nature.',
+    theme: 'Culture & Community',
+    inspiration:
+      'Inspired by the Karam tree and the cultural traditions associated with the Karam festival. This should be one of the most culturally distinctive cottages in the property.',
+    story:
+      'The Karam tree holds an important place in the cultural traditions of many communities across eastern India.\n\nKaram Kunja celebrates the connection between nature, community and tradition — values that are at the heart of the Chamtaburu Eco Village experience.',
+    interiorNotes: ['Natural bamboo', 'Tribal-inspired patterns', 'Karam tree artwork', 'Earth tones', 'Handcrafted décor'],
+    occupancy: { adults: 'TBD' },
+    beds: 'TBD',
+    price: 'TBD',
+    amenities: [],
+    images: SHARED_GALLERY,
+    available: false,
+  },
+  {
+    slug: 'adivasi-aangan',
+    number: '07',
+    name: 'Adivasi Aangan',
+    tagline: 'A courtyard inspired by community and tradition.',
+    theme: 'Tribal Heritage',
+    inspiration:
+      '"Aangan" represents a courtyard — traditionally a place where families and communities meet, talk, celebrate and share everyday life.',
+    story:
+      'A traditional courtyard is more than a space. It is where people gather, stories are shared and memories are created.\n\nAdivasi Aangan celebrates the warmth of community and the rich cultural character of Purulia.',
+    interiorNotes: [
+      'Tribal-inspired artwork',
+      'Terracotta',
+      'Bamboo',
+      'Handcrafted baskets',
+      'Earthy colours',
+      'Simple traditional motifs',
+    ],
+    photoPoint: 'Create a small traditional courtyard-style sitting area outside.',
+    occupancy: { adults: 'TBD' },
+    beds: 'TBD',
+    price: 'TBD',
+    amenities: [],
+    images: SHARED_GALLERY,
+    available: false,
+  },
+];
+
+/**
+ * Real and photographable per docs/03-content-model.md §5 and
+ * docs/Chamtaburu_Eco_Village_Seven_Cottage_Plan.md §16–18. Descriptions are
+ * grounded in the vision doc, not invented. Local sightseeing (Marble Lake,
+ * Bamni Falls, etc.) and food are out of scope here — no content exists to
+ * transcribe yet (docs/06-open-questions.md Q4).
+ */
+export const experiences: Experience[] = [
+  {
+    slug: 'evening-bonfire',
+    title: 'Evening Bonfire',
+    description:
+      'A dedicated evening area with a circular fire pit, log-style seating and warm lanterns. Stories, stars and togetherness — the property\'s signature after-dark gathering spot.',
+    images: [],
+  },
+  {
+    slug: 'nature-trail',
+    title: 'Nature Trail',
+    description:
+      'A short walking trail with wooden signs identifying local trees — Sal, deeply associated with the region\'s forests; Palash, one of the iconic colours of the Purulia landscape; and Mahua, closely connected with traditional rural life. A small educational experience built into the garden.',
+    images: [],
+  },
+  {
+    slug: 'tribal-art-zone',
+    title: 'Tribal Art Zone',
+    description:
+      'A dedicated cultural-art corner featuring Purulia-inspired folk art, Chhau-inspired motifs, tribal musical instruments, bamboo craft and terracotta, with context explaining each element.',
+    images: [],
+  },
+  {
+    slug: 'central-garden',
+    title: 'Central Garden',
+    description:
+      'The property\'s common social space — a central lawn with a fire pit, wooden benches, stone seating and warm garden lighting for evenings.',
+    images: [],
+  },
+];
+
+// Build-time validation: throws at module load, failing the build/dev
+// server immediately if any entry is malformed. See src/content/validate.ts.
+validateSiteConfig(village);
+validateCottages(cottages);
+validateExperiences(experiences);

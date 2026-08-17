@@ -11,6 +11,7 @@ import { Home } from './components/pages/Home';
 import { Accommodations } from './components/pages/Accommodations';
 import { Contact } from './components/pages/Contact';
 import { Legal } from './components/pages/Legal';
+import { groupInfo, social } from './content/shared';
 
 // TODO(Phase 4): real per-site routing via vite-react-ssg and VITE_SITE-driven
 // site config/content. This is a single placeholder route tree that proves
@@ -45,7 +46,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
-        <Footer navLinks={NAV_LINKS} legalName="Chamtaburu Eco Village & Resort Pvt. Ltd." />
+        <Footer navLinks={NAV_LINKS} legalName={groupInfo.legalName} social={social} />
       </div>
     </Router>
   );
