@@ -7,8 +7,8 @@
 | Build | **Vite 6** | Already in place, fast, well-supported |
 | UI | **React 19** + TypeScript | Already in place; existing components are reusable |
 | Styling | **Tailwind CSS 4** | Already in place; design tokens via `@theme` |
-| Routing | **react-router 7** | Already in place |
-| Static generation | **`vite-react-ssg`** *(new)* | Prerenders every route to real HTML — the critical SEO fix |
+| Routing | **react-router 6** | Downgraded from 7 in Phase 4 — see note below |
+| Static generation | **`vite-react-ssg`** | Prerenders every route to real HTML — the critical SEO fix |
 | Animation | **motion** | Already in place; keep, but reduce usage (see §7) |
 | Icons | **lucide-react** | Already in place |
 | Images | **sharp** via a prebuild script *(new)* | Responsive AVIF/WebP generation |
@@ -37,6 +37,20 @@ a day of work and it is the difference between ranking and not ranking.
 > **Alternative considered:** rewriting in Astro would give marginally better results
 > (less JS shipped) but discards the existing component work. Not worth it at this size.
 > Revisit only if page weight becomes a measured problem.
+
+> **React Router version note (Phase 4):** this doc originally planned `vite-react-ssg`
+> against react-router 7, which was "already in place" at the time of writing. In
+> practice `vite-react-ssg` imports `react-router-dom/server`, an export path react-router
+> 7 restructured, and the build fails outright (`ERR_PACKAGE_PATH_NOT_EXPORTED`) — not a
+> soft peer-dependency warning, a real crash, confirmed by running it. React Router 8's
+> own Framework Mode SSG was evaluated as the alternative and rejected: it requires a Node
+> server runtime, React Server Components plugins, and a Cloudflare `wrangler` CLI as peer
+> dependencies even when configured for fully static output — far more than a static
+> seven-page brochure site needs, and in tension with the "no backend, no server"
+> principle above. `react-router-dom` was downgraded to `^6.30.6`, which `vite-react-ssg`
+> is actually built and tested against. Revisit if `vite-react-ssg` ever ships real v7+
+> support, or if React Router's static-only Framework Mode configuration turns out to be
+> lighter than it currently appears.
 
 ## 2. Multi-site build
 

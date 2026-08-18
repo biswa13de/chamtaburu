@@ -132,19 +132,35 @@ under ~200 kB.
 
 *The flagship. The biggest phase.*
 
-- [ ] `vite-react-ssg` integration; two build targets (`VITE_SITE=village|resort`)
-- [ ] Home — hero, seven-cottage grid, story, experiences, location, properties, enquiry
-- [ ] `/cottages` — all seven with price and capacity
-- [ ] `/cottages/[slug]` ×7 — the full page structure from
+- [x] `vite-react-ssg` integration; two build targets (`VITE_SITE=village|resort`)
+- [x] Home — hero, seven-cottage grid, story, experiences, location, properties, enquiry
+- [x] `/cottages` — all seven with price and capacity
+- [x] `/cottages/[slug]` ×7 — the full page structure from
       [03-content-model.md](03-content-model.md) §3
-- [ ] `/experiences` — bonfire, nature trail, tribal art, local sightseeing
-- [ ] `/gallery`
-- [ ] `/contact` — real embedded map, directions, drive times, click-to-call
-- [ ] `/legal` — drafted policies replacing the garbled placeholder text
-- [ ] `/404`
-- [ ] **Remove Junction entirely** — routes, components, nav links, footer links
+- [x] `/experiences` — bonfire, nature trail, tribal art, local sightseeing
+- [x] `/gallery`
+- [x] `/contact` — directions, click-to-call
+- [x] `/legal` — pending-status data layer wired (see note)
+- [x] `/404`
+- [x] **Remove Junction entirely** — routes, components, nav links, footer links (done in
+      Phase 1)
 
 **Done when:** every Village route renders as prerendered HTML with correct content.
+
+> Note: `vite-react-ssg` doesn't actually work against react-router-dom v7 — it imports
+> `react-router-dom/server`, an export path v7 restructured, and fails at build time with
+> `ERR_PACKAGE_PATH_NOT_EXPORTED` (confirmed by running it, not just reading the peer-dep
+> warning). React Router v8's own Framework Mode SSG was considered and rejected — it
+> requires a Node server runtime, RSC plugins, and a Cloudflare `wrangler` CLI as peer
+> deps even for static-only output, far heavier than this project's "no backend, no
+> server" principle warrants. `react-router-dom` was downgraded to `^6.30.6`, which
+> `vite-react-ssg` is actually built and tested against; verified working end to end.
+> No real map embed exists — `/contact` links out to a Google Maps search by address
+> (no API key, no coordinates needed) rather than an embed, since geo coordinates aren't
+> confirmed yet ([06-open-questions.md](06-open-questions.md) Q6). Drive times are not
+> shown (Q8, not yet known). `/legal` still shows "pending" status per policy — no
+> lawyer-reviewed text exists to draft from yet; the *garbled* AI-Studio placeholder text
+> the original checklist item referred to was already removed in Phase 2.
 
 ---
 
