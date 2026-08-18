@@ -4,6 +4,7 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Image } from '../ui/Image';
 import { village, cottages, experiences } from '../../content/village';
+import { resolveImage } from '../../content/manifest';
 import type { Price } from '../../content/types';
 
 // TODO(Phase 4): site selection should be driven by VITE_SITE, not a
@@ -12,16 +13,16 @@ function formatPrice(price: Price): string {
   return price === 'TBD' ? 'Price to be announced' : `₹${price.toLocaleString('en-IN')} / night`;
 }
 
+const HERO_IMAGE = resolveImage({
+  base: 'village/village-room-wide',
+  alt: 'Wide cottage bedroom interior showing bed, desk area and wood floor at Chamtaburu Eco Village, Ajodhya Hills',
+});
+
 export function Accommodations() {
   return (
     <div className="pb-24">
       <Hero
-        image={{
-          src: '/img/village/shared-pool/village-room-wide.jpg',
-          alt: 'Cottage bedroom interior at Chamtaburu Eco Village, Ajodhya Hills',
-          width: 1920,
-          height: 400,
-        }}
+        image={HERO_IMAGE}
         heading="Cottages & Experiences"
         subheading={`Stays and experiences at ${village.name}.`}
         size="compact"
@@ -32,16 +33,22 @@ export function Accommodations() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {cottages.map((cottage) => {
             // Build-time validation (src/content/validate.ts) guarantees every
-            // cottage has a non-empty images array, so this fallback never
-            // actually renders — it only satisfies noUncheckedIndexedAccess.
-            const coverImage = cottage.images[0] ?? { src: '', alt: cottage.name };
+            // cottage has a non-empty images array, so the fallback ImageRef
+            // below never actually resolves — it only satisfies
+            // noUncheckedIndexedAccess.
+            const coverImageRef = cottage.images[0] ?? { base: 'village/village-exterior', alt: cottage.name };
+            const coverImage = resolveImage(coverImageRef);
             return (
               <Card key={cottage.slug}>
                 <Image
-                  src={coverImage.src}
+                  src={coverImage.fallbackSrc}
+                  avifSrcSet={coverImage.avifSrcSet}
+                  webpSrcSet={coverImage.webpSrcSet}
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  lqip={coverImage.lqip}
                   alt={coverImage.alt}
-                  width={800}
-                  height={600}
+                  width={coverImage.width}
+                  height={coverImage.height}
                   className="h-64 w-full object-cover"
                 />
                 <div className="space-y-3 p-6">

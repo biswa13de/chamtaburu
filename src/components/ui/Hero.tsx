@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { Image } from './Image';
+import type { ResolvedImage } from '../../content/manifest';
 
 interface HeroProps {
-  image: { src: string; alt: string; width: number; height: number };
+  image: ResolvedImage;
   heading: string;
   subheading?: string;
   /** Button(s), typically a <Button to="..."> or WhatsApp link. */
@@ -21,7 +22,11 @@ export function Hero({ image, heading, subheading, cta, size = 'full' }: HeroPro
       }`}
     >
       <Image
-        src={image.src}
+        src={image.fallbackSrc}
+        avifSrcSet={image.avifSrcSet}
+        webpSrcSet={image.webpSrcSet}
+        sizes="100vw"
+        lqip={image.lqip}
         alt={image.alt}
         width={image.width}
         height={image.height}

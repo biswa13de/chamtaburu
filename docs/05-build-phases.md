@@ -102,15 +102,29 @@ is a one-line edit.
 
 *Depends on nothing; unblocks all page work.*
 
-- [ ] `scripts/photos.ts` using `sharp` — responsive AVIF/WebP at 480/960/1440/2400,
+- [x] `scripts/photos.mjs` using `sharp` — responsive AVIF/WebP at 480/960/1440/2400,
       LQIP generation, EXIF stripping
-- [ ] `npm run photos` script
-- [ ] Process the 18 existing photographs; rename descriptively
-- [ ] Write `alt` text for every image
-- [ ] Branded placeholder component for unfilled slots
+- [x] `npm run photos` script
+- [x] Process the 18 existing photographs; rename descriptively
+- [x] Write `alt` text for every image
+- [x] Branded placeholder component for unfilled slots
 
 **Done when:** every source photo has an optimized set, and the largest served image is
 under ~200 kB.
+
+> Note: 17 of the 18 photos are processed — `IMG_7314.jpg` (eco_resort) is excluded, it's
+> motion-blurred and unusable per [04-photography.md](04-photography.md) §1. Eight sources
+> (one very high-resolution portrait exterior, seven resort shots) are detail-dense enough
+> that they don't clear the 200 kB budget at 1440/2400px even at the spec'd quality
+> 72/78 — confirmed empirically, not a pipeline bug. Those eight are capped at 960px with
+> a mild quality trim (AVIF 65, WebP 71, JPEG 68) rather than shipping oversized files or
+> visibly degrading quality further; every current call site displays them well under
+> 960px wide anyway. Revisit the cap once better source photography exists (§5, reshoot
+> list #1). `ImageRef` now stores a `base` key into `public/img/manifest.json` (built by
+> the pipeline) rather than a flat `src` — `src/content/manifest.ts`'s `resolveImage()`
+> expands it into AVIF/WebP srcsets, a JPEG fallback, dimensions, and the LQIP data URI.
+> `Image.tsx` renders a real `<picture>` with AVIF → WebP → JPEG fallback and an
+> LQIP blur-up transition.
 
 ---
 

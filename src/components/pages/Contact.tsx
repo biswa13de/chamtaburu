@@ -2,12 +2,18 @@ import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
 import { village } from '../../content/village';
+import { resolveImage } from '../../content/manifest';
 
 // TODO(Phase 4): site selection should be driven by VITE_SITE, not a
 // hardcoded import of the village content.
 // TODO(Phase 4): real embedded map, directions, drive times, front-desk
 // hours are not yet confirmed (docs/06-open-questions.md Q8) so this page
 // omits them rather than inventing them.
+const HERO_IMAGE = resolveImage({
+  base: 'village/village-entrance-steps',
+  alt: 'Granite entrance steps with potted plants at a Chamtaburu Eco Village cottage, Ajodhya Hills',
+});
+
 export function Contact() {
   const { address } = village;
   const fullAddress = `${address.street}, ${address.locality}, ${address.district}, ${address.region} ${address.postalCode}, India`;
@@ -15,12 +21,7 @@ export function Contact() {
   return (
     <div className="pb-24">
       <Hero
-        image={{
-          src: '/img/village/shared-pool/village-entrance-steps.jpg',
-          alt: 'Entrance to Chamtaburu Eco Village, Ajodhya Hills, Purulia',
-          width: 1920,
-          height: 400,
-        }}
+        image={HERO_IMAGE}
         heading="Contact Us"
         size="compact"
       />

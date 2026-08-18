@@ -4,20 +4,25 @@ import { Section } from '../ui/Section';
 import { Button } from '../ui/Button';
 import { Image } from '../ui/Image';
 import { village } from '../../content/village';
+import { resolveImage } from '../../content/manifest';
 
 // TODO(Phase 4): site selection should be driven by VITE_SITE, not a
 // hardcoded import of the village content. Defaulting to village here is
 // deliberate for Phase 2 — Phase 4 builds real per-site routing.
+const HERO_IMAGE = resolveImage({
+  base: 'village/village-hero-hills',
+  alt: 'Ajodhya Hills view with palm trees near Chamtaburu Eco Village, Purulia',
+});
+const STORY_IMAGE = resolveImage({
+  base: 'village/village-exterior',
+  alt: 'Cottage exterior with white walls and red tile roof at Chamtaburu Eco Village, Ajodhya Hills, Purulia',
+});
+
 export function Home() {
   return (
     <div className="space-y-24 pb-24">
       <Hero
-        image={{
-          src: '/img/village/shared-pool/village-hero-hills.jpg',
-          alt: 'Ajodhya Hills at Chamtaburu Eco Village, Purulia',
-          width: 1920,
-          height: 1080,
-        }}
+        image={HERO_IMAGE}
         heading={village.name}
         subheading={village.tagline}
         cta={
@@ -40,10 +45,14 @@ export function Home() {
             </div>
           </div>
           <Image
-            src="/img/village/shared-pool/village-exterior.jpg"
-            alt="Cottage exterior with white walls and red tile roof at Chamtaburu Eco Village, Ajodhya Hills, Purulia"
-            width={800}
-            height={600}
+            src={STORY_IMAGE.fallbackSrc}
+            avifSrcSet={STORY_IMAGE.avifSrcSet}
+            webpSrcSet={STORY_IMAGE.webpSrcSet}
+            sizes="(min-width: 768px) 50vw, 100vw"
+            lqip={STORY_IMAGE.lqip}
+            alt={STORY_IMAGE.alt}
+            width={STORY_IMAGE.width}
+            height={STORY_IMAGE.height}
             className="w-full rounded-2xl shadow-xl"
           />
         </div>

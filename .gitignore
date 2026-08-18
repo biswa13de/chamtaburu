@@ -11,9 +11,10 @@ coverage/
 photos/*/
 !photos/CHAMTABURU ECO VILLAGE.docx
 
-# generated responsive images (regenerate with `npm run photos`)
-# uncomment once the pipeline exists and originals are safely stored elsewhere:
-# public/img/generated/
+# public/img/ (the *processed* responsive AVIF/WebP/JPEG output + manifest.json
+# from `npm run photos`) is intentionally NOT ignored — Phase 3
+# (docs/05-build-phases.md) commits it so deploys stay fast and don't need
+# sharp's native binary in the deploy environment.
 
 # editor / OS
 .DS_Store

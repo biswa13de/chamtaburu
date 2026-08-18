@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "validate:content": "node scripts/validate-content.mjs",
+    "photos": "node scripts/photos.mjs",
     "prebuild": "npm run validate:content",
     "build": "vite build",
     "preview": "vite preview --port=4173",
@@ -43,6 +44,7 @@
     "globals": "^15.14.0",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
+    "sharp": "^0.35.3",
     "tailwindcss": "^4.1.14",
     "typescript": "~5.8.2",
     "typescript-eslint": "^8.18.0",

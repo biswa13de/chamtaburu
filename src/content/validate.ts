@@ -33,10 +33,17 @@ const WHATSAPP_RE = /^\d{11,15}$/;
 const INDIA_PHONE_RE = /^\+91 [6-9]\d{4} \d{5}$/;
 const GSTIN_RE = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
 
+// '<site>/<name>' — must match a key scripts/photos.mjs actually wrote to
+// public/img/manifest.json. See src/content/manifest.ts.
+const IMAGE_BASE_RE = /^[a-z]+\/[a-z0-9]+(-[a-z0-9]+)*$/;
+
 function assertImageRef(image: unknown, context: string): void {
   assert(image && typeof image === 'object', `${context}: image must be an object`);
   const img = image as Record<string, unknown>;
-  assert(typeof img.src === 'string' && img.src.length > 0, `${context}: image.src is required`);
+  assert(
+    typeof img.base === 'string' && IMAGE_BASE_RE.test(img.base),
+    `${context}: image.base is required and must look like '<site>/<name>', got ${JSON.stringify(img.base)}`,
+  );
   assert(
     typeof img.alt === 'string' && img.alt.trim().length >= 10,
     `${context}: image.alt is required and must be descriptive (>= 10 chars), got ${JSON.stringify(img.alt)}`,
