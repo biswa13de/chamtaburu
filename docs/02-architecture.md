@@ -129,7 +129,7 @@ charge.
 |---|---|---|
 | Hosting + CDN + SSL | Firebase Hosting Spark (free) | **₹0** — 10 GB/mo transfer, 360 MB storage |
 | CI/CD | GitHub Actions | **₹0** |
-| Enquiry email fallback | Web3Forms free tier | **₹0** — 250 submissions/mo |
+| Enquiry email fallback | Formspree free tier | **₹0** — 50 submissions/mo |
 | Analytics | GA4 or Cloudflare Web Analytics | **₹0** |
 | Search Console | Google | **₹0** |
 | Domain | existing `chamtaburu.in` | ~₹900/yr (already paid) |
@@ -253,7 +253,7 @@ Phone: ...
 Routed by property — Village → **9242748100**, Resort → **8918550242**. Arriving with
 full details means fewer round-trips before a confirmed booking.
 
-**Secondary — email.** The same form also posts to Web3Forms (free) so nothing is lost
+**Secondary — email.** The same form also posts to Formspree (free) so nothing is lost
 if WhatsApp fails or the guest is on desktop. Delivered to **info@chamtaburu.in**.
 
 Plus persistent click-to-call and click-to-WhatsApp buttons — a fixed bottom bar on

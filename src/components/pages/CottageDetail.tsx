@@ -142,7 +142,7 @@ export function CottageDetail() {
             <p className="text-stone text-[10px] font-bold tracking-widest uppercase">Price</p>
             <p className="text-ink text-2xl font-bold">{formatPrice(cottage.price)}</p>
           </div>
-          <Button to="/contact" variant="primary">
+          <Button to={`/contact?cottage=${cottage.slug}`} variant="primary">
             Enquire About {cottage.name}
           </Button>
         </Card>

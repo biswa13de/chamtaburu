@@ -166,25 +166,38 @@ under ~200 kB.
 
 ## Phase 5 — Enquiry flow & QR codes
 
-- [ ] `EnquiryForm` — dates, cottage, guests, name, phone; client-side validation
-- [ ] WhatsApp deep link with pre-composed message, routed per property
+- [x] `EnquiryForm` — dates, cottage, guests, name, phone; client-side validation
+- [x] WhatsApp deep link with pre-composed message, routed per property
       (Village `919242748100`, Resort `918918550242`)
-- [ ] Web3Forms email fallback to `info@chamtaburu.in`
-- [ ] Fixed mobile call/WhatsApp bar
-- [ ] **Remove the fake checkout** ([App.tsx:693](../src/App.tsx#L693)) — hardcoded
-      dates, hardcoded ₹21,240, a button that does nothing
-- [ ] **Remove the false payment claims** — Visa/Mastercard/RuPay logos and "all
-      transactions are encrypted" ([App.tsx:534-540](../src/App.tsx#L534-L540)); no
-      payments are processed
-- [ ] **Remove the hotlinked TrustedSite badge** ([App.tsx:81](../src/App.tsx#L81)) —
-      used without a subscription
-- [ ] Wire the social icons to real URLs, or remove them
-      ([App.tsx:65-67](../src/App.tsx#L65-L67) — currently `cursor-pointer` with no href)
-- [ ] **Generate printable QR codes** for the seven cottage URLs — SVG and PDF, sized for
+- [x] Email fallback to `info@chamtaburu.in` via Formspree (see note — Web3Forms was
+      tried first and dropped)
+- [x] Fixed mobile call/WhatsApp bar
+- [x] **Remove the fake checkout** — done in Phase 1 (App.tsx deleted)
+- [x] **Remove the false payment claims** — done in Phase 1
+- [x] **Remove the hotlinked TrustedSite badge** — done in Phase 1
+- [x] Wire the social icons to real URLs, or remove them — no confirmed URLs exist
+      ([06-open-questions.md](06-open-questions.md) Q9); `Footer` already hides icons with
+      no URL rather than linking nowhere
+- [x] **Generate printable QR codes** for the seven cottage URLs — SVG and PDF, sized for
       the story cards in vision doc §19
 
 **Done when:** an enquiry arrives on your WhatsApp with all details filled in, and the
 QR codes resolve to the right pages.
+
+> Note: docs/02-architecture.md originally specified Web3Forms for the email fallback.
+> That was tried first but its API rejects the request needed for a client-side POST from
+> a custom form on this account/plan (`"This method is not allowed... Pro plan is
+> required"`, reproduced from both a direct POST and a real browser fetch, not just a
+> CORS artifact of localhost). Switched to **Formspree** instead — same shape (POST JSON
+> to a hosted endpoint from EnquiryForm's own UI), free tier, verified working end to end
+> with a real submission returning `200 {"ok":true}` from a live browser test. The
+> endpoint (`https://formspree.io/f/meajprwj`) is hardcoded in `EnquiryForm.tsx` rather
+> than env-configured, since a Formspree form ID isn't a secret. WhatsApp remains the
+> primary path and works standalone regardless of the email fallback. QR codes encode
+> `https://chamtaburu.in/cottages/<slug>` (the real production domain) via
+> `npm run qr-codes`, output to `public/qr/`. The vision doc's guest-story-card spec
+> (§19) doesn't give physical dimensions — a 4"×6" postcard size was assumed and
+> documented in `scripts/qr-codes.mjs`, not sourced from the doc.
 
 ---
 

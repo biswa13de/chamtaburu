@@ -1,6 +1,9 @@
+import { useSearchParams } from 'react-router-dom';
 import { MapPin, Phone, Mail, Clock, Navigation } from 'lucide-react';
 import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
+import { Card } from '../ui/Card';
+import { EnquiryForm } from '../ui/EnquiryForm';
 import { currentSite } from '../../content/site';
 import { resolveImage } from '../../content/manifest';
 
@@ -19,9 +22,23 @@ export function Contact() {
   const fullAddress = `${address.street}, ${address.locality}, ${address.district}, ${address.region} ${address.postalCode}, India`;
   const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
 
+  // Arriving from a cottage detail page's "Enquire" button — see
+  // src/components/pages/CottageDetail.tsx — preselects the cottage in the
+  // form below via ?cottage=<slug> rather than making the guest re-select
+  // what they already told us they were interested in.
+  const [searchParams] = useSearchParams();
+  const initialCottage = searchParams.get('cottage') ?? undefined;
+
   return (
     <div className="pb-24">
       <Hero image={HERO_IMAGE} heading="Contact Us" subheading={currentSite.name} size="compact" />
+
+      <Section className="mt-16">
+        <h2 className="mb-6 font-serif text-3xl font-medium">Send an Enquiry</h2>
+        <Card className="max-w-2xl p-8">
+          <EnquiryForm initialCottage={initialCottage} />
+        </Card>
+      </Section>
 
       <Section className="mt-16">
         <div className="grid gap-16 md:grid-cols-2">
