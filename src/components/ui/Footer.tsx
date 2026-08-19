@@ -14,7 +14,7 @@ interface FooterProps {
   social?: SocialLinks;
 }
 
-// Props-driven so App.tsx supplies nav structure; no Junction links,
+// Props-driven so Layout.tsx supplies nav structure; no Junction links,
 // no hotlinked TrustedSite badge (removed per docs/05-build-phases.md).
 export function Footer({ navLinks, legalName, social }: FooterProps) {
   const hasSocial = social && (social.facebook || social.instagram || social.youtube);

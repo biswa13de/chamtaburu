@@ -1,6 +1,7 @@
 import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
 import { Gallery } from '../ui/Gallery';
+import { Seo } from '../ui/Seo';
 import { village, cottages } from '../../content/village';
 import { resolveImage } from '../../content/manifest';
 import type { ImageRef } from '../../content/types';
@@ -56,6 +57,11 @@ export function GalleryPage() {
 
   return (
     <div className="pb-24">
+      <Seo
+        title="Gallery"
+        description={`Photos of the cottages, rooms and grounds at ${village.name} in the Ajodhya Hills, Purulia.`}
+        path="/gallery"
+      />
       <Hero image={HERO_IMAGE} heading="Gallery" subheading={village.name} size="compact" />
 
       <Section className="mt-16">

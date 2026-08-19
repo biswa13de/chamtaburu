@@ -3,6 +3,7 @@ import { Section } from '../ui/Section';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Image } from '../ui/Image';
+import { Seo } from '../ui/Seo';
 import { resort, accommodation } from '../../content/resort';
 import { resolveImage } from '../../content/manifest';
 import { formatPrice, formatAdults } from '../../content/format';
@@ -21,6 +22,11 @@ const HERO_IMAGE = resolveImage({
 export function Accommodation() {
   return (
     <div className="pb-24">
+      <Seo
+        title="Accommodation"
+        description={`Room types and pricing at ${resort.name} in the Ajodhya Hills, Purulia.`}
+        path="/accommodation"
+      />
       <Hero image={HERO_IMAGE} heading="Accommodation" subheading={resort.name} size="compact" />
 
       <Section className="mt-16">

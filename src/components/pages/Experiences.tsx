@@ -1,6 +1,7 @@
 import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
 import { Card } from '../ui/Card';
+import { Seo } from '../ui/Seo';
 import { village, experiences } from '../../content/village';
 import { resolveImage } from '../../content/manifest';
 
@@ -17,6 +18,11 @@ const HERO_IMAGE = resolveImage({
 export function Experiences() {
   return (
     <div className="pb-24">
+      <Seo
+        title="Experiences"
+        description={`Evening bonfires, a nature trail and a tribal art zone at ${village.name} in the Ajodhya Hills, Purulia.`}
+        path="/experiences"
+      />
       <Hero image={HERO_IMAGE} heading="Experiences" subheading={village.name} size="compact" />
 
       <Section className="mt-16">

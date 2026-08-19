@@ -13,7 +13,7 @@
     "photos": "node scripts/photos.mjs",
     "qr-codes": "node scripts/qr-codes.mjs",
     "prebuild": "npm run validate:content",
-    "build": "vite-react-ssg build",
+    "build": "vite-react-ssg build && node scripts/generate-seo.mjs",
     "preview": "vite preview --port=4173",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",

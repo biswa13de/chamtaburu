@@ -16,6 +16,9 @@ photos/*/
 # (docs/05-build-phases.md) commits it so deploys stay fast and don't need
 # sharp's native binary in the deploy environment.
 
+# Firebase CLI local deploy cache — not deploy config, just local state
+.firebase/
+
 # editor / OS
 .DS_Store
 *.log

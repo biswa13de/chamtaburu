@@ -3,7 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chamtaburu Group</title>
+    <!--
+      No static <title>/<meta name="description"> here on purpose. Every
+      route supplies its own via src/components/ui/Seo.tsx (vite-react-ssg's
+      <Head>, a react-helmet-async wrapper) — see Seo.tsx's doc comment. A
+      static <title> here would sit AFTER Helmet's injected one in document
+      order (vite-react-ssg inserts helmet output right after <head>, not by
+      replacing this file's own tags), and browsers use the LAST <title> in
+      the document — so a static tag here would silently win over every
+      page's real title. `npm run dev` (no prerendering, plain Vite) is the
+      only case with no <title> at all until React mounts; acceptable since
+      dev only ever loads index.html directly, not real SEO-relevant traffic.
+    -->
   </head>
   <body>
     <div id="root"></div>

@@ -1,0 +1,13 @@
+{
+  "projects": {
+    "default": "chamtaburu-webapp"
+  },
+  "targets": {
+    "chamtaburu-webapp": {
+      "hosting": {
+        "village": ["chamtaburu-village"],
+        "resort": ["chamtaburu-resort"]
+      }
+    }
+  }
+}

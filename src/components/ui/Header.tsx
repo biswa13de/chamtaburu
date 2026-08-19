@@ -16,9 +16,9 @@ interface HeaderProps {
 
 const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
-// Site header/nav, props-driven so App.tsx (or later, each site's own
-// composition root) supplies the nav structure rather than this component
-// sniffing a subdomain. Mobile menu is keyboard accessible and focus-trapped.
+// Site header/nav, props-driven so Layout.tsx (each site's composition
+// root) supplies the nav structure rather than this component sniffing a
+// subdomain. Mobile menu is keyboard accessible and focus-trapped.
 export function Header({ siteName, navLinks, cta }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();

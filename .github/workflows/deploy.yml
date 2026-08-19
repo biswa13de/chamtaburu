@@ -1,0 +1,143 @@
+name: Deploy
+
+# Phase 6 (docs/05-build-phases.md): typecheck -> lint -> build both site
+# targets -> deploy. Pull requests get a temporary Firebase Hosting preview
+# channel (both sites); pushes to main deploy to production.
+#
+# Phase 6 MANUAL STEP this workflow depends on but cannot create itself: a
+# real Firebase project, plus a repo secret named FIREBASE_SERVICE_ACCOUNT
+# containing that project's service account JSON (Firebase console -> Project
+# Settings -> Service Accounts -> Generate new private key, or
+# `firebase init hosting:github` run locally once the project exists, which
+# creates the secret for you automatically). Until that secret exists, the
+# deploy jobs below will fail at the "Deploy" step with an auth error — the
+# typecheck/lint/build jobs still run and still gate merges correctly.
+# GCP_PROJECT_ID likewise needs to be set as a repository variable
+# (Settings -> Secrets and variables -> Actions -> Variables) once the real
+# Firebase project ID is known.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref (e.g. rapid pushes to a PR) so
+# preview-channel deploys don't race each other.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  quality:
+    name: Typecheck & Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+
+  build:
+    name: Build (${{ matrix.site }})
+    needs: quality
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        site: [village, resort]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - name: Build ${{ matrix.site }}
+        run: npm run build
+        env:
+          VITE_SITE: ${{ matrix.site }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.site }}
+          path: dist/${{ matrix.site }}
+          retention-days: 1
+
+  deploy-preview:
+    name: Deploy preview channel
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-village
+          path: dist/village
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-resort
+          path: dist/resort
+      # firebase-tools resolves each `hosting[].target` in firebase.json
+      # against .firebaserc's target map — see the "Phase 6 manual steps"
+      # comment in firebase.json for why that file doesn't exist in-repo yet.
+      - name: Deploy Village preview
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ vars.GCP_PROJECT_ID }}
+          target: village
+          expires: 7d
+      - name: Deploy Resort preview
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ vars.GCP_PROJECT_ID }}
+          target: resort
+          expires: 7d
+
+  deploy-production:
+    name: Deploy production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-village
+          path: dist/village
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-resort
+          path: dist/resort
+      - name: Deploy Village to production
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ vars.GCP_PROJECT_ID }}
+          target: village
+          channelId: live
+      - name: Deploy Resort to production
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          projectId: ${{ vars.GCP_PROJECT_ID }}
+          target: resort
+          channelId: live

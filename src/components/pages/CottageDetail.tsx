@@ -6,9 +6,12 @@ import { Button } from '../ui/Button';
 import { Image } from '../ui/Image';
 import { Breadcrumbs } from '../ui/Breadcrumbs';
 import { Prose } from '../ui/Prose';
-import { cottages } from '../../content/village';
+import { Seo } from '../ui/Seo';
+import { cottages, village } from '../../content/village';
+import { currentSite } from '../../content/site';
 import { resolveImage } from '../../content/manifest';
 import { formatPrice, formatAdults } from '../../content/format';
+import { buildBreadcrumbJsonLd, buildLodgingBusinessJsonLd } from '../../lib/seo';
 import type { Cottage } from '../../content/types';
 
 function CottageGallery({ cottage }: { cottage: Cottage }) {
@@ -46,9 +49,24 @@ export function CottageDetail() {
   const heroImageRef = cottage.images[0] ?? { base: 'village/village-exterior', alt: cottage.name };
   const heroImage = resolveImage(heroImageRef);
   const otherCottages = cottages.filter((c) => c.slug !== cottage.slug);
+  const breadcrumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Cottages', path: '/cottages' },
+    { name: cottage.name, path: `/cottages/${cottage.slug}` },
+  ];
 
   return (
     <div className="pb-24">
+      <Seo
+        title={cottage.name}
+        description={`${cottage.tagline} ${cottage.theme} — a cottage at ${village.name}, Ajodhya Hills, Purulia. ${cottage.inspiration}`}
+        path={`/cottages/${cottage.slug}`}
+        image={heroImage}
+        jsonLd={[
+          buildBreadcrumbJsonLd(currentSite, breadcrumbs),
+          buildLodgingBusinessJsonLd(currentSite, [cottage], heroImage),
+        ]}
+      />
       {/* 1. Hero — cottage photo, name, number, tagline */}
       <Hero image={heroImage} heading={cottage.name} subheading={cottage.tagline} size="compact" />
 

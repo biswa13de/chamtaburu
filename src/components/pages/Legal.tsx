@@ -1,5 +1,6 @@
 import { Section } from '../ui/Section';
 import { Prose } from '../ui/Prose';
+import { Seo } from '../ui/Seo';
 import { groupInfo, legalPolicies } from '../../content/shared';
 import { currentSite } from '../../content/site';
 
@@ -10,6 +11,11 @@ import { currentSite } from '../../content/site';
 export function Legal() {
   return (
     <Section narrow className="space-y-16 py-24">
+      <Seo
+        title="Legal Policies"
+        description={`Legal policies for ${currentSite.name} — ${groupInfo.legalName}.`}
+        path="/legal"
+      />
       <div className="space-y-4 text-center">
         <h1 className="font-serif text-5xl font-medium">Legal Policies</h1>
         <p className="text-stone text-sm tracking-widest uppercase">{currentSite.name}</p>

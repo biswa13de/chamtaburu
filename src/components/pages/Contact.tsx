@@ -4,6 +4,7 @@ import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
 import { Card } from '../ui/Card';
 import { EnquiryForm } from '../ui/EnquiryForm';
+import { Seo } from '../ui/Seo';
 import { currentSite } from '../../content/site';
 import { resolveImage } from '../../content/manifest';
 
@@ -31,6 +32,11 @@ export function Contact() {
 
   return (
     <div className="pb-24">
+      <Seo
+        title="Contact Us"
+        description={`Get in touch with ${currentSite.name} — phone, WhatsApp and enquiry form. ${fullAddress}.`}
+        path="/contact"
+      />
       <Hero image={HERO_IMAGE} heading="Contact Us" subheading={currentSite.name} size="compact" />
 
       <Section className="mt-16">

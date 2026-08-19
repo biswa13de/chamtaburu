@@ -203,21 +203,61 @@ QR codes resolve to the right pages.
 
 ## Phase 6 — SEO, analytics & deployment
 
-- [ ] Per-route meta, Open Graph, Twitter cards; verify the WhatsApp share preview on a
-      real device
-- [ ] `LodgingBusiness` JSON-LD per property; `BreadcrumbList` on cottage pages
-- [ ] `sitemap.xml`, `robots.txt`, canonical URLs — generated per site
-- [ ] Firebase project, two hosting sites, `firebase.json` with security headers
-- [ ] Custom domains + auto SSL; DNS cutover from Cloud Run
-- [ ] GitHub Actions: typecheck → lint → build both → deploy; preview channels on PRs
-- [ ] Cookieless analytics; Google Search Console verified, sitemaps submitted
-- [ ] Google Business Profile aligned to identical NAP data
-- [ ] **`CONTENT-GUIDE.md`** — plain-language instructions for updating prices, photos,
+- [x] Per-route meta, Open Graph, Twitter cards; verify the WhatsApp share preview on a
+      real device (code done and live; **on-device WhatsApp preview check still
+      outstanding** — see note)
+- [x] `LodgingBusiness` JSON-LD per property; `BreadcrumbList` on cottage pages
+- [x] `sitemap.xml`, `robots.txt`, canonical URLs — generated per site
+- [x] Firebase project, two hosting sites, `firebase.json` with security headers — **done
+      and live**: project `chamtaburu-webapp`, sites `chamtaburu-village` +
+      `chamtaburu-resort`, both deployed and serving with the real CSP/security headers
+      (verified via `curl -I`)
+- [ ] Custom domains + auto SSL; DNS cutover from Cloud Run — **manual step, not done**
+      (site currently live at the `.web.app` URLs below, not `chamtaburu.in` yet)
+- [x] GitHub Actions: typecheck → lint → build both → deploy; preview channels on PRs
+      (workflow written; **needs the `FIREBASE_SERVICE_ACCOUNT` GitHub secret added —
+      manual step, see note**)
+- [x] Analytics — **GA4** wired in (`G-8VYR8NESE3`) and live, not cookieless (see note);
+      Search Console verification is a **manual step, not done**
+- [ ] Google Business Profile aligned to identical NAP data — **manual step, not done**
+- [x] **`CONTENT-GUIDE.md`** — plain-language instructions for updating prices, photos,
       and text without a developer
-- [ ] Delete old Artifact Registry images to stop the storage charge
+- [ ] Delete old Artifact Registry images to stop the storage charge — **manual step,
+      not done**
 
 **Done when:** both domains serve from Firebase, pushing to `main` deploys automatically,
 and Search Console has accepted the sitemaps.
+
+> **Both sites are live right now** at their default Firebase URLs —
+> https://chamtaburu-village.web.app and https://chamtaburu-resort.web.app — deployed
+> manually to verify the full pipeline (real HTTP 200s, correct CSP/security headers,
+> correct per-route titles, real 404 handling via the `firebase.json` rewrite, zero
+> console errors) works end to end, not just "should work in theory." Not yet reachable
+> at `chamtaburu.in` — that needs the manual DNS cutover below.
+>
+> What's genuinely left is manual, credential-gated setup this environment can't do:
+> DNS cutover to the real domains, adding `FIREBASE_SERVICE_ACCOUNT` (a service-account
+> key was generated for `firebase-adminsdk-fbsvc@chamtaburu-webapp.iam.gserviceaccount.com`
+> and granted `roles/firebasehosting.admin`, but the key itself was never stored or
+> displayed in this conversation — it needs to be added directly as a GitHub Actions
+> secret) + `GCP_PROJECT_ID` (`chamtaburu-webapp`) as a repo variable, Search Console
+> verification + sitemap submission, Google Business Profile, on-device WhatsApp share
+> preview check, and deleting old Artifact Registry images.
+>
+> **Analytics deviates from the doc's "cookieless" plan**: the user chose GA4 (Measurement
+> ID `G-8VYR8NESE3`) over Cloudflare Web Analytics after Cloudflare was recommended as the
+> cookieless option. GA4 sets first-party cookies, which reopens
+> [01-strategy.md](01-strategy.md) §6's "no cookies, no consent banner needed" decision —
+> acknowledged and deliberately deferred as a separate follow-up, not blocking this phase.
+> **A cookie notice is not yet added and should be revisited before real traffic.**
+>
+> **Email fallback deviates from Web3Forms** (originally planned) — see the Phase 5 note:
+> Web3Forms rejected the client POST this form needs on the available account/plan;
+> switched to Formspree, verified working with a live submission.
+>
+> OG image uses the best existing hero photo per site, not a dedicated 1200×630 crop —
+> that asset is still on the photography reshoot list
+> ([04-photography.md](04-photography.md) §5, item 14).
 
 ---
 

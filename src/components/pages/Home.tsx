@@ -5,10 +5,12 @@ import { Section } from '../ui/Section';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Image } from '../ui/Image';
+import { Seo } from '../ui/Seo';
 import { currentSite } from '../../content/site';
 import { cottages, experiences } from '../../content/village';
-import { resort } from '../../content/resort';
+import { resort, accommodation as resortAccommodation } from '../../content/resort';
 import { resolveImage } from '../../content/manifest';
+import { buildLodgingBusinessJsonLd } from '../../lib/seo';
 
 const HERO_IMAGE = resolveImage({
   base: 'village/village-hero-hills',
@@ -24,6 +26,12 @@ function VillageHome() {
 
   return (
     <div className="space-y-24 pb-24">
+      <Seo
+        title=""
+        description={`${currentSite.tagline} Seven named cottages in the Ajodhya Hills, ${address.district}, ${address.region}.`}
+        path="/"
+        jsonLd={[buildLodgingBusinessJsonLd(currentSite, cottages, HERO_IMAGE)]}
+      />
       <Hero
         image={HERO_IMAGE}
         heading={currentSite.name}
@@ -219,6 +227,12 @@ function ResortHome() {
 
   return (
     <div className="space-y-24 pb-24">
+      <Seo
+        title=""
+        description={`${currentSite.tagline} In the Ajodhya Hills, ${address.district}, ${address.region}.`}
+        path="/"
+        jsonLd={[buildLodgingBusinessJsonLd(currentSite, resortAccommodation, HERO_IMAGE)]}
+      />
       <Hero
         image={HERO_IMAGE}
         heading={currentSite.name}

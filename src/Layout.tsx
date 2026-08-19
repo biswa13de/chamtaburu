@@ -3,6 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Header } from './components/ui/Header';
 import { Footer } from './components/ui/Footer';
 import { MobileContactBar } from './components/ui/MobileContactBar';
+import { GoogleAnalytics, AnalyticsRouteTracker } from './components/ui/GoogleAnalytics';
 import { groupInfo, social } from './content/shared';
 import { currentSite } from './content/site';
 import type { NavLink } from './components/ui/Header';
@@ -39,6 +40,8 @@ export default function Layout() {
   return (
     <div className="selection:bg-forest flex min-h-screen flex-col selection:text-white">
       <ScrollToTop />
+      <GoogleAnalytics />
+      <AnalyticsRouteTracker />
       <Header siteName={currentSite.name} navLinks={NAV_LINKS} />
       <main className="flex-grow">
         <Outlet />

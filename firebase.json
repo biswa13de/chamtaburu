@@ -1,0 +1,73 @@
+{
+  "//": "Phase 6 manual steps (docs/05-build-phases.md): this file is the REAL, committable portion of Firebase config. It does NOT yet work standalone — `firebase deploy` also needs a .firebaserc mapping the `target` names below ('village', 'resort') to real Firebase Hosting site IDs, which only exist once a real Firebase project has been created (`firebase init` / `firebase target:apply`, both requiring live Google Cloud credentials this environment doesn't have). That project creation, the two `firebase hosting:sites:create` calls, and the resulting `.firebaserc` are out of scope here and are on the user's manual checklist. Once that exists, `firebase deploy --only hosting:village` / `hosting:resort` (or the GitHub Actions workflow in .github/workflows/deploy.yml) will work unmodified against this file.",
+  "//csp": "CSP allows: 'self' (all first-party JS/CSS/fonts/images — fonts are self-hosted via @fontsource, no external font CDN); script-src also allows googletagmanager.com (GA4's gtag.js) and 'unsafe-inline' (the GA4 bootstrap snippet in src/components/ui/GoogleAnalytics.tsx is a plain inline <script>, not nonce/hash-based — acceptable tradeoff for a static-hosting-only site with no user-generated content and no other inline-script vector); connect-src allows google-analytics.com/googletagmanager.com (gtag's beacon requests) and formspree.io (EnquiryForm.tsx's fetch() POST); img-src allows data: for the base64 LQIP placeholders (src/components/ui/Image.tsx); frame-src allows youtube.com/vimeo.com for src/components/VideoModal.tsx's embeds (component exists, not currently wired into a page, kept forward-compatible). wa.me and Google Maps search links are plain <a href> navigations, not fetch/frame/script loads, so they need no CSP entry — CSP does not restrict top-level link navigation.",
+
+  "hosting": [
+    {
+      "target": "village",
+      "public": "dist/village",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "rewrites": [{ "source": "**", "destination": "/404.html" }],
+      "headers": [
+        {
+          "source": "**/*.@(js|css|woff|woff2|avif|webp|jpg|jpeg|png|svg)",
+          "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+        },
+        {
+          "source": "**/*.@(html)",
+          "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+        },
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Content-Security-Policy",
+              "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://formspree.io; frame-src https://www.youtube.com https://player.vimeo.com; base-uri 'self'; form-action 'self' https://formspree.io; frame-ancestors 'self'; object-src 'none'"
+            },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+            {
+              "key": "Permissions-Policy",
+              "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "resort",
+      "public": "dist/resort",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "rewrites": [{ "source": "**", "destination": "/404.html" }],
+      "headers": [
+        {
+          "source": "**/*.@(js|css|woff|woff2|avif|webp|jpg|jpeg|png|svg)",
+          "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+        },
+        {
+          "source": "**/*.@(html)",
+          "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+        },
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Content-Security-Policy",
+              "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com https://www.googletagmanager.com https://formspree.io; frame-src https://www.youtube.com https://player.vimeo.com; base-uri 'self'; form-action 'self' https://formspree.io; frame-ancestors 'self'; object-src 'none'"
+            },
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+            {
+              "key": "Permissions-Policy",
+              "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

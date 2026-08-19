@@ -3,6 +3,7 @@ import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
 import { Card } from '../ui/Card';
 import { Image } from '../ui/Image';
+import { Seo } from '../ui/Seo';
 import { village, cottages } from '../../content/village';
 import { resolveImage } from '../../content/manifest';
 import { formatPrice, formatAdults } from '../../content/format';
@@ -18,6 +19,11 @@ const HERO_IMAGE = resolveImage({
 export function Cottages() {
   return (
     <div className="pb-24">
+      <Seo
+        title="The Seven Cottages"
+        description={`Seven named cottages, each with its own story and character, at ${village.name} in the Ajodhya Hills, Purulia.`}
+        path="/cottages"
+      />
       <Hero
         image={HERO_IMAGE}
         heading="The Seven Cottages"
