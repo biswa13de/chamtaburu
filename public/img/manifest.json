@@ -1,0 +1,240 @@
+{
+  "village/village-exterior": {
+    "width": 3024,
+    "height": 4032,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGgAAAQUBAAAAAAAAAAAAAAAAAAEDBAUGAv/EACEQAAICAgIBBQAAAAAAAAAAAAECABEDEgQhUQUTIjEy/8QAGAEAAwEBAAAAAAAAAAAAAAAAAgMEAAH/xAAbEQADAAIDAAAAAAAAAAAAAAAAARICERMxQf/aAAwDAQACEQMRAD8A0nuxt8lytPL5DEBMVebjRbm5Nhso8QqRuLN+FptCZps3MDEFz1CcsDROXktqFb49/fmNtnajs1WeiJI9RRRrQAkNVDNTCxJrfRVbQhYX+xCcZkUZKAqEW2I2f//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-exterior-960.jpg"
+  },
+  "village/village-room-bed": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAMEAf/EACIQAAICAQMEAwAAAAAAAAAAAAECAAMEERITBSFBkTJRgf/EABYBAQEBAAAAAAAAAAAAAAAAAAIDBP/EABkRAAMBAQEAAAAAAAAAAAAAAAABESECA//aAAwDAQACEQMRAD8Afh49mQ/JfqlfgeTKzg1hW22HcfjI06nc/fhUfsYufcT3pX3Mz6dwtMANkINrIdR9Qmnq1qHThX3CF+XD2hjP/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-room-bed-960.jpg"
+  },
+  "village/village-hero-hills": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAUGBP/EAB0QAAIDAQADAQAAAAAAAAAAAAECAAMRBBIUIUH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAv/EABgRAQADAQAAAAAAAAAAAAAAAAACEhNh/9oADAMBAAIRAxEAPwDZw1BK1NiBWWNVsDDdkeOq7cVj9jCvpu9cEHD+ydeFDK/q8LCu7CTlnWGclidhGkij/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-hero-hills-960.jpg"
+  },
+  "village/village-room-wide": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAQC/8QAHRAAAgMBAQADAAAAAAAAAAAAAQMAAhEEEiFBYf/EABcBAAMBAAAAAAAAAAAAAAAAAAECAwT/xAAZEQADAAMAAAAAAAAAAAAAAAAAASEREjH/2gAMAwEAAhEDEQA/ADul3VzWFaGufI/ZQprKcSwdB+9li1HAME01IA82AIMnE+DYhOtjDQH1WIK6A5UYImpKA1P/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-room-wide-960.jpg"
+  },
+  "village/village-bathroom-shower": {
+    "width": 960,
+    "height": 1280,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAIDBAUG/8QAIxAAAQQBBAEFAAAAAAAAAAAAAQACAxESBAUhMTQGFDJBcf/EABYBAQEBAAAAAAAAAAAAAAAAAAECA//EABkRAAMBAQEAAAAAAAAAAAAAAAABESESMf/aAAwDAQACEQMRAD8AtBhaAe09CjTbKSSVuLcHAp4pCLP2e1ltLyEbwGGi03SFX3GeQang8YhC0CEOzXJHIxwsX2tMacDo8qL081vtXGh8lp4jF5rlPKZPhz24+UfwITbh5TkIaLTw/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-bathroom-shower-960.jpg"
+  },
+  "village/village-bathroom-basin": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAwAE/8QAIRAAAQQBAwUAAAAAAAAAAAAAAQACAxESBSEiBBQxYYH/xAAWAQEBAQAAAAAAAAAAAAAAAAABAwT/xAAYEQADAQEAAAAAAAAAAAAAAAAAERIBIf/aAAwDAQACEQMRAD8A3adL3Ubr2LTVJ3QNBLr+INO6fEPljPCQ3SYzWJWgbsCFqHjAkwzUsxyfyrz7Us8lKP/Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-bathroom-basin-960.jpg"
+  },
+  "village/village-entrance-steps": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAQCAwX/xAAgEAABBAIBBQAAAAAAAAAAAAABAAIDBBEhMRITMlFx/8QAFgEBAQEAAAAAAAAAAAAAAAAAAgAD/8QAGREAAwEBAQAAAAAAAAAAAAAAAAERAhIT/9oADAMBAAIRAxEAPwDYsmF83ad5AcpOxVhjjaWnO+FRHXttBdKGvPvKk4ygbYM/UeaTlGjWjdvpCEQnEYzyhYPTQ/HJ/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-entrance-steps-960.jpg"
+  },
+  "village/village-window": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAECAwT/xAAgEAABBAIBBQAAAAAAAAAAAAABAAIDBAURExIiQVFh/8QAFgEBAQEAAAAAAAAAAAAAAAAAAwEC/8QAGREAAgMBAAAAAAAAAAAAAAAAAAIBESED/9oADAMBAAIRAxEAPwBXQBkKhHlEIIyk/bv4tU1B0liKQO1xnajGx1e3LO/RLjsIV6rVFZWsUsnS8gjSFRYfyyuf7QgZ9w1EYf/Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-window-960.jpg"
+  },
+  "village/village-desk-area": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAQBAgX/xAAeEAABBQEBAAMAAAAAAAAAAAABAAIDBBEhEhMiUf/EABcBAAMBAAAAAAAAAAAAAAAAAAACAwX/xAAbEQACAQUAAAAAAAAAAAAAAAAAAQIDESExYf/aAAwDAQACEQMRAD8A0g3p1RZkEMXpmAhJPr2nOaQ4D696mvgcaBa4AyfurOjSS2ytgp2pZIPR70oVaMb4a4Y/N1CVw4DWT//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-desk-area-960.jpg"
+  },
+  "village/village-room-bare": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAIEAQP/xAAfEAACAQQCAwAAAAAAAAAAAAABAgADBBESBUETIWH/xAAWAQEBAQAAAAAAAAAAAAAAAAADAAL/xAAaEQADAAMBAAAAAAAAAAAAAAAAAQIDERJR/9oADAMBAAIRAxEAPwC997NlUnIaZUrMF2z3id7tBcuhU41iVbYvTwDgQaxpUSbIanIKrlT1CJU4ryOWd/fyEPmfTemf/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-room-bare-960.jpg"
+  },
+  "resort/resort-cottages-mural": {
+    "width": 4032,
+    "height": 3024,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAUBAwT/xAAfEAABBAEFAQAAAAAAAAAAAAABAAIDIREEBRIxYSL/xAAVAQEBAAAAAAAAAAAAAAAAAAAAA//EABcRAQADAAAAAAAAAAAAAAAAAAAREhP/2gAMAwEAAhEDEQA/AHMU4x8kK12sDBaSQzxxNaG8ierUarcmMeBddjCnsQ2S7yRIQ1leoSczRyEuyb8Qq2H/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-cottages-mural-960.jpg"
+  },
+  "resort/resort-hero-mist": {
+    "width": 4032,
+    "height": 3024,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABgAE/8QAIRAAAgIABgMBAAAAAAAAAAAAAQIAAwQFERJBURMVIjH/xAAWAQEBAQAAAAAAAAAAAAAAAAAAAQL/xAAYEQEBAAMAAAAAAAAAAAAAAAAAARESE//aAAwDAQACEQMRAD8AzZPgma77XbU3cTU1YegAogBHMMHGJaFCOwI6E2+wQKEZmOnOkz0kMEHmB/CJQ2+ZKraDdKXeD//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-hero-mist-960.jpg"
+  },
+  "resort/resort-thatched-huts": {
+    "width": 4032,
+    "height": 3024,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAQFA//EACAQAAEDBAIDAAAAAAAAAAAAAAEAAgMEERQxIVESE0H/xAAXAQADAQAAAAAAAAAAAAAAAAAAAQID/8QAGhEAAQUBAAAAAAAAAAAAAAAAAAECERJRFP/aAAwDAQACEQMRAD8A3NFDYhsoue01QPxWmNnJ+pZ/qm2LHsIx5QPOOTgdqLwKMK2a4bahTWVYDbO2hZ9LcCqn/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-thatched-huts-960.jpg"
+  },
+  "resort/resort-thatched-huts-alt": {
+    "width": 4032,
+    "height": 3024,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAQFA//EACEQAAICAQMFAQAAAAAAAAAAAAECAAMRBBQhEhMxQVFh/8QAFgEBAQEAAAAAAAAAAAAAAAAAAQID/8QAGhEAAQUBAAAAAAAAAAAAAAAAAAECERJRFP/aAAwDAQACEQMRAD8A1OgrCkJauTHdBZta+0nJ9xV0qtORlT+Q29qjrSzgfZF4CMK2+YeVhJyaoBcNyYTPpbg1U//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-thatched-huts-alt-960.jpg"
+  },
+  "resort/resort-pathway-rain": {
+    "width": 4032,
+    "height": 3024,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAQFAgb/xAAdEAACAwEAAwEAAAAAAAAAAAABAgADBBESFEEx/8QAFgEBAQEAAAAAAAAAAAAAAAAAAgAD/8QAGBEAAwEBAAAAAAAAAAAAAAAAAAESAxH/2gAMAwEAAhEDEQA/ALGO5VqCIwJH7GH0+I6ZzldlwcmvimN7Dc2JHLcb7DbLjNadljXEg8EJE9h/rGEyejFJ/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-pathway-rain-960.jpg"
+  },
+  "resort/resort-evening-garden": {
+    "width": 4032,
+    "height": 3024,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAMEBf/EACAQAAIDAAEEAwAAAAAAAAAAAAECAAQRAxITIVEiYXH/xAAWAQEBAQAAAAAAAAAAAAAAAAABAgP/xAAYEQACAwAAAAAAAAAAAAAAAAAAAhESE//aAAwDAQACEQMRAD8AZQt2KyeUwe4m+j2kPJhJ9TS7yjjxwDv1Jua0AnwUZM9GgrODCFHq8toMJc3KrNp3f2ELsFT/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-evening-garden-960.jpg"
+  },
+  "resort/resort-night-gate": {
+    "width": 4032,
+    "height": 3024,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAMBAgQF/8QAHhAAAgICAgMAAAAAAAAAAAAAAQIAAwURBBIhMVH/xAAWAQEBAQAAAAAAAAAAAAAAAAACAAH/xAAXEQEBAQEAAAAAAAAAAAAAAAAAERMB/9oADAMBAAIRAxEAPwBWIRabjogqPsnLcY8ywlOqiJWo1De5WyxgNKfcGvZGxy3xlnY68iE2G3RIDEQg0T//2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-night-gate-960.jpg"
+  }
+}

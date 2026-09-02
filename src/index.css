@@ -1,17 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+@import "@fontsource/inter/300.css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/cormorant-garamond/300.css";
+@import "@fontsource/cormorant-garamond/400.css";
+@import "@fontsource/cormorant-garamond/500.css";
+@import "@fontsource/cormorant-garamond/600.css";
+@import "@fontsource/cormorant-garamond/400-italic.css";
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", serif;
-  --color-primary: #7a9470;
-  --color-secondary: #f5f5f0;
-  --color-ink: #1a1a1a;
+
+  /* Brand palette — docs/01-strategy.md §4. Agrees with the property's own
+     materials: white walls, red clay-tile roofs, wood, foliage, bamboo, thatch. */
+  --color-forest: #4a6b4f; /* Primary. Headers, buttons, links. */
+  --color-forest-deep: #2f4435; /* Hover states, dark sections, footer. */
+  /* Accent — used sparingly: CTAs, active states, large/bold text only.
+     3.48:1 on sand — passes AA for large text (≥24px or ≥19px bold), not body copy. */
+  --color-palash: #e0552b;
+  /* Secondary warm — earth, pottery, roof tile. 4.31:1 on sand — large text only. */
+  --color-terracotta: #a8613c;
+  --color-sand: #f7f4ee; /* Page background. */
+  --color-ink: #1f211e; /* Body text. */
+  --color-stone: #6b6f68; /* Muted text, borders. */
+
+  /* Back-compat aliases while components migrate off the old prototype tokens. */
+  --color-primary: var(--color-forest);
+  --color-secondary: var(--color-sand);
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--color-secondary);
+  background-color: var(--color-sand);
   color: var(--color-ink);
 }
 

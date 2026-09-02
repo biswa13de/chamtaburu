@@ -1,8 +1,31 @@
+# dependencies
 node_modules/
-build/
+
+# build output
 dist/
+build/
 coverage/
+
+# raw source photography — processed into public/img by `npm run photos`;
+# originals are large and don't belong in git history
+photos/*/
+!photos/CHAMTABURU ECO VILLAGE.docx
+
+# public/img/ (the *processed* responsive AVIF/WebP/JPEG output + manifest.json
+# from `npm run photos`) is intentionally NOT ignored — Phase 3
+# (docs/05-build-phases.md) commits it so deploys stay fast and don't need
+# sharp's native binary in the deploy environment.
+
+# Firebase CLI local deploy cache — not deploy config, just local state
+.firebase/
+
+# editor / OS
 .DS_Store
 *.log
-.env*
-!.env.example
+.vscode/*
+!.vscode/extensions.json
+
+# env
+.env
+.env.local
+.env.*.local
