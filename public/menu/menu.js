@@ -1,4 +1,3 @@
-const V="veg";
 const MENU=window.MENU||[];
 
 const nav=document.getElementById("nav"), main=document.getElementById("menu");
@@ -15,7 +14,7 @@ MENU.forEach(s=>{
   });
   html+="</ul>"+(s.foot?`<p class="note">${esc(s.foot)}</p>`:"");
   sec.innerHTML=html;
-  sec.dataset.hasveg=s.items.some(i=>i[i.length-1]===V)?"1":"0";
+  sec.dataset.hasveg=s.items.some(i=>i[i.length-1]==="veg")?"1":"0";
   main.appendChild(sec);
 });
 const tog=document.getElementById("vegToggle");
