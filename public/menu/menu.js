@@ -1,4 +1,18 @@
 const MENU=window.MENU||[];
+const IS_RESORT=location.hostname.indexOf("resort.")===0;
+
+const siteName=document.getElementById("siteName");
+if(siteName) siteName.innerHTML=IS_RESORT?"Chamtaburu<br>Eco Resort":"Chamtaburu<br>Eco Village";
+const siteTag=document.getElementById("siteTag");
+if(siteTag) siteTag.textContent=IS_RESORT
+  ? "Home-style food, cooked fresh in our resort kitchen for every order."
+  : "Home-style food, cooked fresh in our village kitchen for every order.";
+const siteLink=document.getElementById("siteLink");
+if(siteLink){
+  const host=IS_RESORT?"resort.chamtaburu.in":"chamtaburu.in";
+  siteLink.href="https://"+host;
+  siteLink.textContent=host;
+}
 
 const nav=document.getElementById("nav"), main=document.getElementById("menu");
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
