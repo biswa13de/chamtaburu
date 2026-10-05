@@ -9,8 +9,8 @@ import { resolveImage } from '../../content/manifest';
 import { formatPrice, formatAdults } from '../../content/format';
 
 const HERO_IMAGE = resolveImage({
-  base: 'village/village-room-wide',
-  alt: 'Wide cottage bedroom interior showing bed, desk area and wood floor at Chamtaburu Eco Village, Ajodhya Hills',
+  base: 'resort/resort-room-bamboo-cottage',
+  alt: 'Thatched-roof bamboo cottages with colourful painted steps and hills behind at Chamtaburu Eco Resort, Ajodhya Hills',
 });
 
 // resort.chamtaburu.in's /accommodation — room types and prices. The

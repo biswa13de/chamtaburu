@@ -21,6 +21,17 @@ const STORY_IMAGE = resolveImage({
   alt: 'Cottage exterior with white walls and red tile roof at Chamtaburu Eco Village, Ajodhya Hills, Purulia',
 });
 
+// Resort-specific hero/story images — distinct from the Village's, which
+// must never appear on resort.chamtaburu.in.
+const RESORT_HERO_IMAGE = resolveImage({
+  base: 'resort/resort-room-bamboo-cottage',
+  alt: 'Thatched-roof bamboo cottages with colourful painted steps and hills behind at Chamtaburu Eco Resort, Ajodhya Hills',
+});
+const RESORT_STORY_IMAGE = resolveImage({
+  base: 'resort/resort-cottages-mural',
+  alt: 'Row of mural-painted cottages in morning mist at Chamtaburu Eco Resort, Ajodhya Hills, Purulia',
+});
+
 function VillageHome() {
   const { address } = currentSite;
 
@@ -231,10 +242,10 @@ function ResortHome() {
         title=""
         description={`${currentSite.tagline} In the Ajodhya Hills, ${address.district}, ${address.region}.`}
         path="/"
-        jsonLd={[buildLodgingBusinessJsonLd(currentSite, resortAccommodation, HERO_IMAGE)]}
+        jsonLd={[buildLodgingBusinessJsonLd(currentSite, resortAccommodation, RESORT_HERO_IMAGE)]}
       />
       <Hero
-        image={HERO_IMAGE}
+        image={RESORT_HERO_IMAGE}
         heading={currentSite.name}
         subheading={currentSite.tagline}
         cta={
@@ -256,14 +267,14 @@ function ResortHome() {
             </div>
           </div>
           <Image
-            src={STORY_IMAGE.fallbackSrc}
-            avifSrcSet={STORY_IMAGE.avifSrcSet}
-            webpSrcSet={STORY_IMAGE.webpSrcSet}
+            src={RESORT_STORY_IMAGE.fallbackSrc}
+            avifSrcSet={RESORT_STORY_IMAGE.avifSrcSet}
+            webpSrcSet={RESORT_STORY_IMAGE.webpSrcSet}
             sizes="(min-width: 768px) 50vw, 100vw"
-            lqip={STORY_IMAGE.lqip}
-            alt={STORY_IMAGE.alt}
-            width={STORY_IMAGE.width}
-            height={STORY_IMAGE.height}
+            lqip={RESORT_STORY_IMAGE.lqip}
+            alt={RESORT_STORY_IMAGE.alt}
+            width={RESORT_STORY_IMAGE.width}
+            height={RESORT_STORY_IMAGE.height}
             className="w-full rounded-2xl shadow-xl"
           />
         </div>

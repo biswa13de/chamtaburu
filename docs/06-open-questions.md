@@ -31,13 +31,14 @@ how the price is presented and is one of the most common pre-booking questions.
 
 **Needed by:** Phase 4. **Form:** a list or a photo of your rate card.
 
-### Q3 — Eco Resort rooms and prices
-The current list — Special Bamboo Cottage ₹2,000, Double Bed ₹1,800, Quadruple ₹2,400,
-Family ₹3,599 — is prototype fiction. The photos do show bamboo and thatch structures,
-so the Bamboo Cottage is plausible; the rest is unverified. Need the real room types,
-count of each, capacity and prices.
-
-**Needed by:** Phase 7.
+### Q3 — Eco Resort rooms and prices — ANSWERED 2026-10-05
+Confirmed by the owner: five room types — Bamboo Cottage (₹2,000/night, 2 adults + 1
+child, 1 queen bed), Double Bedded (₹1,600, 2 adults + 1 child, 1 king bed), Triple
+Bedded (₹1,800, 3 adults + 1 child, 2 queen beds; AC variant ₹2,200), Four Bedded
+(₹2,100, 4 adults, 2 queen beds; AC variant ₹2,500), Six Bedded (₹2,700, 6 adults + 1
+child, 2 king beds; AC variant ₹3,300). All prices include breakfast and before GST.
+All five are bookable now. Populated in `src/content/resort.ts`; photos processed via
+`scripts/photos.mjs` from `photos/eco_resort/<room-type>/`.
 
 ## Needed before launch
 

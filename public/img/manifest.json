@@ -236,5 +236,189 @@
       960
     ],
     "fallback": "/img/resort/resort-night-gate-960.jpg"
+  },
+  "resort/resort-room-bamboo-cottage": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAUBAgME/8QAIBAAAgEDBAMAAAAAAAAAAAAAAQIAAwQSBRExQVFhcf/EABYBAQEBAAAAAAAAAAAAAAAAAAEAA//EABoRAAMAAwEAAAAAAAAAAAAAAAABAgMTQRL/2gAMAwEAAhEDEQA/AGqXzVFLBAAOZKX+XJVfs4ENRUbs9ylmab3BZlyYeZl7tdGcctNjI6rTU7MNz6hM2sA5yUgA9QltoNUvp//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-bamboo-cottage-960.jpg"
+  },
+  "resort/resort-room-bamboo-cottage-interior": {
+    "width": 6000,
+    "height": 4000,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAANABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAMFBv/EACEQAAICAgEEAwAAAAAAAAAAAAECAAMEERIFBhNBISIx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAgH/xAAXEQEBAQEAAAAAAAAAAAAAAAARACES/9oADAMBAAIRAxEAPwCy3V0sc0Annr4ivNkJstUX2P2ZzKtbCRL6T9yfcZjdwZVmg4BgXZBlpaXNlYZhwJ9GElrn2MNkCEXVC//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-bamboo-cottage-interior-960.jpg"
+  },
+  "resort/resort-room-bamboo-cottage-bathroom": {
+    "width": 3024,
+    "height": 4032,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAMCBAUG/8QAIRAAAQQCAgIDAAAAAAAAAAAAAQACAxEEIRIxBUETMoH/xAAWAQEBAQAAAAAAAAAAAAAAAAADAAH/xAAXEQEBAQEAAAAAAAAAAAAAAAABABEh/9oADAMBAAIRAxEAPwDpTI3hXKrTWdCjpY2fllpETG08+07CynObTvsO1BYpuWmTtCgHBwBCFW3MzTSvyy8xkNpWvGtkkmeaoAe0wEkC9q1iAfH12dpUwi3We2WKIcXSbCFNsUZG2A/iEWknb//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-bamboo-cottage-bathroom-960.jpg"
+  },
+  "resort/resort-room-double-bedded": {
+    "width": 1280,
+    "height": 720,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAALABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAMFBP/EAB0QAAEDBQEAAAAAAAAAAAAAAAEAAgQDBRESITH/xAAVAQEBAAAAAAAAAAAAAAAAAAABAv/EABgRAAMBAQAAAAAAAAAAAAAAAAACEQES/9oADAMBAAIRAxEAPwC0yQ0jI6EmXcKDorm+4PVlthyxuept1o02RHasAz0oZotKVc3YSpsqPVr7ag8AQpR9KEUeT//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-double-bedded-960.jpg"
+  },
+  "resort/resort-room-double-bedded-bathroom": {
+    "width": 960,
+    "height": 1280,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGgAAAQUBAAAAAAAAAAAAAAAAAAECAwQFBv/EACIQAAICAQMEAwAAAAAAAAAAAAECAAMREiExBAUiQRQ0gf/EABgBAAIDAAAAAAAAAAAAAAAAAAIEAAED/8QAFxEAAwEAAAAAAAAAAAAAAAAAAAECEf/aAAwDAQACEQMRAD8A6i5lMhWlc6yPIcGZdvc2anxU6hyRHdP3FnqzkEwtAw0GIDQlL5JfckAwlEMmgWCljWch+RHLUakGnY+xF6D637JHOV3izpjkymiE2n3CVbCdZ3hCVGblaf/Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-double-bedded-bathroom-960.jpg"
+  },
+  "resort/resort-room-triple-bedded": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAIGBAX/xAAfEAACAgIBBQAAAAAAAAAAAAABAgADBBFBBRIhMVH/xAAWAQEBAQAAAAAAAAAAAAAAAAABAAL/xAAaEQABBQEAAAAAAAAAAAAAAAAAAQIREzES/9oADAMBAAIRAxEAPwCgryaMhCqsG17i1NW5ITjxEqoqqRQiDusmXLvTDVl2d/AIK+NHicOkQISXfqeWzbRtLxCZtaVTj//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-triple-bedded-960.jpg"
+  },
+  "resort/resort-room-triple-bedded-interior": {
+    "width": 960,
+    "height": 1280,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAMEBQYC/8QAJBAAAgIBAwMFAQAAAAAAAAAAAQIAAxEEITESEyIFI0FRUnH/xAAWAQEBAQAAAAAAAAAAAAAAAAACAwT/xAAZEQACAwEAAAAAAAAAAAAAAAAAAQIRIRL/2gAMAwEAAhEDEQA/ANDpsd9j9iPNyi3t43lP6XqWe9+ps4k+xytvUF3PzEwJBqG904hFt5HMILLJYZ1bxp9S6ITljviSbbrlK9Nh5iKVBVXI8iOYw7vXn9TM528NEYcp2X1antrnnEJ0OB/IS5I//9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-triple-bedded-interior-960.jpg"
+  },
+  "resort/resort-room-triple-bedded-bathroom": {
+    "width": 960,
+    "height": 1280,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGgAAAQUBAAAAAAAAAAAAAAAAAAECAwQFBv/EACIQAAICAQMEAwAAAAAAAAAAAAECAAMREiExBAUiQRQ0gf/EABgBAAIDAAAAAAAAAAAAAAAAAAIEAAED/8QAFxEAAwEAAAAAAAAAAAAAAAAAAAECEf/aAAwDAQACEQMRAD8A6i5lMhWlc6yPIcGZdvc2anxU6hyRHdP3FnqzkEwtAw0GIDQlL5JfckAwlEMmgWCljWch+RHLUakGnY+xF6D637JHOV3izpjkymiE2n3CVbCdZ3hCVGblaf/Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-triple-bedded-bathroom-960.jpg"
+  },
+  "resort/resort-room-four-bedded": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAIGBAX/xAAfEAACAgIBBQAAAAAAAAAAAAABAgADBBFBBRIhMVH/xAAWAQEBAQAAAAAAAAAAAAAAAAABAAL/xAAaEQABBQEAAAAAAAAAAAAAAAAAAQIREzES/9oADAMBAAIRAxEAPwCgryaMhCqsG17i1NW5ITjxEqoqqRQiDusmXLvTDVl2d/AIK+NHicOkQISXfqeWzbRtLxCZtaVTj//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-four-bedded-960.jpg"
+  },
+  "resort/resort-room-four-bedded-interior": {
+    "width": 960,
+    "height": 1280,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAMEBQYC/8QAJBAAAgIBAwMFAQAAAAAAAAAAAQIAAxEEITESEyIFI0FRUnH/xAAWAQEBAQAAAAAAAAAAAAAAAAACAwT/xAAZEQACAwEAAAAAAAAAAAAAAAAAAQIRIRL/2gAMAwEAAhEDEQA/ANDpsd9j9iPNyi3t43lP6XqWe9+ps4k+xytvUF3PzEwJBqG904hFt5HMILLJYZ1bxp9S6ITljviSbbrlK9Nh5iKVBVXI8iOYw7vXn9TM528NEYcp2X1antrnnEJ0OB/IS5I//9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-four-bedded-interior-960.jpg"
+  },
+  "resort/resort-room-four-bedded-bathroom": {
+    "width": 960,
+    "height": 1280,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGgAAAQUBAAAAAAAAAAAAAAAAAAECAwQFBv/EACIQAAICAQMEAwAAAAAAAAAAAAECAAMREiExBAUiQRQ0gf/EABgBAAIDAAAAAAAAAAAAAAAAAAIEAAED/8QAFxEAAwEAAAAAAAAAAAAAAAAAAAECEf/aAAwDAQACEQMRAD8A6i5lMhWlc6yPIcGZdvc2anxU6hyRHdP3FnqzkEwtAw0GIDQlL5JfckAwlEMmgWCljWch+RHLUakGnY+xF6D637JHOV3izpjkymiE2n3CVbCdZ3hCVGblaf/Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-four-bedded-bathroom-960.jpg"
+  },
+  "resort/resort-room-six-bedded": {
+    "width": 1040,
+    "height": 780,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAMEBv/EAB0QAAICAwADAAAAAAAAAAAAAAECAAMEESETIlH/xAAWAQEBAQAAAAAAAAAAAAAAAAACAAP/xAAZEQACAwEAAAAAAAAAAAAAAAAAAQIREiH/2gAMAwEAAhEDEQA/ALUr8ShW6Y4hdRTZiFvRefTJbsk2dHNTKMtdE1Q5rqUJUsAYTPX3k2t3cIyo/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-room-six-bedded-960.jpg"
+  },
+  "resort/resort-room-six-bedded-interior": {
+    "width": 1600,
+    "height": 1200,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAQFAQP/xAAgEAACAgEEAwEAAAAAAAAAAAABAgADEQQFEhMhMUFR/8QAFwEAAwEAAAAAAAAAAAAAAAAAAAECA//EABgRAAMBAQAAAAAAAAAAAAAAAAABEQID/9oADAMBAAIRAxEAPwB9FrrJZTgmdBdxOOJIP2I7VtdmppF11h4+8AyjqF66jWngQRfTKy5aZ3L+Qk4llOAxhGZn/9k=",
+    "avifWidths": [
+      480,
+      960,
+      1440
+    ],
+    "webpWidths": [
+      480,
+      960,
+      1440
+    ],
+    "fallback": "/img/resort/resort-room-six-bedded-interior-1440.jpg"
   }
 }

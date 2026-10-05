@@ -63,6 +63,8 @@ const DENSE_BASES = new Set([
   'resort-cottages-mural',
   'resort-hero-mist',
   'resort-pathway-rain',
+  'resort-room-bamboo-cottage-interior',
+  'resort-room-bamboo-cottage-bathroom',
 ]);
 
 /**
@@ -179,6 +181,86 @@ const MAPPING = [
     alt: 'Night view of the garden, hedges and decorative gate at Chamtaburu Eco Resort, Ajodhya Hills',
   },
   // IMG_7314.jpg — motion blur, unusable per docs/04-photography.md §1 — excluded.
+
+  // --- Eco Resort room types (photos/eco_resort/<room-type>/ -> public/img/resort) ---
+  {
+    site: 'resort',
+    file: 'bamboo_cottage/Bamboo_cottage_ext_2.jpg',
+    base: 'resort-room-bamboo-cottage',
+    alt: 'Thatched-roof bamboo cottages with colourful painted steps at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    site: 'resort',
+    file: 'bamboo_cottage/bamboo_cottage_interior.JPG',
+    base: 'resort-room-bamboo-cottage-interior',
+    alt: 'Bamboo cottage bedroom with double bed, bedside cooler and wooden floor at Chamtaburu Eco Resort',
+  },
+  {
+    site: 'resort',
+    file: 'bamboo_cottage/bamboo_cottage_bathroom.jpg',
+    base: 'resort-room-bamboo-cottage-bathroom',
+    alt: 'Floral-tiled attached bathroom with sink and Western toilet in the Bamboo Cottage at Chamtaburu Eco Resort',
+  },
+  {
+    site: 'resort',
+    file: 'double_bedded/Double_bedded_Room.jpeg',
+    base: 'resort-room-double-bedded',
+    alt: 'Double-bedded room with made-up bed and folded towel at Chamtaburu Eco Resort',
+  },
+  {
+    site: 'resort',
+    file: 'double_bedded/Double_bedded_Bathroom.jpg',
+    base: 'resort-room-double-bedded-bathroom',
+    alt: 'Attached bathroom with sink and Western toilet for the Double Bedded room at Chamtaburu Eco Resort',
+  },
+  {
+    site: 'resort',
+    file: 'triple_bedded/Triple_Bedded_Room.jpg',
+    base: 'resort-room-triple-bedded',
+    alt: 'Triple Bedded room with one double bed and one single bed, wall fan, at Chamtaburu Eco Resort',
+  },
+  {
+    site: 'resort',
+    file: 'triple_bedded/triple_bedded_int.jpg',
+    base: 'resort-room-triple-bedded-interior',
+    alt: 'Triple Bedded room interior with two beds and bedside table at Chamtaburu Eco Resort',
+  },
+  {
+    site: 'resort',
+    file: 'triple_bedded/tripple_bedded_Bathroom.jpg',
+    base: 'resort-room-triple-bedded-bathroom',
+    alt: 'Attached bathroom with geyser and Western toilet for the Triple Bedded room at Chamtaburu Eco Resort',
+  },
+  {
+    site: 'resort',
+    file: 'four_bedded/four_bedded_Room.jpg',
+    base: 'resort-room-four-bedded',
+    alt: 'Four Bedded room with two double beds and decorative wall shelf at Chamtaburu Eco Resort',
+  },
+  {
+    site: 'resort',
+    file: 'four_bedded/four_bedded_int.jpg',
+    base: 'resort-room-four-bedded-interior',
+    alt: 'Four Bedded room interior showing beds, air conditioner and work table at Chamtaburu Eco Resort',
+  },
+  {
+    site: 'resort',
+    file: 'four_bedded/four_bedded_Bathroom.jpg',
+    base: 'resort-room-four-bedded-bathroom',
+    alt: 'Attached bathroom with geyser and Western toilet for the Four Bedded room at Chamtaburu Eco Resort',
+  },
+  {
+    site: 'resort',
+    file: 'six_bedded/Six_Bedded_Room_1.jpg',
+    base: 'resort-room-six-bedded',
+    alt: 'Six Bedded room with multiple beds, wall-mounted air conditioner and work table at Chamtaburu Eco Resort',
+  },
+  {
+    site: 'resort',
+    file: 'six_bedded/Six_Bedded_Room_2.jpg',
+    base: 'resort-room-six-bedded-interior',
+    alt: 'Six Bedded room interior with cushioned beds and bedside table at Chamtaburu Eco Resort',
+  },
 ];
 
 async function ensureDir(dir) {
