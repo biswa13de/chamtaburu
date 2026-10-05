@@ -21,7 +21,11 @@ const HERO_IMAGE = resolveImage({
 export function Contact() {
   const { address } = currentSite;
   const fullAddress = `${address.street}, ${address.locality}, ${address.district}, ${address.region} ${address.postalCode}, India`;
-  const mapsSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
+  // Prefer the confirmed pin (docs/06-open-questions.md Q6) when available;
+  // fall back to an address search for sites without one yet.
+  const mapsSearchUrl =
+    currentSite.mapsUrl ??
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`;
 
   // Arriving from a cottage detail page's "Enquire" button — see
   // src/components/pages/CottageDetail.tsx — preselects the cottage in the

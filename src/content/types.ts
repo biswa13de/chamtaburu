@@ -6,13 +6,7 @@
 
 // Keys into a shared amenity dictionary. Extend as real amenities are confirmed.
 export type AmenityKey =
-  | 'wifi'
-  | 'ac'
-  | 'geyser'
-  | 'breakfast'
-  | 'attached-bathroom'
-  | 'balcony'
-  | 'parking';
+  'wifi' | 'ac' | 'geyser' | 'breakfast' | 'attached-bathroom' | 'balcony' | 'parking';
 
 /**
  * `base` is a manifest key — `<site>/<descriptive-name>`, e.g.
@@ -117,6 +111,8 @@ export interface SiteConfig {
   gstin: string;
   // No confirmed social URLs exist yet (docs/06-open-questions.md Q9).
   // Omit keys rather than inventing URLs — Footer only renders icons for
-  // keys that are present.
-  social: { facebook?: string; instagram?: string; youtube?: string };
+  // keys that are present. `googleReview` links directly to the "write a
+  // review" flow for the business's Google listing (a g.page/r/... URL),
+  // not the business's Maps listing itself — that's `mapsUrl` above.
+  social: { facebook?: string; instagram?: string; youtube?: string; googleReview?: string };
 }
