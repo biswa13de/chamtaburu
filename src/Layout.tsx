@@ -4,7 +4,7 @@ import { Header } from './components/ui/Header';
 import { Footer } from './components/ui/Footer';
 import { MobileContactBar } from './components/ui/MobileContactBar';
 import { GoogleAnalytics, AnalyticsRouteTracker } from './components/ui/GoogleAnalytics';
-import { groupInfo, social } from './content/shared';
+import { groupInfo } from './content/shared';
 import { currentSite } from './content/site';
 import type { NavLink } from './components/ui/Header';
 
@@ -54,7 +54,7 @@ export default function Layout() {
           <main> which the footer follows. The bar itself is md:hidden, so
           this padding is removed at the same breakpoint. */}
       <div className="pb-[52px] md:pb-0">
-        <Footer navLinks={NAV_LINKS} legalName={groupInfo.legalName} social={social} />
+        <Footer navLinks={NAV_LINKS} legalName={groupInfo.legalName} social={currentSite.social} />
       </div>
       <MobileContactBar />
     </div>

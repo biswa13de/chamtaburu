@@ -48,12 +48,3 @@ export const legalPolicies: LegalPolicyStatus[] = [
     note: 'Full policy text pending — see docs/03-content-model.md §6 (children policy, extra beds, pets, smoking, alcohol, quiet hours).',
   },
 ];
-
-/**
- * Social links, group-wide. No confirmed URLs exist yet
- * (docs/06-open-questions.md Q9) — every key is intentionally absent
- * rather than pointing at an invented or placeholder URL. Footer only
- * renders an icon for a key that is present, so an empty object here
- * correctly hides all social icons instead of linking them nowhere.
- */
-export const social: { facebook?: string; instagram?: string; youtube?: string } = {};
