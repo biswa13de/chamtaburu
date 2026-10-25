@@ -30,6 +30,12 @@ concurrency:
 
 env:
   NODE_VERSION: '20'
+  # Pinned rather than the action's default `latest`: firebase-tools 15.34.1
+  # started checking the Service Usage API before deploying, which the CI
+  # service account has no permission for (403 on serviceusage.services.get).
+  # 15.32.1 is the last version that deployed successfully. To upgrade, first
+  # grant the service account roles/serviceusage.serviceUsageConsumer.
+  FIREBASE_TOOLS_VERSION: '15.32.1'
 
 jobs:
   quality:
@@ -96,6 +102,7 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          firebaseToolsVersion: ${{ env.FIREBASE_TOOLS_VERSION }}
           projectId: ${{ vars.GCP_PROJECT_ID }}
           target: village
           expires: 7d
@@ -104,6 +111,7 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          firebaseToolsVersion: ${{ env.FIREBASE_TOOLS_VERSION }}
           projectId: ${{ vars.GCP_PROJECT_ID }}
           target: resort
           expires: 7d
@@ -130,6 +138,7 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          firebaseToolsVersion: ${{ env.FIREBASE_TOOLS_VERSION }}
           projectId: ${{ vars.GCP_PROJECT_ID }}
           target: village
           channelId: live
@@ -138,6 +147,7 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          firebaseToolsVersion: ${{ env.FIREBASE_TOOLS_VERSION }}
           projectId: ${{ vars.GCP_PROJECT_ID }}
           target: resort
           channelId: live
