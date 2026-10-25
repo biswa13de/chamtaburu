@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Your Package · Chamtaburu</title>
+<meta name="description" content="Your personalised stay package from Chamtaburu, Ajodhya Hills, Purulia.">
+<link rel="stylesheet" href="/package/package.css">
+<style>
+.meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}
+.meta b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-weight:500;font-size:1.2rem;color:var(--forest)}
+.meta span{font-size:.85rem;color:var(--muted)}
+.ref{text-align:center;color:var(--muted);font-size:.85rem;margin:6px 0 0}
+.status{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.8rem;border:1px solid var(--line)}
+.status.expired{color:var(--warn);border-color:var(--warn)}
+ul.list{margin:0;padding-left:20px}
+ul.list li{margin:3px 0}
+.pay{display:flex;flex-direction:column;gap:10px}
+.pay .upi{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px dashed var(--line);border-radius:8px;padding:10px 12px;flex-wrap:wrap}
+.pay dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0;font-size:.95rem}
+.pay dt{color:var(--muted)}
+.pay dd{margin:0;overflow-wrap:anywhere}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:18px 0}
+footer{background:var(--forest);color:var(--paper);text-align:center;padding:28px 16px 36px;margin-top:24px;font-size:.92rem}
+footer h2{margin:0 0 4px;font-size:1.5rem}
+footer p{margin:4px 0;opacity:.9}
+footer a{color:inherit}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) footer{color:var(--bg)}}
+:root[data-theme="dark"] footer{color:var(--bg)}
+.empty{text-align:center;padding:60px 16px}
+@media (max-width:520px){ .meta{grid-template-columns:1fr;text-align:left} .meta div{display:flex;justify-content:space-between;align-items:baseline} .meta b{display:inline} }
+@media print{
+  body{background:#fff;color:#000}
+  .actions,.btn,.hills{display:none!important}
+  .card{border-color:#ccc;break-inside:avoid}
+  footer{background:none;color:#000;border-top:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <p class="kicker">Your stay package</p>
+  <h1 id="propName">Chamtaburu</h1>
+  <p class="tag" id="guestLine"></p>
+  <svg class="hills" viewBox="0 0 1200 190" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <path d="M0 120 C150 60 260 70 380 105 S620 40 760 80 S1020 50 1200 95 V190 H0Z" fill="var(--hill1)"/>
+    <path d="M0 150 C180 110 300 125 460 140 S760 95 920 130 S1100 120 1200 135 V190 H0Z" fill="var(--hill2)"/>
+    <path d="M0 175 C220 150 420 165 600 170 S980 150 1200 168 V190 H0Z" fill="var(--hill3)"/>
+    <g fill="var(--hill3)"><rect x="196" y="98" width="6" height="60"/><ellipse cx="199" cy="92" rx="26" ry="30"/></g>
+    <g fill="var(--hill3)"><rect x="1012" y="92" width="6" height="60"/><ellipse cx="1015" cy="86" rx="22" ry="28"/></g>
+    <g fill="var(--palash)"><circle cx="186" cy="82" r="5"/><circle cx="210" cy="76" r="4"/><circle cx="200" cy="98" r="4"/><circle cx="218" cy="95" r="3"/></g>
+    <g fill="var(--palash)"><circle cx="1004" cy="78" r="4"/><circle cx="1026" cy="72" r="5"/><circle cx="1018" cy="92" r="3"/></g>
+    <g fill="var(--palash)"><circle cx="600" cy="30" r="14" opacity=".9"/></g>
+  </svg>
+</header>
+
+<main class="wrap" id="main"></main>
+
+<footer id="foot" hidden>
+  <h2 id="footName"></h2>
+  <p id="footAddr"></p>
+  <p><a id="footSite" href="#"></a></p>
+  <p style="opacity:.7;font-size:.8rem;margin-top:10px" id="footLegal"></p>
+</footer>
+
+<script src="/package/rates.js"></script>
+<script src="/package/package-core.js"></script>
+<script src="/package/view.js"></script>
+</body>
+</html>
