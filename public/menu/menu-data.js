@@ -1,4 +1,4 @@
 (function () {
   var file = location.hostname.indexOf("resort.") === 0 ? "menu-resort.js" : "menu-village.js";
-  document.write('<script src="/menu/' + file + '"><\/script>');
+  document.write('<script src="/menu/' + file + '?v=2"><\/script>');
 })();

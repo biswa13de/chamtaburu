@@ -78,6 +78,7 @@ Also: `/package` and `/p/` are `Disallow`ed in `robots.txt` and both pages are `
 - There is no sign-in, so anyone who knows the API could _create_ junk quotes (each under 20 KB). They can't touch real ones. The guest page only shows UPI details and contact numbers from `rates.js`, so even a fake quote can't redirect payment.
 - Old long `#q=` links sent before v2 still open.
 - PIN is checked in the browser (decision 1).
+- Scripts in `public/package` and `public/menu` are served `no-cache`, so an edit to `rates.js` reaches every phone on its next visit. (Before 2026-10-26 they were cached for a year; the `?v=2` on the script tags got phones holding those old copies onto the new files.)
 - "Recent packages" is per phone. Staff can always open any quote at `/p/<code>` from its Ref.
 
 ### Placeholders currently in `rates.js` (replace with real values)
