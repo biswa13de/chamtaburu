@@ -3,6 +3,7 @@
   "//csp": "CSP allows: 'self' (all first-party JS/CSS/fonts/images — fonts are self-hosted via @fontsource, no external font CDN); script-src also allows googletagmanager.com (GA4's gtag.js) and 'unsafe-inline' (the GA4 bootstrap snippet in src/components/ui/GoogleAnalytics.tsx is a plain inline <script>, not nonce/hash-based — acceptable tradeoff for a static-hosting-only site with no user-generated content and no other inline-script vector); connect-src allows google-analytics.com/googletagmanager.com (gtag's beacon requests) and formspree.io (EnquiryForm.tsx's fetch() POST) and firestore.googleapis.com (the package generator saving quotes and the guest page at /p/<code> loading them); img-src allows data: for the base64 LQIP placeholders (src/components/ui/Image.tsx); frame-src allows youtube.com/vimeo.com for src/components/VideoModal.tsx's embeds (component exists, not currently wired into a page, kept forward-compatible). wa.me and Google Maps search links are plain <a href> navigations, not fetch/frame/script loads, so they need no CSP entry — CSP does not restrict top-level link navigation.",
 
   "//firestore": "Firestore holds package-generator quotes only (public/package/package-core.js). The guest page at /p/<code> reads one quote by its code; firestore.rules allows exactly that plus creating new quotes, nothing else.",
+  "//cache": "Vite's own assets are content-hashed, so a year-long immutable cache is right for them. The hand-written scripts in public/package and public/menu are not: their names never change, so they get no-cache (the browser re-checks each visit and only downloads when the file changed), listed after the immutable rule so it wins. Fonts under /menu/fonts keep the long cache.",
   "firestore": { "rules": "firestore.rules" },
 
   "hosting": [
@@ -20,6 +21,10 @@
         {
           "source": "**/*.@(js|css|woff|woff2|avif|webp|jpg|jpeg|png|svg)",
           "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+        },
+        {
+          "source": "/@(package|menu)/*.@(js|css)",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
         },
         {
           "source": "**/*.@(html)",
@@ -56,6 +61,10 @@
         {
           "source": "**/*.@(js|css|woff|woff2|avif|webp|jpg|jpeg|png|svg)",
           "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+        },
+        {
+          "source": "/@(package|menu)/*.@(js|css)",
+          "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
         },
         {
           "source": "**/*.@(html)",
