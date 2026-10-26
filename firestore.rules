@@ -1,0 +1,28 @@
+rules_version = '2';
+
+// Package generator quotes (public/package/package-core.js). There is no
+// sign-in — the manager PIN is checked in the browser — so these rules are
+// what actually protects the data:
+//   - anyone holding a code can read that one quote (the guest's link);
+//   - nobody can list quotes, so codes can't be harvested;
+//   - new quotes can be created, but never edited or deleted, so a link
+//     already sent always shows what was sent;
+//   - created quotes must have the expected shape and size.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /quotes/{code} {
+      allow get: if true;
+      allow list, update, delete: if false;
+      allow create: if code.matches('^[2-9A-HJKMNP-Z]{6}$')
+        && request.resource.data.keys().hasOnly(['q', 'p', 'created'])
+        && request.resource.data.q is string
+        && request.resource.data.q.size() < 20000
+        && request.resource.data.p in ['village', 'resort']
+        && request.resource.data.created == request.time;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

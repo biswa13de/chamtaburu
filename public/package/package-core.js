@@ -1,10 +1,10 @@
 /*
  * Shared helpers for the package generator and the guest view: price
- * calculation, formatting, and packing a quote into a URL fragment.
+ * calculation, formatting, and saving/loading quotes.
  *
  * A sent quote is a snapshot — the line items and totals are computed once in
- * the generator and carried inside the link (after the #, so it never reaches
- * a server). Changing rates.js later never changes a quote already sent.
+ * the generator and stored as-is. Changing rates.js later never changes a
+ * quote already sent.
  */
 (function () {
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -114,7 +114,59 @@
     return { nights, lines, subtotal, discount, taxable, gstPct, gst, total, advance, override, warnings };
   }
 
-  // Unicode-safe base64url, so names in Bengali or with emoji survive the link.
+  /*
+   * Quotes are saved to Firestore under a 6-character code, so the guest gets
+   * a short link (/p/R6X6K2). Plain REST calls rather than the Firebase SDK —
+   * two requests don't justify ~100 kB of library. firestore.rules allows
+   * reading one quote by its code and creating new ones, nothing else: no
+   * listing, no edits, no deletes. A sent quote never changes.
+   */
+  const DB = "projects/chamtaburu-webapp/databases/(default)/documents";
+  const API = "https://firestore.googleapis.com/v1/" + DB;
+  // No 0/O, 1/I/L, so a code read aloud over the phone can't be mistyped.
+  const CODE_CHARS = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
+  const CODE_RE = /^[2-9A-HJKMNP-Z]{6}$/;
+
+  function newCode() {
+    return Array.from(crypto.getRandomValues(new Uint8Array(6)), (b) => CODE_CHARS[b % CODE_CHARS.length]).join("");
+  }
+
+  // `build(code)` returns the quote to store; called again with a fresh code on the rare collision.
+  async function saveQuote(property, build) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const code = newCode();
+      const res = await fetch(API + ":commit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          writes: [{
+            update: {
+              name: `${DB}/quotes/${code}`,
+              fields: { q: { stringValue: JSON.stringify(build(code)) }, p: { stringValue: property } },
+            },
+            currentDocument: { exists: false },
+            updateTransforms: [{ fieldPath: "created", setToServerValue: "REQUEST_TIME" }],
+          }],
+        }),
+      });
+      if (res.ok) return code;
+      // FAILED_PRECONDITION / ALREADY_EXISTS = that code is taken; anything else is a real failure.
+      if (res.status !== 400 && res.status !== 409) throw new Error("save failed: " + res.status);
+    }
+    throw new Error("save failed: no free code");
+  }
+
+  async function loadQuote(code) {
+    if (!CODE_RE.test(code)) return null;
+    const res = await fetch(`${API}/quotes/${code}`);
+    if (res.status === 404 || res.status === 403) return null;
+    if (!res.ok) throw new Error("load failed: " + res.status);
+    const doc = await res.json();
+    return JSON.parse(doc.fields.q.stringValue);
+  }
+
+  // Unicode-safe base64url. Only for reading the long #q= links sent before
+  // short codes existed — new quotes are never encoded this way.
   function encode(obj) {
     const bytes = new TextEncoder().encode(JSON.stringify(obj));
     let bin = "";
@@ -136,5 +188,5 @@
   }
   const prettyPhone = (d) => (d.length === 12 && d.startsWith("91") ? "+91 " + d.slice(2, 7) + " " + d.slice(7) : "+" + d);
 
-  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, calculate, encode, decode, waNumber, prettyPhone };
+  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, calculate, saveQuote, loadQuote, encode, decode, waNumber, prettyPhone };
 })();

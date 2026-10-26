@@ -38,6 +38,11 @@ body{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .bar .tot{flex:1 1 auto;min-width:0;line-height:1.2}
 .bar .tot b{display:block;font-size:1.25rem;font-variant-numeric:tabular-nums}
 .bar .tot span{font-size:.8rem;color:var(--muted)}
+ul.recent{list-style:none;margin:0;padding:0}
+ul.recent li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+ul.recent li:last-child{border-bottom:none}
+ul.recent a{color:var(--forest);font-weight:600;font-variant-numeric:tabular-nums}
+@media (max-width:520px){ ul.recent li{grid-template-columns:minmax(0,1fr) auto} ul.recent li span{grid-column:1/-1;grid-row:2} }
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--forest);color:var(--paper);padding:8px 16px;border-radius:999px;font-size:.9rem;z-index:6}
 @media (max-width:520px){
   .row{grid-template-columns:minmax(0,1fr) 64px auto}
@@ -136,6 +141,12 @@ body{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 
       <p style="text-align:center;margin:20px 0"><button class="btn" type="button" id="reset">Start a new package</button></p>
     </form>
+
+    <div class="card" id="recentCard" hidden>
+      <h2>Recent packages</h2>
+      <p class="hint" style="margin:0 0 8px">Saved on this phone only. Tap a Ref to open the guest's page.</p>
+      <ul class="recent" id="recent"></ul>
+    </div>
   </div>
 
   <div class="bar"><div class="wrap">

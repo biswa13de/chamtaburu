@@ -23,7 +23,7 @@
  * script's route list in sync with main.tsx when routes change is a
  * conscious edit, not automatic — see the ROUTES_NOTE below.
  */
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'vite';
@@ -81,11 +81,29 @@ ${urls}
 `;
 }
 
+/**
+ * public/package/view.html is copied verbatim into both builds, but its
+ * WhatsApp preview tags need absolute URLs and the property's name, so the
+ * Resort build gets its own. The file ships with the Village's values.
+ */
+async function brandPackageView(outDir, site, origin, name) {
+  if (site === 'village') return;
+  const file = path.join(outDir, 'package', 'view.html');
+  const html = (await readFile(file, 'utf8'))
+    .replaceAll(
+      'https://chamtaburu.in/img/village/village-hero-hills-960.jpg',
+      `${origin}/img/resort/resort-hero-mist-960.jpg`,
+    )
+    .replaceAll('Chamtaburu Eco Village', name);
+  await writeFile(file, html, 'utf8');
+}
+
 function buildRobots(origin) {
   return `User-agent: *
 Allow: /
 Disallow: /404
 Disallow: /package
+Disallow: /p/
 
 Sitemap: ${origin}/sitemap.xml
 `;
@@ -117,6 +135,7 @@ async function main() {
 
   await writeFile(path.join(outDir, 'sitemap.xml'), buildSitemap(origin, routes), 'utf8');
   await writeFile(path.join(outDir, 'robots.txt'), buildRobots(origin), 'utf8');
+  await brandPackageView(outDir, site, origin, siteConfig.name);
 
   console.log(`[generate-seo] Wrote sitemap.xml (${routes.length} URLs) and robots.txt to dist/${site}/`);
 }
