@@ -1,28 +1,39 @@
 /*
- * /package/view — the guest's package page. Everything shown comes from the
- * quote packed into the link's #fragment by the generator; only the
- * property's address and payment details are read from rates.js, so a
- * corrected UPI ID reaches quotes that were already sent.
+ * /p/<code> (and /package/view) — the guest's package page. The quote is
+ * loaded from Firestore by its short code; links sent before short codes
+ * existed carry it in #q= instead, and still work. Only the property's
+ * address and payment details are read from rates.js, so a corrected UPI ID
+ * reaches quotes that were already sent.
  */
-(function () {
+(async function () {
   const C = window.PACKAGE_CONFIG;
   const P = window.PKG;
   const $ = (id) => document.getElementById(id);
   const main = $("main");
 
+  // /p/R6X6K2 on the live sites; /package/view.html?c=R6X6K2 in local dev.
+  const code = ((location.pathname.match(/^\/p\/([^/]+)\/?$/) || [])[1] || new URLSearchParams(location.search).get("c") || "").toUpperCase();
+  const legacy = new URLSearchParams(location.hash.slice(1)).get("q");
+
   let q = null;
+  let failed = false;
   try {
-    const raw = new URLSearchParams(location.hash.slice(1)).get("q");
-    q = raw ? clean(P.decode(raw)) : null;
-  } catch { q = null; }
+    if (code) q = clean(await P.loadQuote(code));
+    else if (legacy) q = clean(P.decode(legacy));
+  } catch (err) {
+    failed = /load failed/.test(err.message);
+    q = null;
+  }
   const prop = q && C.properties[q.p];
 
-  // Anyone can hand-edit a link, so coerce every field to the type it should be
-  // before it gets near the page. Numbers and dates are inserted unescaped below.
-  // The contact number must belong to a known manager or the property itself,
-  // so a doctored link can't send guests (or their advance) to a stranger.
+  // Anyone can create a quote document or hand-edit an old link, so coerce every
+  // field to the type it should be before it gets near the page. Numbers and
+  // dates are inserted unescaped below. The contact number must belong to a
+  // known manager or the property itself, so a doctored quote can't send
+  // guests (or their advance) to a stranger.
   function clean(d) {
-    const n = (v) => (Number.isFinite(Number(v)) ? Math.round(Number(v)) : 0);
+    if (!d || typeof d !== "object") return null;
+    const n =(v) => (Number.isFinite(Number(v)) ? Math.round(Number(v)) : 0);
     const s = (v) => (v == null ? "" : String(v).slice(0, 2000));
     const date = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(v) ? v : "");
     const arr = (v) => (Array.isArray(v) ? v.slice(0, 60) : []);
@@ -42,8 +53,11 @@
   }
 
   if (!q || !prop) {
-    main.innerHTML = `<div class="empty"><h2>This package link is incomplete</h2>
-      <p class="muted">Please open the full link from your WhatsApp message, or ask us to send it again.</p></div>`;
+    main.innerHTML = failed
+      ? `<div class="empty"><h2>Couldn't load your package</h2>
+          <p class="muted">Please check your internet connection and open the link again.</p></div>`
+      : `<div class="empty"><h2>We couldn't find this package</h2>
+          <p class="muted">Please open the full link from your WhatsApp message, or ask us to send it again.</p></div>`;
     return;
   }
 

@@ -33,28 +33,30 @@ guest on WhatsApp in one tap.
 
 ## Decisions
 
-| #   | Topic               | Decision                                                                                                                                                                            | Date       |
-| --- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| 1   | PIN security        | Browser-checked PIN (hashed, no backend). Keeps guests out; not hardened against a technical attacker — acceptable since the page holds no secret data.                             | 2026-10-26 |
-| 2   | What guest receives | WhatsApp text summary **+ link** to a styled package page. Package details encoded in the link, so no database needed.                                                              | 2026-10-26 |
-| 3   | Pricing             | Auto-calculated from a rate card, with manual override / discount by the manager.                                                                                                   | 2026-10-26 |
-| 4   | Property            | Both. Manager picks **Village / Resort from a dropdown** in one generator; rooms, rates, branding and WhatsApp number switch with it. Dropdown defaults to the site it's opened on. | 2026-10-26 |
-| 5   | Sending             | Manager enters the **guest's phone number**; tap opens WhatsApp (`wa.me/<guest>`) straight to that chat with the message pre-filled.                                                | 2026-10-26 |
-| 6   | Package contents    | Rooms × nights, **meal plan**, **add-ons**, **extra bed / child charges**, free-text **inclusions / exclusions / notes**.                                                           | 2026-10-26 |
-| 7   | Terms on package    | **GST line**, **advance amount** to confirm, **UPI / bank details**, **validity date**.                                                                                             | 2026-10-26 |
-| 8   | Managers            | **PIN per manager**; that manager's name + number shown on the package as the contact person. PINs stored only as hashes in code.                                                   | 2026-10-26 |
+| #   | Topic               | Decision                                                                                                                                                                                                                                                                           | Date       |
+| --- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| 1   | PIN security        | Browser-checked PIN (hashed, no backend). Keeps guests out; not hardened against a technical attacker — acceptable since the page holds no secret data.                                                                                                                            | 2026-10-26 |
+| 2   | What guest receives | Short WhatsApp message **+ short link** (`chamtaburu.in/p/R6X6K2`) to a styled package page. _Revised 2026-10-26:_ the first version packed the quote into the link (~700 chars), which looked like spam to guests, so quotes are now saved in Firestore under a 6-character code. | 2026-10-26 |
+| 3   | Pricing             | Auto-calculated from a rate card, with manual override / discount by the manager.                                                                                                                                                                                                  | 2026-10-26 |
+| 4   | Property            | Both. Manager picks **Village / Resort from a dropdown** in one generator; rooms, rates, branding and WhatsApp number switch with it. Dropdown defaults to the site it's opened on.                                                                                                | 2026-10-26 |
+| 5   | Sending             | Manager enters the **guest's phone number**; tap opens WhatsApp (`wa.me/<guest>`) straight to that chat with the message pre-filled.                                                                                                                                               | 2026-10-26 |
+| 6   | Package contents    | Rooms × nights, **meal plan**, **add-ons**, **extra bed / child charges**, free-text **inclusions / exclusions / notes**.                                                                                                                                                          | 2026-10-26 |
+| 7   | Terms on package    | **GST line**, **advance amount** to confirm, **UPI / bank details**, **validity date**.                                                                                                                                                                                            | 2026-10-26 |
+| 8   | Managers            | **PIN per manager**; that manager's name + number shown on the package as the contact person. PINs stored only as hashes in code.                                                                                                                                                  | 2026-10-26 |
+| 9   | Quote storage       | **Firestore** (free Spark tier), project `chamtaburu-webapp`. Exception to the "no database" rule in 02-architecture.md, accepted for short links + quote history. ₹0 at this volume.                                                                                              | 2026-10-26 |
 
-## Build status — v1 built with placeholder prices (2026-10-26)
+## Build status — v2: short links (2026-10-26)
 
 | Piece                                                    | What it is                                                                       |
 | -------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | `/package` → `public/package/index.html`, `generator.js` | Manager page: PIN lock, form, live price, Copy / Preview / Send on WhatsApp      |
-| `/package/view` → `view.html`, `view.js`                 | Guest page the WhatsApp link opens: breakdown, inclusions, pay + confirm buttons |
+| `/p/<code>` → `view.html`, `view.js`                     | Guest page the WhatsApp link opens: breakdown, inclusions, pay + confirm buttons |
 | `public/package/rates.js`                                | **The one file to edit** — managers, rates, meals, add-ons, GST, advance, UPI    |
-| `public/package/package-core.js`                         | Shared price maths + link encoding                                               |
+| `public/package/package-core.js`                         | Shared price maths + saving / loading quotes                                     |
+| `firestore.rules`                                        | Who may do what with saved quotes (read one by code, create; nothing else)       |
 | `npm run package-pin -- <PIN>`                           | Prints the hash to paste into a manager's `pin`                                  |
 
-Also: `/package` is `Disallow`ed in `robots.txt` and both pages are `noindex`.
+Also: `/package` and `/p/` are `Disallow`ed in `robots.txt` and both pages are `noindex`. The guest page has a WhatsApp preview card (property photo + "Your stay package").
 
 **Managers (2026-10-26):** Nirmal, Khushi, Shyam (both properties, contact number 92427 48100). The demo login (PIN `1234`) is kept on purpose.
 
@@ -66,14 +68,17 @@ Also: `/package` is `Disallow`ed in `robots.txt` and both pages are `noindex`.
 4. Rooms (type × qty, AC toggle where the room has an AC rate), meal plan, extra adult / child / bed, add-ons.
 5. Live breakdown. Nights inside a season (e.g. Celebration 20 Dec – 1 Jan) are priced on their own line. Capacity warnings if guests exceed the rooms.
 6. Discount (₹ or %) **or** a special final price incl. GST; advance %; valid-until date; inclusions / exclusions / note.
-7. **Send on WhatsApp** → opens `wa.me/<guest>` with the message + link. The work-in-progress survives a page reload.
+7. **Send on WhatsApp** → saves the quote (code like `R6X6K2`, Ref `CER-R6X6K2`) and opens `wa.me/<guest>` with a short message + link. Send / Copy / Preview reuse one code; any edit afterwards makes a new one. The work-in-progress survives a page reload.
+   **Recent packages** at the bottom lists the last 30 quotes made on that phone, with Copy link.
 8. Guest page: totals, advance, UPI "Pay" button + copy (once a UPI ID is set), **Confirm on WhatsApp** / Ask / Call the manager, **Save as PDF**.
 
-### Known limits (by design, no backend)
+### Known limits (by design)
 
-- The quote lives inside the link. A technical guest could edit the link and change the numbers shown _on their own screen_. The WhatsApp message the manager sent stays the record. The guest page only ever shows UPI details and contact numbers from `rates.js`, so a doctored link can't redirect payment.
+- A saved quote can never be edited or deleted, so a link always shows what was sent. Nobody can list quotes; you need the code. Codes are 6 characters from 31 (887 million combinations), so guessing one is impractical.
+- There is no sign-in, so anyone who knows the API could _create_ junk quotes (each under 20 KB). They can't touch real ones. The guest page only shows UPI details and contact numbers from `rates.js`, so even a fake quote can't redirect payment.
+- Old long `#q=` links sent before v2 still open.
 - PIN is checked in the browser (decision 1).
-- Links are ~1,000 characters; WhatsApp handles that fine.
+- "Recent packages" is per phone. Staff can always open any quote at `/p/<code>` from its Ref.
 
 ### Placeholders currently in `rates.js` (replace with real values)
 
