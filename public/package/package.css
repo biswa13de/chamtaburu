@@ -1,0 +1,68 @@
+/* Shared styles for /package (generator) and /package/view (guest page). Palette matches /menu. */
+@font-face{font-family:"Inter";src:url("/menu/fonts/inter-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Inter";src:url("/menu/fonts/inter-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:"Inter";src:url("/menu/fonts/inter-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"Cormorant Garamond";src:url("/menu/fonts/cormorant-garamond-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
+:root{
+  --bg:#eef0e4; --paper:#f8f8f0; --ink:#1d2b22; --muted:#5b6a5f; --line:#cfd5c2;
+  --forest:#2e4a36; --palash:#d9591c; --ok:#2f7d3a; --warn:#a3321b; --wa:#1f8f4e;
+  --hill1:#b9c7a8; --hill2:#8fa582; --hill3:#5f7c5c;
+  box-sizing:border-box;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#141c16; --paper:#1b251e; --ink:#e9ecdf; --muted:#a3ae9f; --line:#2f3b31;
+    --forest:#9fc2a0; --palash:#f07a3c; --ok:#63b56f; --warn:#e26a4f; --wa:#3cc177;
+    --hill1:#2a3a2d; --hill2:#223125; --hill3:#1a261d;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141c16; --paper:#1b251e; --ink:#e9ecdf; --muted:#a3ae9f; --line:#2f3b31;
+  --forest:#9fc2a0; --palash:#f07a3c; --ok:#63b56f; --warn:#e26a4f; --wa:#3cc177;
+  --hill1:#2a3a2d; --hill2:#223125; --hill3:#1a261d;
+}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%}
+h1,h2,h3,.serif{font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif;font-weight:500}
+:focus-visible{outline:2px solid var(--palash);outline-offset:2px}
+[hidden]{display:none!important}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+/* Hero (same hills as /menu) */
+.hero{position:relative;overflow:hidden;text-align:center;padding:36px 16px 0}
+.hero .kicker{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;color:var(--palash);font-size:1.1rem;margin:0 0 4px}
+.hero h1{font-size:clamp(2.1rem,8vw,3.6rem);line-height:1.04;margin:0;color:var(--forest)}
+.hero p.tag{margin:10px auto 0;max-width:40ch;color:var(--muted)}
+.hills{display:block;width:100%;height:auto;margin-top:14px}
+
+/* Cards and form controls */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px 16px;margin:14px 0}
+.card h2{font-size:1.45rem;margin:0 0 10px;color:var(--forest);line-height:1.2}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid .full{grid-column:1/-1}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:.88rem;color:var(--muted);min-width:0}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px;width:100%;min-width:0}
+textarea{min-height:86px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--forest);outline:none}
+input[type=checkbox]{width:20px;height:20px;accent-color:var(--forest);flex:0 0 auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-weight:500;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:10px 16px;border-radius:999px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--forest)}
+.btn.primary{background:var(--forest);border-color:var(--forest);color:var(--paper)}
+.btn.wa{background:var(--wa);border-color:var(--wa);color:#fff}
+.btn.small{padding:6px 12px;font-size:.88rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.banner{border-radius:8px;padding:10px 12px;font-size:.92rem;margin:14px 0;border:1px solid var(--palash);color:var(--ink);background:color-mix(in srgb,var(--palash) 12%,var(--paper))}
+.warnings{color:var(--warn);font-size:.9rem;margin:8px 0 0;padding-left:18px}
+
+/* Price breakdown */
+table.lines{width:100%;border-collapse:collapse;font-size:.95rem}
+table.lines td{padding:7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+table.lines td.amt{text-align:right;white-space:nowrap;padding-left:12px;font-variant-numeric:tabular-nums}
+table.lines .d{display:block;color:var(--muted);font-size:.84rem}
+table.lines tr.sum td{border-bottom:none;padding:4px 0}
+table.lines tr.total td{font-weight:600;font-size:1.1rem;border-top:2px solid var(--forest);padding-top:10px}
+table.lines tr.adv td{color:var(--palash);font-weight:600}
+
+@media (max-width:520px){ .grid{grid-template-columns:1fr} }

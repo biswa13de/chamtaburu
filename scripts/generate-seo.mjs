@@ -85,6 +85,7 @@ function buildRobots(origin) {
   return `User-agent: *
 Allow: /
 Disallow: /404
+Disallow: /package
 
 Sitemap: ${origin}/sitemap.xml
 `;
