@@ -17,7 +17,7 @@ import {
 // From the Firebase console: Project settings → General → Your apps → Web app.
 // Not a secret — it only names the project.
 const app = initializeApp({
-  apiKey: "PLACEHOLDER", // PLACEHOLDER
+  apiKey: "AIzaSyArlDtTs21ffCWNvZT7-47gCV-7y-IzwBs",
   authDomain: "chamtaburu-webapp.firebaseapp.com",
   projectId: "chamtaburu-webapp",
 });
