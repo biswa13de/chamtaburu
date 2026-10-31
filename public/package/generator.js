@@ -130,6 +130,7 @@
     rooms = [newRoom(prop.rooms[0])];
     addons = {};
     edits = {};
+    $("addonsCard").open = false;
     $("meal").innerHTML = Object.entries(P.PLANS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
     $("meal").value = "pkg";
     $("gst").value = prop.gst;
@@ -282,6 +283,10 @@
 
     renderLines(r);
     syncAddonPrices(r);
+    const picked = r.items.filter((it) => it.addon);
+    $("addonsSum").textContent = picked.length
+      ? `${picked.length} selected · ${P.inr(picked.reduce((s, it) => s + it.amount, 0))}`
+      : "Car hire, bonfire & more";
     $("sumRows").innerHTML = sumRows(r);
     $("warnings").innerHTML = r.warnings.map((w) => `<li>${P.esc(w)}</li>`).join("");
 
@@ -349,6 +354,7 @@
     rooms = d.rooms.map((r) => ("a" in r ? r : { ...newRoom(prop.rooms.find((x) => x.id === r.id) || prop.rooms[0]), ...r }));
     addons = d.addons;
     edits = d.edits || {};
+    $("addonsCard").open = Object.keys(addons).length > 0;
     FIELDS.forEach((id) => { if (d.f[id] != null) $(id).value = d.f[id]; });
     $("gstIncl").value = d.f.gstIncl ? "1" : "";
     if (!(d.f.meal in P.PLANS)) $("meal").value = "pkg"; // drafts from the old Veg / Non-veg plans
