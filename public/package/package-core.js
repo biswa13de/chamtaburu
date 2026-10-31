@@ -118,8 +118,9 @@
    * Quotes are saved to Firestore under a 6-character code, so the guest gets
    * a short link (/p/R6X6K2). Plain REST calls rather than the Firebase SDK —
    * two requests don't justify ~100 kB of library. firestore.rules allows
-   * reading one quote by its code and creating new ones, nothing else: no
-   * listing, no edits, no deletes. A sent quote never changes.
+   * reading one quote by its code and creating new ones (signed-in managers
+   * only, hence the ID token), nothing else: no listing, no edits, no
+   * deletes. A sent quote never changes.
    */
   const DB = "projects/chamtaburu-webapp/databases/(default)/documents";
   const API = "https://firestore.googleapis.com/v1/" + DB;
@@ -132,12 +133,13 @@
   }
 
   // `build(code)` returns the quote to store; called again with a fresh code on the rare collision.
-  async function saveQuote(property, build) {
+  // `idToken` is the manager's Firebase sign-in token (auth.js).
+  async function saveQuote(property, build, idToken) {
     for (let attempt = 0; attempt < 3; attempt++) {
       const code = newCode();
       const res = await fetch(API + ":commit", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
         body: JSON.stringify({
           writes: [{
             update: {
@@ -154,6 +156,33 @@
       if (res.status !== 400 && res.status !== 409) throw new Error("save failed: " + res.status);
     }
     throw new Error("save failed: no free code");
+  }
+
+  /*
+   * Managers live in Firestore, not in this repo, so their numbers are never in
+   * git or in a public file: one document per manager in `managers`, its ID the
+   * sign-in number ("+919876543210"), with `name`, optional `phone` (contact on
+   * the package; defaults to the property's) and optional `props` (defaults to
+   * both). Added in the Firebase console. firestore.rules lets anyone fetch one
+   * by its exact number — so the generator can check before sending an SMS —
+   * but never list them.
+   */
+  async function loadManager(phone) {
+    const res = await fetch(`${API}/managers/${encodeURIComponent(phone)}`);
+    if (res.status === 404 || res.status === 403) return null;
+    if (!res.ok) throw new Error("manager lookup failed: " + res.status);
+    const f = (await res.json()).fields || {};
+    const str = (k) => (f[k] && f[k].stringValue) || "";
+    const props = f.props && f.props.arrayValue ? (f.props.arrayValue.values || []).map((v) => v.stringValue) : null;
+    return { name: str("name") || "Manager", phone: str("phone").replace(/\D/g, ""), props };
+  }
+
+  // The number a package shows the guest: the manager's own if it is an approved
+  // contact in rates.js, otherwise the property's.
+  function contactFor(phone, propKey) {
+    const C = window.PACKAGE_CONFIG;
+    const known = (C.contacts || []).concat(Object.values(C.properties).map((x) => x.phone));
+    return known.includes(String(phone)) ? String(phone) : C.properties[propKey].phone;
   }
 
   async function loadQuote(code) {
@@ -188,5 +217,5 @@
   }
   const prettyPhone = (d) => (d.length === 12 && d.startsWith("91") ? "+91 " + d.slice(2, 7) + " " + d.slice(7) : "+" + d);
 
-  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, calculate, saveQuote, loadQuote, encode, decode, waNumber, prettyPhone };
+  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, calculate, saveQuote, loadManager, contactFor, loadQuote, encode, decode, waNumber, prettyPhone };
 })();

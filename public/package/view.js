@@ -28,9 +28,9 @@
 
   // Anyone can create a quote document or hand-edit an old link, so coerce every
   // field to the type it should be before it gets near the page. Numbers and
-  // dates are inserted unescaped below. The contact number must belong to a
-  // known manager or the property itself, so a doctored quote can't send
-  // guests (or their advance) to a stranger.
+  // dates are inserted unescaped below. The contact number must be an approved
+  // one from rates.js (P.contactFor), so a doctored quote can't send guests
+  // (or their advance) to a stranger.
   function clean(d) {
     if (!d || typeof d !== "object") return null;
     const n =(v) => (Number.isFinite(Number(v)) ? Math.round(Number(v)) : 0);
@@ -39,8 +39,7 @@
     const arr = (v) => (Array.isArray(v) ? v.slice(0, 60) : []);
     const p = C.properties[d.p] ? d.p : "";
     if (!p || !date(d.ci) || !date(d.co)) return null;
-    const known = C.managers.map((m) => m.phone).concat(C.properties[p].phone);
-    const ph = known.includes(String(d.m && d.m.ph)) ? d.m.ph : C.properties[p].phone;
+    const ph = P.contactFor(d.m && d.m.ph, p);
     return {
       id: s(d.id).replace(/[^A-Z0-9-]/gi, ""), p, cd: date(d.cd), vu: date(d.vu),
       m: { n: s(d.m && d.m.n) || "our team", ph },
