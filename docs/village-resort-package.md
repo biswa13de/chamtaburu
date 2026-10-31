@@ -99,7 +99,7 @@ Adding or removing a manager takes effect straight away: no code change, no depl
 6. Discount (₹ or %) **or** a special final price incl. GST; advance %; valid-until date; inclusions / exclusions / note.
 7. **Send on WhatsApp** → saves the quote (code like `R6X6K2`, Ref `CER-R6X6K2`) and opens `wa.me/<guest>` with a short message + link. Send / Copy / Preview reuse one code; any edit afterwards makes a new one. The work-in-progress survives a page reload.
    **Packages** at the bottom lists the latest 60 quotes from all managers (or only yours): Ref, guest, date, total, who made it, and a **status** dropdown (Sent / Confirmed / Cancelled) showing who last changed it.
-8. Guest page: totals, advance, UPI "Pay" button + copy (once a UPI ID is set), **Confirm on WhatsApp** / Ask / Call the manager, **Save as PDF**.
+8. Guest page: totals, advance, UPI "Pay" button + copy and a scannable UPI QR (where set), **Confirm on WhatsApp** / Ask / Call the manager, **Save as PDF**.
 
 ### Known limits (by design)
 
@@ -127,7 +127,7 @@ Children 5–10 pay half the adult price for their room; under 5 free. One adult
 - Extras on normal nights: Village adult ₹600 · child ₹300 · bed ₹500; Resort ₹500 · ₹250 · ₹400.
 - Extras add-ons: nature trail ₹200 pp, decoration ₹1,500, BBQ ₹400 pp.
 - GST 5% · advance 50% · valid 3 days.
-- **UPI / bank: deliberately empty.** The guest page says the manager will share payment details. A made-up UPI ID could send real money to a stranger.
+- **Payment:** Village has bank details, no UPI yet. Resort has its Paytm UPI ID and QR (`public/package/resort-upi-qr.png`, cropped from the standee so its phone number isn't published). Never fill in a made-up UPI ID: it could send real money to a stranger.
 
 ## Data needed (please fill in)
 
@@ -148,7 +148,7 @@ Children 5–10 pay half the adult price for their room; under 5 free. One adult
 
 **Terms**: GST % = ? · Advance % = ? · Default validity = ? days
 
-**Payment per property**: Village UPI ID / bank = ? · Resort UPI ID / bank = ?
+**Payment per property**: Village UPI ID + QR = ? · Resort bank = ?
 
 **Managers**: name · sign-in mobile number · contact WhatsApp number · property (or both). Share sign-in numbers privately and enter them in Firestore — not here, this file is in git.
 

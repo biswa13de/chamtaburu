@@ -145,6 +145,10 @@
       const upiLink = `upi://pay?pa=${encodeURIComponent(prop.upi.id)}&pn=${encodeURIComponent(prop.upi.payee)}&am=${q.adv || q.tot}&cu=INR&tn=${encodeURIComponent(q.id)}`;
       h += `<div class="upi"><div><span class="muted" style="font-size:.85rem">UPI ID</span><br><strong id="upiId">${P.esc(prop.upi.id)}</strong></div>
         <span style="display:flex;gap:8px"><button class="btn small" type="button" id="copyUpi">Copy</button><a class="btn small primary" href="${upiLink}">Pay with UPI app</a></span></div>`;
+      if (prop.upi.qr) {
+        h += `<figure class="qr"><img src="${P.esc(prop.upi.qr)}" width="232" height="232" alt="UPI QR code for ${P.esc(prop.upi.payee)}">
+          <figcaption class="muted">Scan with any UPI app · ${P.esc(prop.upi.id)}</figcaption></figure>`;
+      }
     }
     if (prop.bank) {
       const b = prop.bank;

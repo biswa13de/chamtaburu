@@ -122,7 +122,8 @@ window.PACKAGE_CONFIG = {
       validDays: 3, // PLACEHOLDER
       // PLACEHOLDER — deliberately empty rather than a made-up ID, so no guest
       // can ever pay into the wrong account. Fill in e.g.
-      // upi: { id: "name@bank", payee: "Chamtaburu Eco Village" },
+      // upi: { id: "name@bank", payee: "Chamtaburu Eco Village", qr: "/package/village-upi-qr.png" },
+      // (`qr` optional: a scannable image of the property's UPI QR.)
       // bank: { name: "...", account: "...", ifsc: "...", holder: "..." },
       upi: null,
       bank: { name: "Axis Bank", account: "925020051130088", ifsc: "UTIB0000397", holder: "CHAMTABURU ECO VILLAGE" },
@@ -161,7 +162,8 @@ window.PACKAGE_CONFIG = {
       gst: 5, // PLACEHOLDER
       advance: 50, // PLACEHOLDER
       validDays: 3, // PLACEHOLDER
-      upi: { id: "paytmqr5fsm78@ptys", payee: "Chamtaburu Eco Resort" }, // PLACEHOLDER — see the Village note above
+      // The resort's Paytm QR, cropped to the code (no phone number on it).
+      upi: { id: "paytmqr5fsm78@ptys", payee: "Chamtaburu Eco Resort", qr: "/package/resort-upi-qr.png" },
       bank: null,
       inclusions: ["Accommodation as listed", "Daily breakfast", "Meals as per the selected plan", "Free parking"],
       exclusions: ["Personal expenses", "Anything not mentioned in inclusions"],
