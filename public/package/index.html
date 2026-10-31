@@ -40,6 +40,15 @@ body{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .addon input[type=number]:disabled{opacity:.4}
 .addon-head{display:grid;grid-template-columns:minmax(0,1fr) 56px 84px;gap:10px;font-size:.78rem;color:var(--muted);text-align:center}
 .addon-head span:first-child{text-align:left}
+/* Collapsible card (Add-ons): the summary line says what's picked while closed. */
+.fold summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px}
+.fold summary::-webkit-details-marker{display:none}
+.fold summary h2{margin:0;flex:0 0 auto}
+.fold .foldSum{flex:1 1 auto;min-width:0;font-size:.88rem;color:var(--muted);text-align:right}
+.fold summary::after{content:"";flex:0 0 auto;width:9px;height:9px;margin:-5px 4px 0 0;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s}
+.fold[open] summary::after{transform:rotate(-135deg);margin-top:5px}
+/* <details> content sits in a shadow slot, so it doesn't inherit border-box from :root. */
+.fold .foldBody{margin-top:12px;box-sizing:border-box}
 .inline{display:flex;gap:8px}
 .inline select{width:auto;flex:0 0 auto}
 .hint{font-size:.84rem;color:var(--muted);margin:6px 0 0}
@@ -153,11 +162,13 @@ ul.recent .acts{display:flex;gap:6px}
         <p class="hint" id="mealHint"></p>
       </div>
 
-      <div class="card">
-        <h2>Add-ons</h2>
-        <label class="f" style="margin-bottom:10px">Car for car hire<select id="car"><option value="5">5-seater</option><option value="9">9-seater</option></select></label>
-        <div id="addons"></div>
-      </div>
+      <details class="card fold" id="addonsCard">
+        <summary><h2>Add-ons</h2><span class="foldSum" id="addonsSum"></span></summary>
+        <div class="foldBody">
+          <label class="f" style="margin-bottom:10px">Car for car hire<select id="car"><option value="5">5-seater</option><option value="9">9-seater</option></select></label>
+          <div id="addons"></div>
+        </div>
+      </details>
 
       <div class="card">
         <h2>Price</h2>
