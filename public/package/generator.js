@@ -42,6 +42,7 @@
     "auth/code-expired": "That code has expired. Send a new one.",
     "auth/quota-exceeded": "Too many SMS sent today. Try again tomorrow.",
     "auth/operation-not-allowed": "Phone sign-in isn't switched on yet.",
+    "auth/configuration-not-found": "Sign-in isn't set up in Firebase yet (Authentication → Get started).",
     "auth/invalid-api-key": "Sign-in isn't set up yet (Firebase key missing in auth.js).",
     "auth/api-key-not-valid.-please-pass-a-valid-api-key.": "Sign-in isn't set up yet (Firebase key missing in auth.js).",
     "auth/network-request-failed": "No connection. Check your internet and try again.",
