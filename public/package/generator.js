@@ -41,7 +41,8 @@
     "auth/invalid-verification-code": "Wrong code. Check the SMS and try again.",
     "auth/code-expired": "That code has expired. Send a new one.",
     "auth/quota-exceeded": "Too many SMS sent today. Try again tomorrow.",
-    "auth/operation-not-allowed": "Phone sign-in isn't switched on yet.",
+    // Also what Firebase returns when the SMS region policy doesn't allow India.
+    "auth/operation-not-allowed": "Phone sign-in or SMS to India isn't switched on in Firebase yet.",
     "auth/configuration-not-found": "Sign-in isn't set up in Firebase yet (Authentication → Get started).",
     "auth/invalid-api-key": "Sign-in isn't set up yet (Firebase key missing in auth.js).",
     "auth/api-key-not-valid.-please-pass-a-valid-api-key.": "Sign-in isn't set up yet (Firebase key missing in auth.js).",
