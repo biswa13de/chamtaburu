@@ -21,6 +21,7 @@
   let propKey = "";
   let rooms = [];
   let addons = {};
+  let edits = {}; // a manager's own price per line, by line key (P.calculate)
 
   /* ---------- Sign-in ---------- */
   let A = null; // auth.js, once loaded
@@ -119,20 +120,20 @@
       setProperty(allowed.includes(siteKey) ? siteKey : allowed[0]);
     }
     update();
-    renderRecent();
+    loadPackages();
   }
 
   function setProperty(key) {
     propKey = key;
     prop = C.properties[key];
     $("prop").value = key;
-    rooms = [{ id: prop.rooms[0].id, ac: false, q: 1 }];
+    rooms = [newRoom(prop.rooms[0])];
     addons = {};
+    edits = {};
     $("meal").innerHTML = prop.meals.map((m) => {
       const price = m.adult ? ` — ${P.inr(m.adult)}/adult/night` : "";
       return `<option value="${m.id}">${P.esc(m.name + price)}</option>`;
     }).join("");
-    $("extraChildLbl").firstChild.textContent = `Extra children ${prop.childAge} (per night)`;
     $("gst").value = prop.gst;
     $("advancePct").value = prop.advance;
     $("validUntil").value = P.addDays(P.today(), prop.validDays);
@@ -143,17 +144,22 @@
   }
 
   /* ---------- Rooms & add-ons ---------- */
+  // A row is `q` rooms of one type, each with `a` adults and `k` children.
+  const newRoom = (room) => ({ id: room.id, ac: false, q: 1, a: room.adults, k: 0 });
+
   function renderRooms() {
     $("rooms").innerHTML = rooms.map((r, i) => {
       const room = prop.rooms.find((x) => x.id === r.id) || prop.rooms[0];
       const opts = prop.rooms.map((x) => {
-        const cap = x.adults + " adults" + (x.children ? " + " + x.children + " child" : "");
+        const cap = "up to " + (x.max || x.adults) + " adults";
         return `<option value="${x.id}"${x.id === room.id ? " selected" : ""}>${P.esc(x.name)} — ${P.inr(x.rate)} · ${cap}</option>`;
       }).join("");
       return `<div class="row" data-i="${i}">
         <select data-k="id" aria-label="Room type">${opts}</select>
-        <label class="ac${room.ac ? "" : " off"}"><input type="checkbox" data-k="ac"${r.ac ? " checked" : ""}> AC ${room.ac ? P.inr(room.ac) : ""}</label>
-        <input type="number" min="1" max="20" value="${r.q}" data-k="q" aria-label="Number of rooms">
+        <label class="mini">Rooms<input type="number" min="1" max="20" value="${r.q}" data-k="q"></label>
+        <label class="mini">Adults / room<input type="number" min="1" max="${room.max || room.adults}" value="${r.a}" data-k="a"></label>
+        <label class="mini">Children ${P.esc(prop.childAge)}<input type="number" min="0" max="6" value="${r.k}" data-k="k"></label>
+        <label class="ac${room.ac ? "" : " off"}"><input type="checkbox" data-k="ac"${r.ac ? " checked" : ""}> AC</label>
         <button class="btn small" type="button" data-k="del" aria-label="Remove room"${rooms.length < 2 ? " disabled" : ""}>✕</button>
       </div>`;
     }).join("");
@@ -163,9 +169,10 @@
     if (!row) return;
     const r = rooms[row.dataset.i];
     const k = e.target.dataset.k;
-    if (k === "id") { r.id = e.target.value; r.ac = false; renderRooms(); }
+    const n = Math.max(0, parseInt(e.target.value, 10) || 0);
+    if (k === "id") { Object.assign(r, newRoom(prop.rooms.find((x) => x.id === e.target.value)), { q: r.q }); renderRooms(); }
     if (k === "ac") r.ac = e.target.checked;
-    if (k === "q") r.q = Math.max(0, parseInt(e.target.value, 10) || 0);
+    if (k === "q" || k === "a" || k === "k") r[k] = n;
     update();
   });
   $("rooms").addEventListener("click", (e) => {
@@ -177,25 +184,33 @@
   $("addRoom").addEventListener("click", () => {
     const used = rooms.map((r) => r.id);
     const next = prop.rooms.find((x) => !used.includes(x.id)) || prop.rooms[0];
-    rooms.push({ id: next.id, ac: false, q: 1 });
+    rooms.push(newRoom(next));
     renderRooms();
     update();
   });
 
-  const unitLabel = { stay: "per stay", person: "per person", night: "per night" };
+  const unitLabel = { stay: "per stay", person: "per person", night: "per night", car: "per car" };
+  const qtyLabel = { car: "cars", kg: "kg", person: "people" };
+  function addonPrice(a) {
+    if (a.unit === "car") return `${P.inr(a.price[$("car").value])} per car`;
+    if (a.unit === "kg") return `${P.inr(Object.values(a.price)[0])} for 1 kg`;
+    return `${P.inr(a.price)} ${unitLabel[a.unit]}`;
+  }
   function renderAddons() {
-    $("addons").innerHTML = prop.addons.map((a) => {
+    let group = null;
+    $("addons").innerHTML = P.addonsFor(prop).map((a) => {
       const q = addons[a.id] || 0;
-      return `<label class="addon" data-id="${a.id}">
+      const head = a.group && a.group !== group ? `<p class="grp">${P.esc((group = a.group))}</p>` : "";
+      return `${head}<label class="addon" data-id="${a.id}">
         <input type="checkbox"${q ? " checked" : ""} data-k="on">
-        <span>${P.esc(a.name)}</span>
-        <span class="p">${P.inr(a.price)} ${unitLabel[a.unit]}</span>
-        <input type="number" min="1" max="60" value="${q || defaultAddonQty(a)}" data-k="q" aria-label="${P.esc(a.name)} quantity"${q ? "" : " disabled"}>
+        <span>${P.esc(a.name)}${a.desc ? `<small>${P.esc(a.desc)}</small>` : ""}</span>
+        <span class="p">${addonPrice(a)}</span>
+        <input type="number" min="1" max="60" value="${q || defaultAddonQty(a)}" data-k="q" aria-label="${P.esc(a.name)} ${qtyLabel[a.unit] || "quantity"}"${q ? "" : " disabled"}>
       </label>`;
     }).join("");
   }
   function defaultAddonQty(a) {
-    return a.unit === "person" ? Math.max(1, num("adults") + num("children")) : 1;
+    return a.unit === "person" && result ? Math.max(1, result.adults + result.children) : 1;
   }
   $("addons").addEventListener("input", (e) => {
     const row = e.target.closest(".addon");
@@ -213,9 +228,8 @@
 
   function state() {
     return {
-      ci: $("ci").value, co: $("co").value, adults: num("adults"), children: num("children"),
-      rooms, meal: $("meal").value, addons,
-      extraAdult: num("extraAdult"), extraChild: num("extraChild"), extraBed: num("extraBed"),
+      ci: $("ci").value, co: $("co").value,
+      rooms, meal: $("meal").value, addons, edits, car: $("car").value, extraBed: num("extraBed"),
       discount: $("discount").value, discountType: $("discountType").value,
       override: $("override").value, gst: $("gst").value, advancePct: $("advancePct").value,
     };
@@ -231,10 +245,14 @@
       ? `${P.plural(r.nights, "night")} · ${P.fmtDate(st.ci)} → ${P.fmtDate(st.co)}`
       : "";
 
-    let html = r.lines.map((l) => `<tr><td>${P.esc(l[0])}${l[1] ? `<span class="d">${P.esc(l[1])}</span>` : ""}</td><td class="amt">${P.inr(l[2])}</td></tr>`).join("");
-    if (!r.lines.length) html = `<tr><td class="muted">Pick dates and rooms to see the price.</td><td></td></tr>`;
-    html += sumRows(r);
-    $("breakdown").innerHTML = html;
+    $("guestsHint").textContent = `Guests: ${P.plural(r.adults, "adult")}` + (r.children ? `, ${P.kids(r.children)} (${prop.childAge})` : "") + ". Younger children stay free.";
+    const season = r.nights > r.mealNights ? (prop.seasons || []).find((x) => x.meals) : null;
+    $("mealHint").textContent = !season ? ""
+      : r.mealNights ? `${season.name} nights include all meals; the meal plan and extra beds apply to the other ${P.plural(r.mealNights, "night")}.`
+      : `${season.name}: all meals included, so no meal plan or extra beds needed.`;
+
+    renderLines(r);
+    $("sumRows").innerHTML = sumRows(r);
     $("warnings").innerHTML = r.warnings.map((w) => `<li>${P.esc(w)}</li>`).join("");
 
     $("barTotal").textContent = P.inr(r.total);
@@ -242,6 +260,39 @@
 
     store.set(DRAFT_KEY, snapshotForm());
   }
+
+  // The price column is editable. Rows are rebuilt only when the lines change,
+  // so typing a price doesn't lose the cursor; otherwise just their text.
+  let lineKeys = "";
+  function renderLines(r) {
+    const keys = r.items.map((it) => it.key).join("\n");
+    if (keys !== lineKeys) {
+      lineKeys = keys;
+      // Drop edits for lines that no longer exist (dates, rooms or guests changed).
+      edits = Object.fromEntries(Object.entries(edits).filter(([k]) => r.items.some((it) => it.key === k)));
+      $("lineRows").innerHTML = r.items.length
+        ? r.items.map((it, i) => `<tr data-i="${i}"><td>${P.esc(it.label)}<span class="d"></span><span class="d was"></span></td>
+            <td class="amt"><input type="number" min="0" step="1" inputmode="numeric" aria-label="Price for ${P.esc(it.label)}"></td></tr>`).join("")
+        : `<tr><td class="muted">Pick dates and rooms to see the price.</td><td></td></tr>`;
+    }
+    r.items.forEach((it, i) => {
+      const tr = $("lineRows").querySelector(`tr[data-i="${i}"]`);
+      tr.querySelector(".d").textContent = it.detail;
+      tr.querySelector(".was").textContent = it.edited ? "Rate card " + P.inr(it.rateCard) : "";
+      const input = tr.querySelector("input");
+      if (document.activeElement !== input) input.value = it.amount;
+    });
+  }
+  $("lineRows").addEventListener("input", (e) => {
+    const tr = e.target.closest("tr[data-i]");
+    if (!tr) return;
+    const it = result.items[tr.dataset.i];
+    if (e.target.value === "") delete edits[it.key];
+    else edits[it.key] = e.target.value;
+    update();
+  });
+  // Leaving an emptied price shows the rate card figure again.
+  $("lineRows").addEventListener("focusout", () => update());
 
   function sumRows(r) {
     const row = (label, amt, cls = "sum") => `<tr class="${cls}"><td>${label}</td><td class="amt">${amt}</td></tr>`;
@@ -255,24 +306,27 @@
   }
 
   // The whole form, so a reload or an accidental back-swipe keeps the work.
-  const FIELDS = ["gName", "gPhone", "ci", "co", "adults", "children", "meal", "extraAdult", "extraChild", "extraBed", "discount", "discountType", "override", "gst", "advancePct", "validUntil", "inclusions", "exclusions", "note"];
+  const FIELDS = ["gName", "gPhone", "ci", "co", "meal", "extraBed", "car", "discount", "discountType", "override", "gst", "advancePct", "validUntil", "inclusions", "exclusions", "note"];
   function snapshotForm() {
     const f = {};
     FIELDS.forEach((id) => (f[id] = $(id).value));
-    return { propKey, rooms, addons, f };
+    return { propKey, rooms, addons, edits, f };
   }
   function restore(d) {
     setProperty(d.propKey);
-    rooms = d.rooms;
+    // Drafts from before rooms had guests get the room's normal occupancy.
+    rooms = d.rooms.map((r) => ("a" in r ? r : { ...newRoom(prop.rooms.find((x) => x.id === r.id) || prop.rooms[0]), ...r }));
     addons = d.addons;
+    edits = d.edits || {};
     FIELDS.forEach((id) => { if (d.f[id] != null) $(id).value = d.f[id]; });
     renderRooms();
     renderAddons();
   }
 
   $("form").addEventListener("input", (e) => {
-    if (e.target.closest("#rooms, #addons")) return;
+    if (e.target.closest("#rooms, #addons, #lineRows")) return;
     if (e.target.id === "prop") setProperty(e.target.value);
+    if (e.target.id === "car") renderAddons();
     if (e.target.id === "ci" && $("ci").value) {
       $("co").min = P.addDays($("ci").value, 1);
       if (!$("co").value || $("co").value <= $("ci").value) $("co").value = P.addDays($("ci").value, 1);
@@ -283,8 +337,8 @@
 
   $("reset").addEventListener("click", () => {
     ["gName", "gPhone", "ci", "co", "note", "override"].forEach((id) => ($(id).value = ""));
-    $("adults").value = 2;
-    ["children", "extraAdult", "extraChild", "extraBed", "discount"].forEach((id) => ($(id).value = 0));
+    ["extraBed", "discount"].forEach((id) => ($(id).value = 0));
+    $("car").value = "5";
     setProperty(propKey);
     update();
     window.scrollTo(0, 0);
@@ -297,7 +351,7 @@
     return {
       v: 1, p: propKey, cd: P.today(), vu: $("validUntil").value,
       m: { n: manager.name, ph: P.contactFor(manager.phone, propKey) },
-      g: $("gName").value.trim(), ci: st.ci, co: st.co, n: r.nights, a: st.adults, k: st.children,
+      g: $("gName").value.trim(), ci: st.ci, co: st.co, n: r.nights, a: r.adults, k: r.children,
       l: r.lines, sub: r.subtotal, dis: r.discount, ov: r.override ? 1 : 0, gp: r.gstPct, gst: r.gst,
       tot: r.total, ap: Number(st.advancePct) || 0, adv: r.advance,
       inc: lines("inclusions"), exc: lines("exclusions"), note: $("note").value.trim(),
@@ -312,9 +366,9 @@
     const data = quoteData();
     const key = JSON.stringify(data);
     if (saved && saved.key === key) return saved;
-    const code = await P.saveQuote(propKey, (c) => ({ ...data, id: `${prop.prefix}-${c}` }), await A.token());
+    const code = await P.saveQuote(propKey, (c) => ({ ...data, id: `${prop.prefix}-${c}` }), await A.token(), A.phone());
     saved = { key, data, ref: `${prop.prefix}-${code}`, url: viewUrl(code) };
-    remember(saved);
+    loadPackages();
     return saved;
   }
 
@@ -335,7 +389,8 @@
       const room = prop.rooms.find((x) => x.id === r.id);
       return (r.q > 1 ? r.q + " × " : "") + room.name + (r.ac && room.ac ? " (AC)" : "");
     }).join(", ");
-    const meal = prop.meals.find((m) => m.id === $("meal").value);
+    const meal = result.mealNights ? prop.meals.find((m) => m.id === $("meal").value) : null;
+    const season = result.nights > result.mealNights ? (prop.seasons || []).find((x) => x.meals) : null;
     const out = [
       `*${prop.name}*`,
       `Hello ${d.g}, here is your stay package 🌿`,
@@ -344,6 +399,7 @@
       `👥 ${P.plural(d.a, "adult")}${d.k ? ", " + P.kids(d.k) : ""}`,
       `🏡 ${roomText}`,
     ];
+    if (season) out.push(`🎉 ${season.name} · all meals included`);
     if (meal && (meal.adult || meal.child)) out.push(`🍽 ${meal.name}`);
     out.push(`💰 Total *${P.inr(d.tot)}*${d.gp ? " (incl. GST)" : ""}`);
     if (d.adv) out.push(`✅ Advance to confirm: *${P.inr(d.adv)}*`);
@@ -418,31 +474,72 @@
     });
   });
 
-  /* ---------- Recent packages (this device only) ---------- */
-  const RECENT_KEY = "pkg-recent";
-  function recent() {
-    try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch { return []; }
+  /* ---------- Packages: every manager's quotes, with status ---------- */
+  const STATUS = { sent: "Sent", confirmed: "Confirmed", cancelled: "Cancelled" };
+  const names = {}; // manager phone → name, for "confirmed by"
+  let packages = [];
+
+  async function managerName(phone) {
+    if (!(phone in names)) names[phone] = P.loadManager(phone).then((m) => (m ? m.name : phone)).catch(() => phone);
+    return names[phone];
   }
-  function remember(s) {
-    const item = { ref: s.ref, url: s.url, g: s.data.g, ci: s.data.ci, tot: s.data.tot, by: manager.name };
-    const list = [item, ...recent().filter((x) => x.ref !== s.ref)].slice(0, 30);
-    try { localStorage.setItem(RECENT_KEY, JSON.stringify(list)); } catch { /* private mode */ }
-    renderRecent();
+
+  async function loadPackages() {
+    $("pkgHint").textContent = "Loading…";
+    try {
+      packages = await P.listQuotes(await A.token());
+      await Promise.all(packages.filter((x) => x.statusBy).map(async (x) => (x.statusByName = await managerName(x.statusBy))));
+      renderPackages();
+    } catch (e) {
+      console.error(e);
+      $("pkgHint").textContent = "Couldn't load packages. Check the internet and tap Refresh.";
+    }
   }
-  function renderRecent() {
-    const list = recent();
-    $("recentCard").hidden = !list.length;
-    $("recent").innerHTML = list.map((x) => `<li>
-        <a href="${P.esc(x.url)}" target="_blank" rel="noopener">${P.esc(x.ref)}</a>
-        <span class="muted">${P.esc(x.g)} · ${P.fmtDate(x.ci)} · ${P.inr(x.tot)} · ${P.esc(x.by)}</span>
-        <button class="btn small" type="button" data-url="${P.esc(x.url)}">Copy link</button>
-      </li>`).join("");
+
+  function renderPackages() {
+    const mine = $("pkgFilter").value === "mine";
+    const list = packages.filter((x) => !mine || x.by === A.phone());
+    $("pkgHint").textContent = list.length
+      ? `Latest ${list.length}. Tap a Ref to open the guest's page.`
+      : mine ? "You haven't made any packages yet." : "No packages yet.";
+    $("pkgList").innerHTML = list.map((x) => {
+      const d = x.q;
+      const ref = d.id || x.code;
+      const url = viewUrl(x.code);
+      const opts = Object.entries(STATUS).map(([k, v]) => `<option value="${k}"${k === x.status ? " selected" : ""}>${v}</option>`).join("");
+      const changed = x.statusByName ? ` · ${STATUS[x.status] || x.status} by ${P.esc(x.statusByName)}` : "";
+      return `<li data-code="${P.esc(x.code)}">
+        <a href="${P.esc(url)}" target="_blank" rel="noopener">${P.esc(ref)}</a>
+        <span class="muted">${P.esc(d.g || "—")} · ${d.ci ? P.fmtDate(d.ci) : ""} · ${P.inr(d.tot || 0)} · by ${P.esc((d.m && d.m.n) || "?")}${changed}</span>
+        <select class="st-${P.esc(x.status)}" data-k="status" aria-label="Status of ${P.esc(ref)}">${opts}</select>
+        <button class="btn small" type="button" data-url="${P.esc(url)}">Copy link</button>
+      </li>`;
+    }).join("");
   }
-  $("recent").addEventListener("click", async (e) => {
+
+  $("pkgFilter").addEventListener("change", renderPackages);
+  $("pkgRefresh").addEventListener("click", loadPackages);
+  $("pkgList").addEventListener("click", async (e) => {
     const url = e.target.dataset.url;
     if (!url) return;
     try { await navigator.clipboard.writeText(url); toast("Link copied."); }
     catch { toast("Couldn't copy the link."); }
+  });
+  $("pkgList").addEventListener("change", async (e) => {
+    if (e.target.dataset.k !== "status") return;
+    const code = e.target.closest("li").dataset.code;
+    const x = packages.find((p) => p.code === code);
+    const status = e.target.value;
+    e.target.disabled = true;
+    try {
+      await P.setStatus(code, status, await A.token(), A.phone());
+      Object.assign(x, { status, statusBy: A.phone(), statusByName: manager.name });
+      toast(`${x.q.id || code} marked ${STATUS[status].toLowerCase()}.`);
+    } catch (err) {
+      console.error(err);
+      toast("Couldn't change the status. Try again.");
+    }
+    renderPackages();
   });
 
   /* ---------- Start: resume a sign-in, or ask for the number ---------- */

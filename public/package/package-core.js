@@ -33,94 +33,169 @@
     return { rate, season: s.name };
   }
 
+  // Per-adult price for `a` adults sharing a room, from a size → price table.
+  // Fewer than the smallest size pay as that size (`billed`); a size between
+  // two listed ones takes the smaller one's price.
+  function perAdult(table, a) {
+    const sizes = Object.keys(table).map(Number).sort((x, y) => x - y);
+    const billed = Math.max(a, sizes[0]);
+    return { rate: table[sizes.filter((n) => n <= billed).pop()], billed };
+  }
+
+  // Price for `kg` of an add-on priced by weight.
+  function kgPrice(a, kg) {
+    const sizes = Object.keys(a.price).map(Number).sort((x, y) => x - y);
+    const top = sizes[sizes.length - 1];
+    if (kg > top) return a.price[top] + (kg - top) * (a.perKg || 0);
+    return a.price[sizes.find((n) => n >= kg)];
+  }
+
+  // Add-ons for both properties first, then the property's own.
+  const addonsFor = (prop) => (window.PACKAGE_CONFIG.addons || []).concat(prop.addons || []);
+
   /*
-   * state: { ci, co, adults, children, rooms:[{id,ac,q}], meal, extraAdult,
-   *          extraChild, extraBed, addons:{id:qty}, discount, discountType ("amt"|"pct"),
+   * state: { ci, co, rooms:[{id, ac, q, a, k}] (q rooms, each with a adults and
+   *          k children), meal, extraBed, car ("5"|"9"), addons:{id:qty},
+   *          edits:{lineKey:amount}, discount, discountType ("amt"|"pct"),
    *          override, gst, advancePct }
-   * Returns line items ([label, detail, amount]) and totals.
+   * Returns line items and totals. Each item is { key, label, detail, amount,
+   * rateCard, tax }: `key` identifies the line for a manager's price edit, and
+   * changes whenever what the line covers changes, so an edit never sticks to
+   * a different stay. `lines` is the same as [label, detail, amount] for the
+   * saved quote. GST applies to the stay (rooms, meals, extras), not add-ons.
    */
   function calculate(prop, st) {
     const nights = Math.max(0, nightsBetween(st.ci, st.co));
-    const lines = [];
+    const items = [];
     const warnings = [];
-    let capA = 0, capK = 0;
+    const add = (label, qty, rate, amount, tax, note) => {
+      const detail = [qty, rate].filter(Boolean).join(" × ") + (note ? " · " + note : "");
+      items.push({ key: label + "|" + detail, label, qty, note, detail, amount, rateCard: amount, tax });
+    };
+    const plus = (a, k, rateA, rateK) => [a && plural(a, "adult") + " × " + inr(rateA), k && kids(k) + " × " + inr(rateK)].filter(Boolean).join(" + ");
 
+    // Nights with meals included (a `meals` season) don't also get a meal plan or extras.
+    const plain = [];
+    for (let i = 0; i < nights; i++) {
+      const s = seasonFor(prop, addDays(st.ci, i));
+      if (!(s && s.meals)) plain.push(i);
+    }
+
+    let adults = 0, children = 0, extraA = 0, extraK = 0;
     st.rooms.forEach((r) => {
       const room = prop.rooms.find((x) => x.id === r.id);
       if (!room || !r.q) return;
-      capA += room.adults * r.q;
-      capK += (room.children || 0) * r.q;
-      // Group consecutive nights by rate so a stay that crosses into a season shows two lines.
+      const a = r.a || 0, k = r.k || 0;
+      adults += r.q * a;
+      children += r.q * k;
+      extraA += r.q * Math.max(0, a - room.adults);
+      extraK += r.q * Math.max(0, k - (room.children || 0));
+      if (!a) warnings.push(room.name + ": each room needs at least 1 adult.");
+      if (a > (room.max || room.adults)) warnings.push(`${room.name} takes at most ${room.max || room.adults} adults per room.`);
+
+      // Group consecutive nights priced the same, so a stay that crosses into a season shows two lines.
       const groups = [];
       for (let i = 0; i < nights; i++) {
-        const nr = nightlyRate(prop, room, r.ac, addDays(st.ci, i));
+        const s = seasonFor(prop, addDays(st.ci, i));
+        const table = s && s.perAdult && s.perAdult[room.tier];
+        let g;
+        if (table) {
+          const pa = perAdult(table, a);
+          const child = Math.round(pa.rate / 2);
+          g = { season: s.name, per: pa.billed * pa.rate + k * child, rate: pa.rate, child, billed: pa.billed };
+        } else {
+          const nr = nightlyRate(prop, room, r.ac, addDays(st.ci, i));
+          g = { season: nr.season, per: nr.rate };
+        }
         const last = groups[groups.length - 1];
-        if (last && last.rate === nr.rate && last.season === nr.season) last.n++;
-        else groups.push({ ...nr, n: 1 });
+        if (last && last.per === g.per && last.season === g.season) last.n++;
+        else groups.push({ ...g, n: 1 });
       }
-      const label = room.name + (r.ac && room.ac ? " (AC)" : room.ac ? " (Non-AC)" : "");
+      const qty = (n) => r.q + " room" + (r.q > 1 ? "s" : "") + " × " + plural(n, "night");
       groups.forEach((g) => {
-        lines.push([
-          label + (g.season ? " · " + g.season : ""),
-          r.q + " room" + (r.q > 1 ? "s" : "") + " × " + plural(g.n, "night") + " × " + inr(g.rate),
-          r.q * g.n * g.rate,
-        ]);
+        if (g.rate != null) {
+          // Per adult: "(3 adults × ₹2,500 + 1 child × ₹1,250)", or "1 adult, charged as 2".
+          const who = g.billed > a ? `${plural(a, "adult")}, charged as ${g.billed}, × ${inr(g.rate)}` + (k ? " + " + kids(k) + " × " + inr(g.child) : "") : plus(a, k, g.rate, g.child);
+          add(room.name + " · " + g.season, qty(g.n), "(" + who + ")", r.q * g.n * g.per, true);
+        } else {
+          const label = room.name + (r.ac && room.ac ? " (AC)" : room.ac ? " (Non-AC)" : "") + (g.season ? " · " + g.season : "");
+          add(label, qty(g.n), inr(g.per), r.q * g.n * g.per, true);
+        }
       });
     });
 
+    const n = plain.length;
     const meal = prop.meals.find((m) => m.id === st.meal);
-    if (meal && (meal.adult || meal.child) && nights) {
-      const amt = (st.adults * meal.adult + st.children * meal.child) * nights;
-      const who = [st.adults && plural(st.adults, "adult") + " × " + inr(meal.adult), st.children && kids(st.children) + " × " + inr(meal.child)].filter(Boolean);
-      if (amt) lines.push([meal.name, (who.length > 1 ? "(" + who.join(" + ") + ")" : who[0]) + " × " + plural(nights, "night"), amt]);
+    if (meal && (meal.adult || meal.child) && n) {
+      const amt = (adults * meal.adult + children * meal.child) * n;
+      if (amt) add(meal.name, plural(n, "night"), "(" + plus(adults, children, meal.adult, meal.child) + ")", amt, true);
     }
 
-    [["extraAdult", "Extra adult", "adult"], ["extraChild", "Extra child (" + prop.childAge + ")", "child"], ["extraBed", "Extra bed", "bed"]].forEach(([k, name, x]) => {
-      const q = st[k] || 0;
-      if (q && nights) lines.push([name, q + " × " + plural(nights, "night") + " × " + inr(prop.extras[x]), q * nights * prop.extras[x]]);
+    // Guests above what the room rates cover, on normal nights only.
+    [[extraA, "Extra adult", "adult"], [extraK, "Extra child (" + prop.childAge + ")", "child"], [st.extraBed || 0, "Extra bed", "bed"]].forEach(([q, name, x]) => {
+      if (q && n) add(name, q + " × " + plural(n, "night"), inr(prop.extras[x]), q * n * prop.extras[x], true);
     });
 
-    prop.addons.forEach((a) => {
+    const car = String(st.car || 5);
+    addonsFor(prop).forEach((a) => {
       const q = st.addons[a.id] || 0;
       if (!q) return;
-      const detail = a.unit === "person" ? q + (q === 1 ? " person" : " people") + " × " + inr(a.price)
-        : a.unit === "night" ? q + " × " + plural(nights, "night") + " × " + inr(a.price)
-        : q > 1 ? q + " × " + inr(a.price) : "";
-      lines.push([a.name, detail, q * (a.unit === "night" ? nights : 1) * a.price]);
+      if (a.unit === "car") {
+        const price = a.price[car];
+        add(a.name, (q > 1 ? q + " cars · " : "") + car + "-seater", q > 1 ? inr(price) : "", q * price, false, a.desc);
+      } else if (a.unit === "kg") {
+        add(a.name, q + " kg", "", kgPrice(a, q), false);
+      } else if (a.unit === "person") {
+        add(a.name, q + (q === 1 ? " person" : " people"), inr(a.price), q * a.price, false);
+      } else if (a.unit === "night") {
+        add(a.name, q + " × " + plural(nights, "night"), inr(a.price), q * nights * a.price, false);
+      } else {
+        add(a.name, q > 1 ? String(q) : "", q > 1 ? inr(a.price) : "", q * a.price, false);
+      }
     });
 
-    const guests = st.adults + st.children;
-    const capacity = capA + capK + (st.extraAdult || 0) + (st.extraChild || 0) + (st.extraBed || 0);
-    if (st.rooms.some((r) => r.q) && guests > capacity) warnings.push(guests + " guests but the selected rooms + extras sleep " + capacity + ".");
-    if (st.adults > capA + (st.extraAdult || 0) + (st.extraBed || 0) && capA) warnings.push("More adults than the rooms allow — add an extra adult/bed or another room.");
+    // A manager's own price for a line replaces the rate card. The guest sees
+    // "special price" instead of a sum that no longer adds up.
+    const edits = st.edits || {};
+    items.forEach((it) => {
+      const v = edits[it.key];
+      if (v == null || v === "" || !Number.isFinite(Number(v))) return;
+      it.amount = Math.max(0, Math.round(Number(v)));
+      it.edited = it.amount !== it.rateCard;
+      if (it.edited) it.detail = (it.qty ? it.qty + " · " : "") + "special price" + (it.note ? " · " + it.note : "");
+    });
+
     if (st.ci && st.co && nights <= 0) warnings.push("Check-out must be after check-in.");
 
-    const subtotal = lines.reduce((s, l) => s + l[2], 0);
+    const subtotal = items.reduce((s, l) => s + l.amount, 0);
+    const exempt = items.filter((l) => !l.tax).reduce((s, l) => s + l.amount, 0);
     const gstPct = Number(st.gst) || 0;
     let discount = st.discountType === "pct" ? Math.round((subtotal * (Number(st.discount) || 0)) / 100) : Math.round(Number(st.discount) || 0);
     discount = Math.min(Math.max(discount, 0), subtotal);
-    let taxable = subtotal - discount;
-    let gst = Math.round((taxable * gstPct) / 100);
-    let total = taxable + gst;
+    // The discount comes off the stay first, so GST is charged on what the guest pays for it.
+    let gst = Math.round((Math.max(0, subtotal - exempt - discount) * gstPct) / 100);
+    let total = subtotal - discount + gst;
     const override = Number(st.override) > 0;
     if (override) {
-      // The manager's final figure includes GST; work the taxable amount back out of it.
+      // The manager's final figure includes GST on the stay; work the stay amount back out of it.
       total = Math.round(Number(st.override));
-      taxable = Math.round(total / (1 + gstPct / 100));
-      gst = total - taxable;
-      discount = subtotal - taxable; // negative when the special price is above the rate card
+      const stay = Math.max(0, Math.round((total - exempt) / (1 + gstPct / 100)));
+      gst = Math.max(0, total - exempt - stay);
+      discount = subtotal - (total - gst); // negative when the special price is above the rate card
     }
     const advance = Math.round((total * (Number(st.advancePct) || 0)) / 100);
-    return { nights, lines, subtotal, discount, taxable, gstPct, gst, total, advance, override, warnings };
+    const lines = items.map((l) => [l.label, l.detail, l.amount]);
+    return { nights, mealNights: n, adults, children, items, lines, subtotal, discount, gstPct, gst, total, advance, override, warnings };
   }
 
   /*
    * Quotes are saved to Firestore under a 6-character code, so the guest gets
    * a short link (/p/R6X6K2). Plain REST calls rather than the Firebase SDK —
-   * two requests don't justify ~100 kB of library. firestore.rules allows
-   * reading one quote by its code and creating new ones (signed-in managers
-   * only, hence the ID token), nothing else: no listing, no edits, no
-   * deletes. A sent quote never changes.
+   * a few requests don't justify ~100 kB of library. firestore.rules lets
+   * anyone read one quote by its code; signed-in managers (hence the ID token)
+   * can create quotes, list them, and change a quote's status — never its
+   * contents, so a sent link always shows what was sent. Each quote records
+   * who made it (`by`, their sign-in number) and its `status`.
    */
   const DB = "projects/chamtaburu-webapp/databases/(default)/documents";
   const API = "https://firestore.googleapis.com/v1/" + DB;
@@ -133,8 +208,8 @@
   }
 
   // `build(code)` returns the quote to store; called again with a fresh code on the rare collision.
-  // `idToken` is the manager's Firebase sign-in token (auth.js).
-  async function saveQuote(property, build, idToken) {
+  // `idToken` and `phone` are the signed-in manager's (auth.js).
+  async function saveQuote(property, build, idToken, phone) {
     for (let attempt = 0; attempt < 3; attempt++) {
       const code = newCode();
       const res = await fetch(API + ":commit", {
@@ -144,7 +219,10 @@
           writes: [{
             update: {
               name: `${DB}/quotes/${code}`,
-              fields: { q: { stringValue: JSON.stringify(build(code)) }, p: { stringValue: property } },
+              fields: {
+                q: { stringValue: JSON.stringify(build(code)) }, p: { stringValue: property },
+                by: { stringValue: phone }, status: { stringValue: "sent" },
+              },
             },
             currentDocument: { exists: false },
             updateTransforms: [{ fieldPath: "created", setToServerValue: "REQUEST_TIME" }],
@@ -185,6 +263,44 @@
     return known.includes(String(phone)) ? String(phone) : C.properties[propKey].phone;
   }
 
+  const str = (f, k) => (f[k] && f[k].stringValue) || "";
+
+  // The latest quotes from every manager, newest first.
+  async function listQuotes(idToken, limit = 60) {
+    const res = await fetch(API + ":runQuery", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+      body: JSON.stringify({
+        structuredQuery: { from: [{ collectionId: "quotes" }], orderBy: [{ field: { fieldPath: "created" }, direction: "DESCENDING" }], limit },
+      }),
+    });
+    if (!res.ok) throw new Error("list failed: " + res.status);
+    return (await res.json()).filter((r) => r.document).map(({ document: d }) => {
+      const f = d.fields || {};
+      let q = {};
+      try { q = JSON.parse(str(f, "q")); } catch { /* unreadable quote: list it without details */ }
+      // Quotes from before statuses existed count as sent.
+      return { code: d.name.split("/").pop(), q, by: str(f, "by"), status: str(f, "status") || "sent", statusBy: str(f, "statusBy") };
+    });
+  }
+
+  async function setStatus(code, status, idToken, phone) {
+    if (!CODE_RE.test(code)) throw new Error("bad code");
+    const res = await fetch(API + ":commit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+      body: JSON.stringify({
+        writes: [{
+          update: { name: `${DB}/quotes/${code}`, fields: { status: { stringValue: status }, statusBy: { stringValue: phone } } },
+          updateMask: { fieldPaths: ["status", "statusBy"] },
+          currentDocument: { exists: true },
+          updateTransforms: [{ fieldPath: "statusAt", setToServerValue: "REQUEST_TIME" }],
+        }],
+      }),
+    });
+    if (!res.ok) throw new Error("status failed: " + res.status);
+  }
+
   async function loadQuote(code) {
     if (!CODE_RE.test(code)) return null;
     const res = await fetch(`${API}/quotes/${code}`);
@@ -217,5 +333,5 @@
   }
   const prettyPhone = (d) => (d.length === 12 && d.startsWith("91") ? "+91 " + d.slice(2, 7) + " " + d.slice(7) : "+" + d);
 
-  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, calculate, saveQuote, loadManager, contactFor, loadQuote, encode, decode, waNumber, prettyPhone };
+  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, calculate, saveQuote, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, encode, decode, waNumber, prettyPhone };
 })();

@@ -23,6 +23,25 @@ window.PACKAGE_CONFIG = {
   // so only list ones meant to be public.
   contacts: [],
 
+  // Add-ons offered at both properties, listed before each property's own.
+  // No GST on add-ons (only the stay is taxed). unit "car": `price` by car
+  // size, and the package's car choice (5- or 9-seater) picks one; quantity =
+  // cars. unit "kg": `price` by kg up to the largest listed, then `perKg` more
+  // for each kg above it.
+  addons: [
+    { id: "pickup-purulia", group: "Car hire", name: "Pickup from Purulia", unit: "car", price: { 5: 1700, 9: 2100 } },
+    { id: "pickup-barabhum", group: "Car hire", name: "Pickup from Barabhum", unit: "car", price: { 5: 900, 9: 1100 } },
+    { id: "day1", group: "Car hire", name: "Day 1 · Purulia local sightseeing", unit: "car", price: { 5: 2000, 9: 2400 },
+      desc: "Pakhi Pahar, Matha Forest, Pardi Lake, Gorgaburu, Charida mask village, Khairabera Dam" },
+    { id: "day2", group: "Car hire", name: "Day 2 · Ayodhya Hill tour", unit: "car", price: { 5: 2500, 9: 2800 },
+      desc: "Ayodhya Hill, Bamni Falls, Upper & Lower Dam, Marble Lake, Turga Dam & Falls, Mayur Pahar, Lahoria Shiv Mandir" },
+    { id: "day3", group: "Car hire", name: "Day 3 · Baranti tour", unit: "car", price: { 5: 4500, 9: 5000 },
+      desc: "Panchakot Hill, Panchet Dam, Joychandi Pahar, Baranti Dam" },
+    { id: "drop-purulia", group: "Car hire", name: "Drop to Purulia", unit: "car", price: { 5: 1700, 9: 2100 } },
+    { id: "drop-barabhum", group: "Car hire", name: "Drop to Barabhum", unit: "car", price: { 5: 900, 9: 1100 } },
+    { id: "bonfire", group: "Bonfire", name: "Bonfire", unit: "kg", price: { 1: 699, 2: 1099, 3: 1399, 4: 1699, 5: 1999 }, perKg: 199 },
+  ],
+
   properties: {
     village: {
       name: "Chamtaburu Eco Village",
@@ -30,36 +49,47 @@ window.PACKAGE_CONFIG = {
       phone: "919242748100",
       address: "Matha, Matha Forest, Baghmundi, Purulia, West Bengal 723152",
       prefix: "CEV",
-      // PLACEHOLDER — Village cottage rates and occupancy are still TBD.
+      // Per room per night. `tier` picks the Celebration price table; `adults` /
+      // `children` are what the normal rate covers (more are charged as extras);
+      // `max` is the most adults a room takes, with extra mattresses.
+      // PLACEHOLDER — cottage `children`, and which first-floor type takes 3
+      // adults (T1 assumed, being the dearer one).
       rooms: [
-        { id: "shal-shanti", name: "Shal Shanti", rate: 5000, adults: 2, children: 1 },
-        { id: "mahua-ghar", name: "Mahua Ghar", rate: 5000, adults: 2, children: 1 },
-        { id: "palash-kunja", name: "Palash Kunja", rate: 5000, adults: 2, children: 1 },
-        { id: "pahari-chaya", name: "Pahari Chaya", rate: 5000, adults: 2, children: 1 },
-        { id: "jharna-neer", name: "Jharna Neer", rate: 5000, adults: 2, children: 1 },
-        { id: "karam-kunja", name: "Karam Kunja", rate: 5000, adults: 2, children: 1 },
-        { id: "adivasi-aangan", name: "Adivasi Aangan", rate: 5000, adults: 2, children: 1 },
+        { id: "shal-shanti", name: "Shal Shanti", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
+        { id: "mahua-ghar", name: "Mahua Ghar", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
+        { id: "palash-kunja", name: "Palash Kunja", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
+        { id: "pahari-chaya", name: "Pahari Chaya", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
+        { id: "jharna-neer", name: "Jharna Neer", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
+        { id: "karam-kunja", name: "Karam Kunja", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
+        { id: "adivasi-aangan", name: "Adivasi Aangan", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
+        { id: "floor-t1", name: "First-floor room T1 (108 / 111)", tier: "room", rate: 2500, adults: 3, children: 1, max: 3 },
+        { id: "floor-t2", name: "First-floor room T2 (109 / 110)", tier: "room", rate: 2000, adults: 2, children: 1, max: 2 },
       ],
-      // Nights from `from` to `to` (inclusive) use `rates[roomId]` if given,
-      // otherwise the normal rate raised by `uplift` (0.25 = +25%).
-      // PLACEHOLDER — Celebration Package rates not confirmed.
-      seasons: [{ name: "Celebration", from: "2026-12-20", to: "2027-01-01", uplift: 0.25 }],
+      // Nights from `from` to `to` (inclusive). `perAdult` prices each adult per
+      // night by how many adults share the room (table per room `tier`): fewer
+      // than the smallest size listed pay as that size, children pay half, and
+      // with `meals` every meal is included. A season can instead give
+      // `rates[roomId]` or an `uplift` on the normal room rate (0.25 = +25%).
+      seasons: [{
+        name: "Celebration Package", from: "2026-12-20", to: "2027-01-01", meals: true,
+        perAdult: { cottage: { 2: 3900, 3: 2500, 4: 2000, 5: 1700 }, room: { 2: 2000, 3: 1800 } },
+      }],
       // Per person per night. The two meal packages are the real prices from /menu.
       meals: [
         { id: "room", name: "Room only", adult: 0, child: 0 },
         { id: "veg", name: "Veg meal package (all meals)", adult: 550, child: 275 },
         { id: "nonveg", name: "Non-veg meal package (all meals)", adult: 650, child: 325 },
       ],
-      // Per night. PLACEHOLDER.
+      // Per night, on normal nights: each adult / child above what the room's
+      // rate covers, and each extra bed. PLACEHOLDER.
       extras: { adult: 600, child: 300, bed: 500 },
-      childAge: "5–10 yrs", // PLACEHOLDER
+      // Children this age pay; younger stay free.
+      childAge: "5–10 yrs",
       // unit: "stay" = once, "person" = per person, "night" = per night. PLACEHOLDER prices.
       addons: [
-        { id: "bonfire", name: "Evening bonfire", price: 500, unit: "stay" },
-        { id: "trail", name: "Guided nature trail", price: 200, unit: "person" },
-        { id: "decor", name: "Room decoration", price: 1500, unit: "stay" },
-        { id: "bbq", name: "BBQ dinner", price: 400, unit: "person" },
-        { id: "pickup", name: "Purulia station pickup & drop", price: 2500, unit: "stay" },
+        { id: "trail", group: "Extras", name: "Guided nature trail", price: 200, unit: "person" },
+        { id: "decor", group: "Extras", name: "Room decoration", price: 1500, unit: "stay" },
+        { id: "bbq", group: "Extras", name: "BBQ dinner", price: 400, unit: "person" },
       ],
       gst: 5, // PLACEHOLDER — confirm with your accountant
       advance: 50, // % to confirm the booking. PLACEHOLDER
@@ -82,26 +112,27 @@ window.PACKAGE_CONFIG = {
       prefix: "CER",
       // Confirmed rates (src/content/resort.ts), breakfast included.
       rooms: [
-        { id: "bamboo-cottage", name: "Bamboo Cottage", rate: 2000, adults: 2, children: 1 },
-        { id: "double-bedded", name: "Double Bedded", rate: 1600, adults: 2, children: 1 },
-        { id: "triple-bedded", name: "Triple Bedded", rate: 1800, ac: 2200, adults: 3, children: 1 },
-        { id: "four-bedded", name: "Four Bedded", rate: 2100, ac: 2500, adults: 4, children: 0 },
-        { id: "six-bedded", name: "Six Bedded", rate: 2700, ac: 3300, adults: 6, children: 1 },
+        { id: "bamboo-cottage", name: "Bamboo Cottage", tier: "bamboo", rate: 2000, adults: 2, children: 1, max: 2 },
+        { id: "double-bedded", name: "Double Bedded", tier: "room", rate: 1600, adults: 2, children: 1, max: 2 },
+        { id: "triple-bedded", name: "Triple Bedded", tier: "room", rate: 1800, ac: 2200, adults: 3, children: 1, max: 3 },
+        { id: "four-bedded", name: "Four Bedded", tier: "room", rate: 2100, ac: 2500, adults: 4, children: 0, max: 4 },
+        { id: "six-bedded", name: "Six Bedded", tier: "room", rate: 2700, ac: 3300, adults: 6, children: 1, max: 6 },
       ],
-      seasons: [{ name: "Celebration", from: "2026-12-20", to: "2027-01-01", uplift: 0.25 }], // PLACEHOLDER
+      // Same rules as the Village seasons above. No AC extra on these nights.
+      seasons: [{
+        name: "Celebration Package", from: "2026-12-20", to: "2027-01-01", meals: true,
+        perAdult: { room: { 2: 1900, 3: 1900, 4: 1700, 5: 1700, 6: 1700 }, bamboo: { 2: 2000 } },
+      }],
       meals: [
         { id: "room", name: "Breakfast only (included)", adult: 0, child: 0 },
         { id: "veg", name: "Veg meal package (all meals)", adult: 550, child: 275 },
         { id: "nonveg", name: "Non-veg meal package (all meals)", adult: 650, child: 325 },
       ],
       extras: { adult: 500, child: 250, bed: 400 }, // PLACEHOLDER
-      childAge: "5–10 yrs", // PLACEHOLDER
+      childAge: "5–10 yrs",
       addons: [ // PLACEHOLDER prices
-        { id: "bonfire", name: "Evening bonfire", price: 500, unit: "stay" },
-        { id: "decor", name: "Room decoration", price: 1500, unit: "stay" },
-        { id: "bbq", name: "BBQ dinner", price: 400, unit: "person" },
-        { id: "sightseeing", name: "Ajodhya Hills sightseeing car", price: 3000, unit: "stay" },
-        { id: "pickup", name: "Purulia station pickup & drop", price: 2500, unit: "stay" },
+        { id: "decor", group: "Extras", name: "Room decoration", price: 1500, unit: "stay" },
+        { id: "bbq", group: "Extras", name: "BBQ dinner", price: 400, unit: "person" },
       ],
       gst: 5, // PLACEHOLDER
       advance: 50, // PLACEHOLDER

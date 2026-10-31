@@ -44,6 +44,10 @@ guest on WhatsApp in one tap.
 | 7   | Terms on package    | **GST line**, **advance amount** to confirm, **UPI / bank details**, **validity date**.                                                                                                                                                                                            | 2026-10-26 |
 | 8   | Managers            | Each manager signs in with **their own mobile number**. Managers live in **Firestore** (`managers` collection), not in the repo, so their numbers never reach git or a public file. Their name + an approved contact number are shown on the package.                              | 2026-10-31 |
 | 9   | Quote storage       | **Firestore**, project `chamtaburu-webapp`. Exception to the "no database" rule in 02-architecture.md, accepted for short links + quote history. Firestore ₹0 at this volume; phone sign-in needs the Blaze plan and each SMS is billed.                                           | 2026-10-26 |
+| 10  | Celebration Package | 20 Dec – 1 Jan: **per adult per night by how many share the room**, all meals included, children (5–10) half, under 5 free, a lone adult pays for 2. No AC extra. Meals and extra beds are charged only on normal nights.                                                          | 2026-10-31 |
+| 11  | Rooms & guests      | Each room row has its own **adults / children per room**; guests are totalled from the rows. Guests above what a room's normal rate covers are charged as extras automatically on normal nights.                                                                                   | 2026-10-31 |
+| 12  | Add-ons             | **Car hire** (pickup / drop Purulia or Barabhum, Day 1–3 tours; 5- or 9-seater) and **bonfire by kg**, at both properties. **No GST on add-ons**, only on the stay.                                                                                                                | 2026-10-31 |
+| 13  | Editing & tracking  | Any line's price can be typed over (guest sees "special price"). Every quote records **who made it** and a **status** (Sent / Confirmed / Cancelled) that any manager can change; all managers see all packages. A quote's contents still never change.                            | 2026-10-31 |
 
 ## Build status — v2: short links (2026-10-26)
 
@@ -86,44 +90,57 @@ Adding or removing a manager takes effect straight away: no code change, no depl
 
 1. Open `/package` → enter mobile number → enter the SMS code → manager identified. Stays signed in on that phone until **Sign out**, so the SMS is only needed once per device.
 2. Pick **Property** (dropdown; only properties that manager is allowed) → rooms, meals, add-ons, GST, advance, inclusions reset for that property.
-3. Guest name, guest WhatsApp number, check-in / check-out (nights auto), adults, children.
-4. Rooms (type × qty, AC toggle where the room has an AC rate), meal plan, extra adult / child / bed, add-ons.
-5. Live breakdown. Nights inside a season (e.g. Celebration 20 Dec – 1 Jan) are priced on their own line. Capacity warnings if guests exceed the rooms.
+3. Guest name, guest WhatsApp number, check-in / check-out (nights auto).
+4. Rooms: type × number of rooms × **adults and children (5–10) per room**, AC toggle where the room has an AC rate. Then meal plan, extra beds, car size and add-ons (car hire, bonfire by kg, extras).
+5. Live breakdown. Nights inside a season (Celebration Package, 20 Dec – 1 Jan) are priced on their own line, per adult. **Every line's price can be typed over**; clear it to go back to the rate card. Warnings if a room has more adults than it takes.
 6. Discount (₹ or %) **or** a special final price incl. GST; advance %; valid-until date; inclusions / exclusions / note.
 7. **Send on WhatsApp** → saves the quote (code like `R6X6K2`, Ref `CER-R6X6K2`) and opens `wa.me/<guest>` with a short message + link. Send / Copy / Preview reuse one code; any edit afterwards makes a new one. The work-in-progress survives a page reload.
-   **Recent packages** at the bottom lists the last 30 quotes made on that phone, with Copy link.
+   **Packages** at the bottom lists the latest 60 quotes from all managers (or only yours): Ref, guest, date, total, who made it, and a **status** dropdown (Sent / Confirmed / Cancelled) showing who last changed it.
 8. Guest page: totals, advance, UPI "Pay" button + copy (once a UPI ID is set), **Confirm on WhatsApp** / Ask / Call the manager, **Save as PDF**.
 
 ### Known limits (by design)
 
-- A saved quote can never be edited or deleted, so a link always shows what was sent. Nobody can list quotes; you need the code. Codes are 6 characters from 31 (887 million combinations), so guessing one is impractical.
+- A saved quote's contents can never be edited or deleted, so a link always shows what was sent; only its status changes. Only signed-in managers can list quotes; anyone else needs the code. Codes are 6 characters from 31 (887 million combinations), so guessing one is impractical.
 - Only signed-in manager numbers can create quotes. The guest page only shows UPI details and contact numbers from `rates.js`, so even a bad quote can't redirect payment.
 - Old long `#q=` links sent before v2 still open.
 - Scripts in `public/package` and `public/menu` are served `no-cache`, so an edit to `rates.js` reaches every phone on its next visit. (Before 2026-10-26 they were cached for a year; the `?v=2` on the script tags got phones holding those old copies onto the new files.)
-- "Recent packages" is per phone. Staff can always open any quote at `/p/<code>` from its Ref.
+- The Packages list shows the latest 60. Any older quote still opens at `/p/<code>` from its Ref.
+
+### Celebration Package rates (20 Dec 2026 – 1 Jan 2027, per adult per night, all meals)
+
+| Property | Room                          | 2 adults | 3      | 4      | 5      | 6      |
+| -------- | ----------------------------- | -------- | ------ | ------ | ------ | ------ |
+| Village  | Cottage (7), mattress for 4–5 | ₹3,900   | ₹2,500 | ₹2,000 | ₹1,700 |        |
+| Village  | First-floor room (T1 / T2)    | ₹2,000   | ₹1,800 |        |        |        |
+| Resort   | Double / Triple / Four / Six  | ₹1,900   | ₹1,900 | ₹1,700 | ₹1,700 | ₹1,700 |
+| Resort   | Bamboo Cottage                | ₹2,000   |        |        |        |        |
+
+Children 5–10 pay half the adult price for their room; under 5 free. One adult alone pays for two. The night of 1 Jan is a Celebration night.
 
 ### Placeholders currently in `rates.js` (replace with real values)
 
-- Village cottage rates: ₹2,200 each, 2 adults + 1 child.
-- Celebration season, both properties: normal rate **+25%**, 20 Dec 2026 – 1 Jan 2027.
-- Meal plans: Room only / Veg ₹550 / Non-veg ₹650 per adult per night (prices from `/menu`), children half.
-- Extras: Village adult ₹600 · child ₹300 · bed ₹500; Resort ₹500 · ₹250 · ₹400.
-- Add-ons: bonfire ₹500, nature trail ₹200 pp, decoration ₹1,500, BBQ ₹400 pp, sightseeing car ₹3,000, station pickup ₹2,500.
+- Which Village first-floor type takes 3 adults: T1 (108 / 111) assumed. Cottage child capacity at the normal rate (1 assumed).
+- Meal plans on normal nights: Room only / Veg ₹550 / Non-veg ₹650 per adult per night (prices from `/menu`), children half.
+- Extras on normal nights: Village adult ₹600 · child ₹300 · bed ₹500; Resort ₹500 · ₹250 · ₹400.
+- Extras add-ons: nature trail ₹200 pp, decoration ₹1,500, BBQ ₹400 pp.
 - GST 5% · advance 50% · valid 3 days.
 - **UPI / bank: deliberately empty.** The guest page says the manager will share payment details. A made-up UPI ID could send real money to a stranger.
+- The **Celebration Package menu** (Canva) isn't in the generator yet.
 
 ## Data needed (please fill in)
 
-**Rates per night (before GST)** — Resort is already in code; Village cottages are `TBD`.
+**Normal rates per room per night (before GST)** — confirmed.
 
-| Property | Room / cottage                                                                                               | Normal rate | 20 Dec – 1 Jan rate | Max pax |
-| -------- | ------------------------------------------------------------------------------------------------------------ | ----------- | ------------------- | ------- |
-| Village  | Shal Shanti / Mahua Ghar / Palash Kunja / Pahari Chaya / Jharna Neer / Karam Kunja / Adivasi Aangan          | ?           | ?                   | ?       |
-| Resort   | Bamboo ₹2,000 · Double ₹1,600 · Triple ₹1,800 (AC ₹2,200) · Four ₹2,100 (AC ₹2,500) · Six ₹2,700 (AC ₹3,300) | ✔           | ?                   | ✔       |
+| Property | Room / cottage                                                                                                  | Normal rate | Max adults |
+| -------- | --------------------------------------------------------------------------------------------------------------- | ----------- | ---------- |
+| Village  | 7 cottages: Shal Shanti / Mahua Ghar / Palash Kunja / Pahari Chaya / Jharna Neer / Karam Kunja / Adivasi Aangan | ₹5,000      | 5          |
+| Village  | First-floor T1 (rooms 108, 111)                                                                                 | ₹2,500      | 3          |
+| Village  | First-floor T2 (rooms 109, 110)                                                                                 | ₹2,000      | 2          |
+| Resort   | Bamboo ₹2,000 · Double ₹1,600 · Triple ₹1,800 (AC ₹2,200) · Four ₹2,100 (AC ₹2,500) · Six ₹2,700 (AC ₹3,300)    | ✔           | ✔          |
 
 **Meal plans** (per person per day): Breakfast only = included? · Breakfast + Dinner = ? · All meals = ? (currently the `/menu` veg ₹550 / non-veg ₹650 day packages)
 
-**Add-ons** (name → price): Bonfire = ? · Nature trail = ? · Decoration = ? · BBQ = ? · Pickup/drop = ? · …
+**Add-ons** (name → price): car hire and bonfire ✔ · Nature trail = ? · Decoration = ? · BBQ = ? · …
 
 **Extra charges**: extra adult = ? · child (age ?–?) = ? · extra bed = ?
 
@@ -135,8 +152,6 @@ Adding or removing a manager takes effect straight away: no code change, no depl
 
 ## Open questions
 
-9. **Celebration Package (20 Dec – 1 Jan)**: is it just a seasonal room rate, or a fixed
-   bundle (e.g. per-couple price incl. meals, gala dinner, bonfire)? Minimum nights?
-   _Built for now as a seasonal rate (placeholder +25%). A fixed bundle would need templates (Q10)._
+9. ~~Celebration Package~~ — answered 2026-10-31: per-adult pricing with all meals (decision 10).
 10. Should the generator offer **ready-made package templates** (e.g. "Celebration Package
     – 2 pax – 2N") that pre-fill everything, which the manager then tweaks?
