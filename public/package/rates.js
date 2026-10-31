@@ -1,5 +1,5 @@
 /*
- * Package generator config: managers, rates, meal plans, add-ons and terms
+ * Package generator config: rates, meal plans, add-ons, terms and contact numbers
  * for both properties. Read by /package (generator) and /package/view (guest page).
  *
  * Anything marked PLACEHOLDER is a stand-in until the owner confirms it —
@@ -7,26 +7,21 @@
  * night, before GST. Resort rates are the confirmed ones from
  * src/content/resort.ts; Village rates are not known yet.
  *
- * Add a manager: run `npm run package-pin -- <PIN>` and paste the printed
- * hash into `pin`. Never write the PIN itself in this file. Every manager
- * needs a different PIN — the PIN alone is what identifies them.
+ * Managers are not in this file, so their phone numbers stay out of git and
+ * out of public files: they live in Firestore. See "Managers" in
+ * docs/village-resort-package.md for how to add one.
  */
 window.PACKAGE_CONFIG = {
   // Shows the "placeholder prices" banner in the generator. Set to false once
   // every PLACEHOLDER below has a real value.
   placeholder: true,
 
-  managers: [
-    // Demo login, PIN 1234 — kept on purpose for trying the tool out.
-    { name: "Demo Manager", phone: "919242748100", props: ["village", "resort"],
-      pin: "db237dd5dc6c7066a6918f00a232ece2af6c1fd2b88ef22acaca9d578083177a" },
-    { name: "Nirmal", phone: "919242748100", props: ["village", "resort"],
-      pin: "a88dabc78fec1108ee2a2fb2ba506ce63000fee3232e8b06d67716e92d6af396" },
-    { name: "Khushi", phone: "919242748100", props: ["village", "resort"],
-      pin: "c6b423ed89f02d9351654c0a47f923bb04c5ab6d4ba9c24d74c00f42116caa95" },
-    { name: "Shyam", phone: "919242748100", props: ["village", "resort"],
-      pin: "7e3fa2993ffe935207070f512c4bbb6e23e38d1f8d3e43d7663e19993ad7d790" },
-  ],
+  // Contact numbers a package may show the guest, besides each property's own
+  // `phone`. A manager's contact `phone` (set in Firestore) must be one of
+  // these, or the property's number is shown instead, so a doctored link can't
+  // send guests — or their advance — to a stranger. Guests see these numbers,
+  // so only list ones meant to be public.
+  contacts: [],
 
   properties: {
     village: {

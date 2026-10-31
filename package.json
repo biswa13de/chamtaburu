@@ -12,7 +12,6 @@
     "validate:content": "node scripts/validate-content.mjs",
     "photos": "node scripts/photos.mjs",
     "qr-codes": "node scripts/qr-codes.mjs",
-    "package-pin": "node scripts/package-pin.mjs",
     "prebuild": "npm run validate:content",
     "build": "vite-react-ssg build && node scripts/generate-seo.mjs",
     "preview": "vite preview --port=4173",

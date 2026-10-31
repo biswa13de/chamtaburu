@@ -1,16 +1,14 @@
 /*
  * /package — manager-only package generator.
  *
- * The PIN is checked in the browser against SHA-256 hashes in rates.js. That
- * keeps guests and casual visitors out, but it is not real security: the page
- * holds no secrets (only the rate card), which is why that trade-off was
- * accepted (docs/village-resort-package.md, decision 1).
+ * Managers sign in with a code sent by SMS (auth.js). Their number picks the
+ * manager from Firestore (P.loadManager), and firestore.rules only lets those
+ * numbers save quotes (docs/village-resort-package.md, decision 1).
  */
 (function () {
   const C = window.PACKAGE_CONFIG;
   const P = window.PKG;
   const $ = (id) => document.getElementById(id);
-  const SESSION_KEY = "pkg-manager";
   const DRAFT_KEY = "pkg-draft";
   const store = {
     get(k) { try { return JSON.parse(sessionStorage.getItem(k)); } catch { return null; } },
@@ -24,41 +22,86 @@
   let rooms = [];
   let addons = {};
 
-  /* ---------- PIN ---------- */
-  async function sha256(text) {
-    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-    return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
-  }
-  let failures = 0, lockedUntil = 0;
+  /* ---------- Sign-in ---------- */
+  let A = null; // auth.js, once loaded
+  const loginErr = $("loginErr");
 
-  $("lockForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const err = $("pinErr");
-    if (Date.now() < lockedUntil) { err.textContent = "Too many tries. Wait a few seconds."; return; }
-    if (!window.crypto || !crypto.subtle) { err.textContent = "Open this page over https to log in."; return; }
-    const hash = await sha256("chamtaburu-package:" + $("pin").value.trim());
-    const m = C.managers.find((x) => x.pin === hash);
-    $("pin").value = "";
-    if (!m) {
-      failures++;
-      if (failures >= 5) { lockedUntil = Date.now() + 30000; failures = 0; }
-      err.textContent = "Wrong PIN.";
-      return;
+  // "98765 43210", "098765 43210" or "+91 98765 43210" → "+919876543210".
+  function e164(s) {
+    const d = s.replace(/\D/g, "");
+    if (d.length === 10) return "+91" + d;
+    if (d.length === 11 && d[0] === "0") return "+91" + d.slice(1);
+    if (d.length === 12 && d.startsWith("91")) return "+" + d;
+    return null;
+  }
+
+  const AUTH_ERRORS = {
+    "auth/invalid-phone-number": "That doesn't look like a mobile number.",
+    "auth/too-many-requests": "Too many tries. Wait a while and try again.",
+    "auth/invalid-verification-code": "Wrong code. Check the SMS and try again.",
+    "auth/code-expired": "That code has expired. Send a new one.",
+    "auth/quota-exceeded": "Too many SMS sent today. Try again tomorrow.",
+    // Also what Firebase returns when the SMS region policy doesn't allow India.
+    "auth/operation-not-allowed": "Phone sign-in or SMS to India isn't switched on in Firebase yet.",
+    "auth/configuration-not-found": "Sign-in isn't set up in Firebase yet (Authentication → Get started).",
+    "auth/invalid-api-key": "Sign-in isn't set up yet (Firebase key missing in auth.js).",
+    "auth/api-key-not-valid.-please-pass-a-valid-api-key.": "Sign-in isn't set up yet (Firebase key missing in auth.js).",
+    "auth/network-request-failed": "No connection. Check your internet and try again.",
+  };
+
+  function showStep(step) {
+    $("phoneForm").hidden = step !== "phone";
+    $("codeForm").hidden = step !== "code";
+    $(step === "phone" ? "loginPhone" : "loginCode").focus();
+  }
+
+  async function signInStep(btn, label, fn) {
+    const text = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = label;
+    loginErr.textContent = "";
+    try { await fn(); }
+    catch (e) {
+      console.error(e);
+      loginErr.textContent = AUTH_ERRORS[e && e.code] || "Couldn't sign in. Try again.";
     }
-    err.textContent = "";
-    store.set(SESSION_KEY, hash);
-    start(m);
+    finally { btn.disabled = false; btn.textContent = text; }
+  }
+
+  $("phoneForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const phone = e164($("loginPhone").value);
+    if (!phone) { loginErr.textContent = "Enter your 10-digit mobile number."; return; }
+    signInStep($("sendBtn"), "Sending…", async () => {
+      // Checked before sending, so an SMS never goes to a number that can't sign in.
+      if (!(await P.loadManager(phone))) { loginErr.textContent = "This number isn't on the manager list."; return; }
+      await A.sendCode(phone);
+      $("codeSentTo").textContent = `Enter the 6-digit code sent by SMS to ${P.prettyPhone(phone.slice(1)).replace(/ /g, " ")}.`;
+      $("loginCode").value = "";
+      showStep("code");
+    });
   });
 
-  $("logout").addEventListener("click", () => {
-    store.del(SESSION_KEY);
+  $("codeForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    signInStep($("codeBtn"), "Checking…", () => A.confirmCode($("loginCode").value.trim()));
+  });
+
+  $("changeNumber").addEventListener("click", () => {
+    loginErr.textContent = "";
+    showStep("phone");
+  });
+
+  $("logout").addEventListener("click", async () => {
     store.del(DRAFT_KEY);
+    await A.logout();
     location.reload();
   });
 
   /* ---------- Setup ---------- */
   function start(m) {
     manager = m;
+    m.props = m.props || Object.keys(C.properties);
     $("lock").hidden = true;
     $("app").hidden = false;
     $("who").textContent = m.name;
@@ -211,7 +254,7 @@
     return h;
   }
 
-  // Everything except the PIN, so a reload or an accidental back-swipe keeps the work.
+  // The whole form, so a reload or an accidental back-swipe keeps the work.
   const FIELDS = ["gName", "gPhone", "ci", "co", "adults", "children", "meal", "extraAdult", "extraChild", "extraBed", "discount", "discountType", "override", "gst", "advancePct", "validUntil", "inclusions", "exclusions", "note"];
   function snapshotForm() {
     const f = {};
@@ -253,7 +296,7 @@
     const r = result;
     return {
       v: 1, p: propKey, cd: P.today(), vu: $("validUntil").value,
-      m: { n: manager.name, ph: manager.phone },
+      m: { n: manager.name, ph: P.contactFor(manager.phone, propKey) },
       g: $("gName").value.trim(), ci: st.ci, co: st.co, n: r.nights, a: st.adults, k: st.children,
       l: r.lines, sub: r.subtotal, dis: r.discount, ov: r.override ? 1 : 0, gp: r.gstPct, gst: r.gst,
       tot: r.total, ap: Number(st.advancePct) || 0, adv: r.advance,
@@ -269,7 +312,7 @@
     const data = quoteData();
     const key = JSON.stringify(data);
     if (saved && saved.key === key) return saved;
-    const code = await P.saveQuote(propKey, (c) => ({ ...data, id: `${prop.prefix}-${c}` }));
+    const code = await P.saveQuote(propKey, (c) => ({ ...data, id: `${prop.prefix}-${c}` }), await A.token());
     saved = { key, data, ref: `${prop.prefix}-${code}`, url: viewUrl(code) };
     remember(saved);
     return saved;
@@ -306,7 +349,7 @@
     if (d.adv) out.push(`✅ Advance to confirm: *${P.inr(d.adv)}*`);
     out.push("", "Full details & confirm here:", s.url, "");
     out.push(`Ref ${s.ref}${d.vu ? " · valid till " + P.fmtDate(d.vu) : ""}`);
-    out.push(`${manager.name} · ${P.prettyPhone(manager.phone)}`);
+    out.push(`${manager.name} · ${P.prettyPhone(P.contactFor(manager.phone, propKey))}`);
     return out.join("\n");
   }
 
@@ -402,9 +445,22 @@
     catch { toast("Couldn't copy the link."); }
   });
 
-  /* ---------- Resume a session ---------- */
-  const savedPin = store.get(SESSION_KEY);
-  const m = savedPin && C.managers.find((x) => x.pin === savedPin);
-  if (m) start(m);
-  else $("pin").focus();
+  /* ---------- Start: resume a sign-in, or ask for the number ---------- */
+  import("/package/auth.js").then((mod) => {
+    A = mod;
+    A.onUser(async (user) => {
+      if (!user) { $("loginWait").hidden = true; showStep("phone"); return; }
+      let m;
+      try { m = await P.loadManager(user.phoneNumber); }
+      catch (e) { console.error(e); $("loginWait").textContent = "Couldn't reach the server. Check your connection and reload."; return; }
+      $("loginWait").hidden = true;
+      if (m) { if (!manager) start(m); return; }
+      // Signed in on this phone, but since removed from the manager list.
+      loginErr.textContent = "This number isn't on the manager list.";
+      A.logout();
+    });
+  }).catch((e) => {
+    console.error(e);
+    $("loginWait").textContent = "Couldn't load sign-in. Check your connection and reload.";
+  });
 })();

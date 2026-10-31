@@ -1,19 +1,34 @@
 rules_version = '2';
 
-// Package generator quotes (public/package/package-core.js). There is no
-// sign-in — the manager PIN is checked in the browser — so these rules are
-// what actually protects the data:
+// Package generator quotes (public/package/package-core.js). Managers sign in
+// with an SMS code (Firebase phone auth, public/package/auth.js):
 //   - anyone holding a code can read that one quote (the guest's link);
 //   - nobody can list quotes, so codes can't be harvested;
-//   - new quotes can be created, but never edited or deleted, so a link
-//     already sent always shows what was sent;
+//   - only a signed-in manager number can create quotes, and they can never
+//     be edited or deleted, so a link already sent always shows what was sent;
 //   - created quotes must have the expected shape and size.
 service cloud.firestore {
   match /databases/{database}/documents {
+    // One document per manager, its ID the sign-in number ("+919876543210").
+    // Kept here rather than in the repo so the numbers never reach git. Added
+    // and removed in the Firebase console, which these rules don't restrict.
+    //   - anyone can fetch one by its exact number (the generator checks before
+    //     sending an SMS), but nobody can list them or write them from the web.
+    match /managers/{phone} {
+      allow get: if true;
+      allow list, write: if false;
+    }
+
+    function isManager() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/managers/$(request.auth.token.phone_number));
+    }
+
     match /quotes/{code} {
       allow get: if true;
       allow list, update, delete: if false;
-      allow create: if code.matches('^[2-9A-HJKMNP-Z]{6}$')
+      allow create: if isManager()
+        && code.matches('^[2-9A-HJKMNP-Z]{6}$')
         && request.resource.data.keys().hasOnly(['q', 'p', 'created'])
         && request.resource.data.q is string
         && request.resource.data.q.size() < 20000
