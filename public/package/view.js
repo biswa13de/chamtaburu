@@ -2,7 +2,7 @@
  * /p/<code> (and /package/view) — the guest's package page. The quote is
  * loaded from Firestore by its short code; links sent before short codes
  * existed carry it in #q= instead, and still work. Only the property's
- * address and payment details are read from rates.js, so a corrected UPI ID
+ * address, check-in/out times and payment details are read from rates.js, so a corrected UPI ID
  * reaches quotes that were already sent.
  */
 (async function () {
@@ -94,8 +94,8 @@
       ${q.vu ? `· <span class="status${expired ? " expired" : ""}">${expired ? "Expired" : "Valid until"} ${P.fmtDate(q.vu)}</span>` : ""}</p>
 
     <div class="card meta">
-      <div><b>${P.fmtDate(q.ci)}</b><span>Check-in</span></div>
-      <div><b>${P.fmtDate(q.co)}</b><span>Check-out · ${P.plural(q.n, "night")}</span></div>
+      <div><b>${P.fmtDate(q.ci)}</b><span>Check-in${prop.checkIn ? " from " + P.esc(prop.checkIn) : ""}</span></div>
+      <div><b>${P.fmtDate(q.co)}</b><span>Check-out${prop.checkOut ? " by " + P.esc(prop.checkOut) : ""} · ${P.plural(q.n, "night")}</span></div>
       <div><b>${guests}</b><span>Guests</span></div>
     </div>
 

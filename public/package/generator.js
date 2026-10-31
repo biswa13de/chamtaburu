@@ -267,7 +267,7 @@
     const r = result;
 
     $("nightsHint").textContent = r.nights > 0
-      ? `${P.plural(r.nights, "night")} · ${P.fmtDate(st.ci)} → ${P.fmtDate(st.co)}`
+      ? `${P.plural(r.nights, "night")} · ${P.fmtDate(st.ci)} ${prop.checkIn} → ${P.fmtDate(st.co)} ${prop.checkOut}`
       : "";
 
     $("guestsHint").textContent = `Guests: ${P.plural(r.adults, "adult")}` + (r.children ? `, ${P.kids(r.children)} (${prop.childAge})` : "") + ". Younger children stay free.";
@@ -437,6 +437,7 @@
       `Hello ${d.g}, here is your stay package 🌿`,
       "",
       `📅 ${from} – ${P.fmtDate(d.co)} · ${P.plural(d.n, "night")}`,
+      `🕛 Check-in ${prop.checkIn} · Check-out ${prop.checkOut}`,
       `👥 ${P.plural(d.a, "adult")}${d.k ? ", " + P.kids(d.k) : ""}`,
       `🏡 ${roomText}`,
     ];

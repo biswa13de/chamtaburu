@@ -105,6 +105,8 @@ window.PACKAGE_CONFIG = {
       // covers, and each extra bed. PLACEHOLDER.
       extras: { adult: 600, child: 300, bed: 500 },
       // Children this age pay; younger stay free.
+      checkIn: "12:00 PM",
+      checkOut: "10:00 AM",
       childAge: "5–10 yrs",
       // unit: "stay" = once, "person" = per person, "night" = per night. PLACEHOLDER prices.
       addons: [
@@ -146,6 +148,8 @@ window.PACKAGE_CONFIG = {
         packages: { nonac: { room: { 2: 1900, 3: 1900, 4: 1700, 5: 1700, 6: 1700 }, bamboo: { 2: 2000 } } },
       }],
       extras: { adult: 500, child: 250, bed: 400 }, // PLACEHOLDER
+      checkIn: "11:00 AM",
+      checkOut: "9:00 AM",
       childAge: "5–10 yrs",
       addons: [ // PLACEHOLDER prices
         { id: "decor", group: "Extras", name: "Room decoration", price: 1500, unit: "stay" },
