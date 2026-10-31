@@ -341,7 +341,7 @@
     const f = {};
     FIELDS.forEach((id) => (f[id] = $(id).value));
     f.gstIncl = $("gstIncl").value === "1";
-    return { propKey, rooms, addons, edits, f };
+    return { propKey, rooms, addons, edits, f, editing: saved && { code: saved.code, ref: saved.ref, url: saved.url } };
   }
   function restore(d) {
     setProperty(d.propKey);
@@ -354,11 +354,13 @@
     if (!(d.f.meal in P.PLANS)) $("meal").value = "pkg"; // drafts from the old Veg / Non-veg plans
     renderRooms();
     renderAddons();
+    saved = d.editing ? { ...d.editing, key: null } : null;
+    showEditing();
   }
 
   $("form").addEventListener("input", (e) => {
     if (e.target.closest("#rooms, #addons, #lineRows")) return;
-    if (e.target.id === "prop") setProperty(e.target.value);
+    if (e.target.id === "prop") { saved = null; showEditing(); setProperty(e.target.value); }
     if (e.target.id === "car") renderAddons();
     if (e.target.id === "meal") renderRooms();
     $("done").hidden = true;
@@ -377,12 +379,14 @@
     $("gstIncl").value = "";
     $("done").hidden = true;
     saved = null;
+    showEditing();
     setProperty(propKey);
     update();
     window.scrollTo(0, 0);
   }
   $("reset").addEventListener("click", newPackage);
   $("doneNew").addEventListener("click", newPackage);
+  $("editNew").addEventListener("click", newPackage);
   $("doneClose").addEventListener("click", () => ($("done").hidden = true));
 
   /* ---------- Output ---------- */
@@ -407,23 +411,38 @@
   }
 
   // Send, Copy and Preview on the same package share one saved quote and code.
-  // Any edit after that saves a new quote (and code) on the next tap, so a
-  // link already sent always shows exactly what was sent.
-  let saved = null;
+  // Once saved (or opened with Edit), changes update that same quote, so the
+  // link the guest already has shows the new version; "Start a new package"
+  // or switching property begins a new one.
+  let saved = null; // { code, ref, url, key, data }
   async function ensureSaved() {
     const data = quoteData();
     const key = JSON.stringify(data);
     if (saved && saved.key === key) return saved;
-    const code = await P.saveQuote(propKey, (c) => ({ ...data, id: `${prop.prefix}-${c}` }), await A.token(), A.phone());
-    saved = { key, data, ref: `${prop.prefix}-${code}`, url: viewUrl(code) };
+    const form = snapshotForm();
+    if (saved) {
+      await P.updateQuote(saved.code, { ...data, id: saved.ref }, form, await A.token(), A.phone());
+      Object.assign(saved, { key, data });
+    } else {
+      const code = await P.saveQuote(propKey, (c) => ({ ...data, id: `${prop.prefix}-${c}` }), form, await A.token(), A.phone());
+      saved = { code, key, data, ref: `${prop.prefix}-${code}`, url: viewUrl(code) };
+    }
+    showEditing();
+    store.set(DRAFT_KEY, snapshotForm());
     loadPackages();
     return saved;
   }
 
-  function viewUrl(code) {
-    // Live sites link to the chosen property's own domain. Firebase previews keep
+  // The banner over the form while it holds a saved package.
+  function showEditing() {
+    $("editing").hidden = !saved;
+    if (saved) $("editingRef").textContent = saved.ref;
+  }
+
+  function viewUrl(code, key = propKey) {
+    // Live sites link to the property's own domain. Firebase previews keep
     // their own host. Local dev has no /p/ rewrite, so it uses the file directly.
-    if (/(^|\.)chamtaburu\.in$/.test(location.hostname)) return `https://${prop.domain}/p/${code}`;
+    if (/(^|\.)chamtaburu\.in$/.test(location.hostname)) return `https://${C.properties[key].domain}/p/${code}`;
     if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return `${location.origin}/package/view.html?c=${code}`;
     return `${location.origin}/p/${code}`;
   }
@@ -495,7 +514,7 @@
     } finally {
       busy = false;
       ["send", "copy", "preview"].forEach((id) => ($(id).disabled = false));
-      $("send").textContent = "Send on WhatsApp";
+      $("send").innerHTML = 'Send<span class="wide"> on WhatsApp</span>';
     }
   }
 
@@ -547,7 +566,10 @@
     $("pkgHint").textContent = "Loading…";
     try {
       packages = await P.listQuotes(await A.token());
-      await Promise.all(packages.filter((x) => x.statusBy).map(async (x) => (x.statusByName = await managerName(x.statusBy))));
+      await Promise.all(packages.map(async (x) => {
+        if (x.statusBy) x.statusByName = await managerName(x.statusBy);
+        if (x.editedBy) x.editedByName = await managerName(x.editedBy);
+      }));
       renderPackages();
     } catch (e) {
       console.error(e);
@@ -564,14 +586,15 @@
     $("pkgList").innerHTML = list.map((x) => {
       const d = x.q;
       const ref = d.id || x.code;
-      const url = viewUrl(x.code);
+      const url = viewUrl(x.code, C.properties[d.p] ? d.p : propKey);
       const opts = Object.entries(STATUS).map(([k, v]) => `<option value="${k}"${k === x.status ? " selected" : ""}>${v}</option>`).join("");
-      const changed = x.statusByName ? ` · ${STATUS[x.status] || x.status} by ${P.esc(x.statusByName)}` : "";
+      const changed = (x.editedByName ? ` · edited by ${P.esc(x.editedByName)}` : "")
+        + (x.statusByName ? ` · ${STATUS[x.status] || x.status} by ${P.esc(x.statusByName)}` : "");
       return `<li data-code="${P.esc(x.code)}">
         <a href="${P.esc(url)}" target="_blank" rel="noopener">${P.esc(ref)}</a>
         <span class="muted">${P.esc(d.g || "—")} · ${d.ci ? P.fmtDate(d.ci) : ""} · ${P.inr(d.tot || 0)} · by ${P.esc((d.m && d.m.n) || "?")}${changed}</span>
         <select class="st-${P.esc(x.status)}" data-k="status" aria-label="Status of ${P.esc(ref)}">${opts}</select>
-        <button class="btn small" type="button" data-url="${P.esc(url)}">Copy link</button>
+        <span class="acts"><button class="btn small" type="button" data-edit="${P.esc(x.code)}">Edit</button><button class="btn small" type="button" data-url="${P.esc(url)}">Copy link</button></span>
       </li>`;
     }).join("");
   }
@@ -579,11 +602,34 @@
   $("pkgFilter").addEventListener("change", renderPackages);
   $("pkgRefresh").addEventListener("click", loadPackages);
   $("pkgList").addEventListener("click", async (e) => {
+    if (e.target.dataset.edit) return editPackage(e.target);
     const url = e.target.dataset.url;
     if (!url) return;
     try { await navigator.clipboard.writeText(url); toast("Link copied."); }
     catch { toast("Couldn't copy the link."); }
   });
+  // Opens a saved package in the form. Saving then updates it in place.
+  async function editPackage(btn) {
+    const code = btn.dataset.edit;
+    const x = packages.find((p) => p.code === code);
+    btn.disabled = true;
+    try {
+      const form = await P.loadForm(code, await A.token());
+      if (!form) return toast("This package was made before editing was added. Make a new one instead.");
+      if (!manager.props.includes(form.propKey)) return toast("You can't make packages for this property.");
+      restore({ ...form, editing: { code, ref: (x && x.q.id) || code, url: viewUrl(code, form.propKey) } });
+      $("done").hidden = true;
+      update();
+      window.scrollTo(0, 0);
+      toast(`Editing ${saved.ref}.`);
+    } catch (err) {
+      console.error(err);
+      toast("Couldn't open the package. Try again.");
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
   $("pkgList").addEventListener("change", async (e) => {
     if (e.target.dataset.k !== "status") return;
     const code = e.target.closest("li").dataset.code;

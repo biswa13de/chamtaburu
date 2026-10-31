@@ -229,7 +229,14 @@
 
   // `build(code)` returns the quote to store; called again with a fresh code on the rare collision.
   // `idToken` and `phone` are the signed-in manager's (auth.js).
-  async function saveQuote(property, build, idToken, phone) {
+  // The generator's form behind a quote, so a manager can open it again with
+  // Edit. Kept in `quoteForms`, which only managers can read: it has the
+  // guest's phone number, and the guest's link reads `quotes`.
+  const formWrite = (code, form) => ({
+    update: { name: `${DB}/quoteForms/${code}`, fields: { f: { stringValue: JSON.stringify(form) } } },
+  });
+
+  async function saveQuote(property, build, form, idToken, phone) {
     for (let attempt = 0; attempt < 3; attempt++) {
       const code = newCode();
       const res = await fetch(API + ":commit", {
@@ -246,7 +253,7 @@
             },
             currentDocument: { exists: false },
             updateTransforms: [{ fieldPath: "created", setToServerValue: "REQUEST_TIME" }],
-          }],
+          }, formWrite(code, form)],
         }),
       });
       if (res.ok) return code;
@@ -300,7 +307,7 @@
       let q = {};
       try { q = JSON.parse(str(f, "q")); } catch { /* unreadable quote: list it without details */ }
       // Quotes from before statuses existed count as sent.
-      return { code: d.name.split("/").pop(), q, by: str(f, "by"), status: str(f, "status") || "sent", statusBy: str(f, "statusBy") };
+      return { code: d.name.split("/").pop(), q, by: str(f, "by"), status: str(f, "status") || "sent", statusBy: str(f, "statusBy"), editedBy: str(f, "editedBy") };
     });
   }
 
@@ -319,6 +326,34 @@
       }),
     });
     if (!res.ok) throw new Error("status failed: " + res.status);
+  }
+
+  // An edited package keeps its code, so the link the guest already has shows
+  // the new version. Records who edited it last.
+  async function updateQuote(code, data, form, idToken, phone) {
+    if (!CODE_RE.test(code)) throw new Error("bad code");
+    const res = await fetch(API + ":commit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+      body: JSON.stringify({
+        writes: [{
+          update: { name: `${DB}/quotes/${code}`, fields: { q: { stringValue: JSON.stringify(data) }, editedBy: { stringValue: phone } } },
+          updateMask: { fieldPaths: ["q", "editedBy"] },
+          currentDocument: { exists: true },
+          updateTransforms: [{ fieldPath: "editedAt", setToServerValue: "REQUEST_TIME" }],
+        }, formWrite(code, form)],
+      }),
+    });
+    if (!res.ok) throw new Error("update failed: " + res.status);
+  }
+
+  // null for packages saved before Edit existed (no form was kept).
+  async function loadForm(code, idToken) {
+    if (!CODE_RE.test(code)) return null;
+    const res = await fetch(`${API}/quoteForms/${code}`, { headers: { Authorization: "Bearer " + idToken } });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error("form load failed: " + res.status);
+    return JSON.parse(str((await res.json()).fields || {}, "f"));
   }
 
   async function loadQuote(code) {
@@ -353,5 +388,5 @@
   }
   const prettyPhone = (d) => (d.length === 12 && d.startsWith("91") ? "+91 " + d.slice(2, 7) + " " + d.slice(7) : "+" + d);
 
-  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, calculate, saveQuote, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
+  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
 })();

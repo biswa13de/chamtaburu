@@ -59,13 +59,28 @@ ul.recent .st-confirmed{color:var(--forest);font-weight:600}
 ul.recent .st-cancelled{color:var(--warn)}
 .pkgTools{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:0 0 8px}
 .pkgTools select{width:auto}
-@media (max-width:520px){ ul.recent li{grid-template-columns:minmax(0,1fr) auto auto} ul.recent li span{grid-column:1/-1;grid-row:2} }
+ul.recent .acts{display:flex;gap:6px}
+@media (max-width:520px){
+  ul.recent li{grid-template-columns:minmax(0,1fr) auto}
+  ul.recent li select{grid-row:1;grid-column:2}
+  ul.recent li .muted{grid-column:1/-1;grid-row:2}
+  ul.recent li .acts{grid-column:1/-1;grid-row:3}
+}
+.editing{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--forest);color:var(--paper);padding:8px 16px;border-radius:999px;font-size:.9rem;z-index:6}
 @media (max-width:520px){
   .row{grid-template-columns:minmax(0,1fr) 64px auto}
   .row .ac{grid-column:1/-1;grid-row:2}
   .row .ac.off{display:none}
-  .bar .btn.copy{display:none}
+  .bar .btn.copy,.bar .wide{display:none}
+  .bar .btn{padding:10px 14px}
+  /* Add-on name across the row; quantity and price under it. */
+  .addon{row-gap:6px}
+  .addon > span{grid-column:2/-1}
+  .addon [data-k=q]{grid-row:2;grid-column:3}
+  .addon [data-k=pr]{grid-row:2;grid-column:4}
+  .done{flex-wrap:wrap}
+  .done span{flex-basis:100%}
 }
 </style>
 </head>
@@ -101,6 +116,9 @@ ul.recent .st-cancelled{color:var(--warn)}
     </div>
 
     <p class="banner" id="placeholderBanner" hidden><strong>Placeholder prices.</strong> Some rates, add-ons and terms are not confirmed yet. Check the total before you send.</p>
+
+    <p class="banner editing" id="editing" hidden><span>Editing <strong id="editingRef"></strong>. Saving updates the same link the guest has.</span>
+      <button class="btn small" type="button" id="editNew">Start a new package</button></p>
 
     <form id="form" autocomplete="off">
       <div class="card">
@@ -185,7 +203,7 @@ ul.recent .st-cancelled{color:var(--warn)}
     <div class="tot"><b id="barTotal">₹0</b><span id="barSub">Total incl. GST</span></div>
     <button class="btn copy" type="button" id="copy">Copy</button>
     <button class="btn" type="button" id="preview">Preview</button>
-    <button class="btn wa" type="button" id="send">Send on WhatsApp</button>
+    <button class="btn wa" type="button" id="send">Send<span class="wide"> on WhatsApp</span></button>
   </div></div>
 </div>
 
