@@ -168,6 +168,7 @@
       } else {
         add(a.name, q > 1 ? String(q) : "", q > 1 ? inr(a.price) : "", q * a.price, false);
       }
+      items[items.length - 1].addon = a.id;
     });
 
     // A manager's own price for a line replaces the rate card. The guest sees

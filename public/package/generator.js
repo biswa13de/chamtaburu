@@ -199,27 +199,49 @@
     if (a.unit === "kg") return `${P.inr(Object.values(a.price)[0])} for 1 kg`;
     return `${P.inr(a.price)} ${unitLabel[a.unit]}`;
   }
+  // Each add-on has its own price box, the same edit as its line in the price
+  // table (P.calculate's `edits`), so it can be changed in either place.
   function renderAddons() {
     let group = null;
-    $("addons").innerHTML = P.addonsFor(prop).map((a) => {
+    const list = P.addonsFor(prop);
+    $("addons").innerHTML = (list.length ? `<div class="addon-head"><span></span><span>Qty</span><span>₹ price</span></div>` : "") + list.map((a) => {
       const q = addons[a.id] || 0;
       const head = a.group && a.group !== group ? `<p class="grp">${P.esc((group = a.group))}</p>` : "";
       return `${head}<label class="addon" data-id="${a.id}">
         <input type="checkbox"${q ? " checked" : ""} data-k="on">
-        <span>${P.esc(a.name)}${a.desc ? `<small>${P.esc(a.desc)}</small>` : ""}</span>
-        <span class="p">${addonPrice(a)}</span>
+        <span>${P.esc(a.name)}<small>${addonPrice(a)}${a.desc ? " · " + P.esc(a.desc) : ""}</small></span>
         <input type="number" min="1" max="60" value="${q || defaultAddonQty(a)}" data-k="q" aria-label="${P.esc(a.name)} ${qtyLabel[a.unit] || "quantity"}"${q ? "" : " disabled"}>
+        <input type="number" min="0" step="1" inputmode="numeric" data-k="pr" aria-label="${P.esc(a.name)} price"${q ? "" : " disabled"}>
       </label>`;
     }).join("");
+    if (result) syncAddonPrices(result);
+  }
+  // Rate card price as the placeholder; the box shows a number only once changed.
+  function syncAddonPrices(r) {
+    $("addons").querySelectorAll(".addon").forEach((row) => {
+      const it = r.items.find((x) => x.addon === row.dataset.id);
+      const input = row.querySelector("[data-k=pr]");
+      input.placeholder = it ? String(it.rateCard) : "";
+      if (document.activeElement !== input) input.value = it && it.edited ? it.amount : "";
+    });
   }
   function defaultAddonQty(a) {
     return a.unit === "person" && result ? Math.max(1, result.adults + result.children) : 1;
   }
   $("addons").addEventListener("input", (e) => {
     const row = e.target.closest(".addon");
+    if (!row) return;
+    if (e.target.dataset.k === "pr") {
+      const it = result.items.find((x) => x.addon === row.dataset.id);
+      if (!it) return;
+      if (e.target.value === "") delete edits[it.key];
+      else edits[it.key] = e.target.value;
+      update();
+      return;
+    }
     const qty = row.querySelector("[data-k=q]");
     const on = row.querySelector("[data-k=on]").checked;
-    qty.disabled = !on;
+    qty.disabled = row.querySelector("[data-k=pr]").disabled = !on;
     if (on) addons[row.dataset.id] = Math.max(1, parseInt(qty.value, 10) || 1);
     else delete addons[row.dataset.id];
     update();
@@ -232,7 +254,7 @@
   function state() {
     return {
       ci: $("ci").value, co: $("co").value,
-      rooms, meal: $("meal").value, addons, edits, car: $("car").value, extraBed: num("extraBed"), gstIncl: $("gstIncl").checked,
+      rooms, meal: $("meal").value, addons, edits, car: $("car").value, extraBed: num("extraBed"), gstIncl: $("gstIncl").value === "1",
       discount: $("discount").value, discountType: $("discountType").value,
       override: $("override").value, gst: $("gst").value, advancePct: $("advancePct").value,
     };
@@ -259,6 +281,7 @@
     });
 
     renderLines(r);
+    syncAddonPrices(r);
     $("sumRows").innerHTML = sumRows(r);
     $("warnings").innerHTML = r.warnings.map((w) => `<li>${P.esc(w)}</li>`).join("");
 
@@ -317,7 +340,7 @@
   function snapshotForm() {
     const f = {};
     FIELDS.forEach((id) => (f[id] = $(id).value));
-    f.gstIncl = $("gstIncl").checked;
+    f.gstIncl = $("gstIncl").value === "1";
     return { propKey, rooms, addons, edits, f };
   }
   function restore(d) {
@@ -327,7 +350,7 @@
     addons = d.addons;
     edits = d.edits || {};
     FIELDS.forEach((id) => { if (d.f[id] != null) $(id).value = d.f[id]; });
-    $("gstIncl").checked = !!d.f.gstIncl;
+    $("gstIncl").value = d.f.gstIncl ? "1" : "";
     if (!(d.f.meal in P.PLANS)) $("meal").value = "pkg"; // drafts from the old Veg / Non-veg plans
     renderRooms();
     renderAddons();
@@ -351,7 +374,7 @@
     ["gName", "gPhone", "ci", "co", "note", "override"].forEach((id) => ($(id).value = ""));
     ["extraBed", "discount"].forEach((id) => ($(id).value = 0));
     $("car").value = "5";
-    $("gstIncl").checked = false;
+    $("gstIncl").value = "";
     $("done").hidden = true;
     saved = null;
     setProperty(propKey);
