@@ -6,6 +6,12 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Package Generator · Chamtaburu</title>
 <link rel="stylesheet" href="/package/package.css?v=2">
+<!-- Start fetching sign-in (auth.js and the Firebase SDK it imports) with the
+     page, not after generator.js runs. Versions must match auth.js. -->
+<link rel="modulepreload" href="/package/auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js">
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 <style>
 body{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0 0}

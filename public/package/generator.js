@@ -4,17 +4,24 @@
  * Managers sign in with a code sent by SMS (auth.js). Their number picks the
  * manager from Firestore (P.loadManager), and firestore.rules only lets those
  * numbers save quotes (docs/village-resort-package.md, decision 1).
+ *
+ * A manager signed in on this phone is remembered (MANAGER_KEY), so the form
+ * shows at once instead of after the sign-in code and manager check load;
+ * those finish in the background, and saving waits for them.
  */
 (function () {
   const C = window.PACKAGE_CONFIG;
   const P = window.PKG;
   const $ = (id) => document.getElementById(id);
   const DRAFT_KEY = "pkg-draft";
-  const store = {
-    get(k) { try { return JSON.parse(sessionStorage.getItem(k)); } catch { return null; } },
-    set(k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
-    del(k) { try { sessionStorage.removeItem(k); } catch { /* private mode */ } },
-  };
+  const MANAGER_KEY = "pkg-manager";
+  const storage = (s) => ({
+    get(k) { try { return JSON.parse(s().getItem(k)); } catch { return null; } },
+    set(k, v) { try { s().setItem(k, JSON.stringify(v)); } catch { /* private mode */ } },
+    del(k) { try { s().removeItem(k); } catch { /* private mode */ } },
+  });
+  const store = storage(() => sessionStorage); // the draft: this tab only
+  const kept = storage(() => localStorage); // the signed-in manager: until Sign out
 
   let manager = null;
   let prop = null;
@@ -26,6 +33,11 @@
   /* ---------- Sign-in ---------- */
   let A = null; // auth.js, once loaded
   const loginErr = $("loginErr");
+  // Resolves once Firebase confirms who is signed in; anything that needs
+  // their ID token waits for it.
+  let authReady;
+  const authed = new Promise((r) => (authReady = r));
+  const token = async () => { await authed; return A.token(); };
 
   // "98765 43210", "098765 43210" or "+91 98765 43210" → "+919876543210".
   function e164(s) {
@@ -95,9 +107,21 @@
 
   $("logout").addEventListener("click", async () => {
     store.del(DRAFT_KEY);
-    await A.logout();
+    kept.del(MANAGER_KEY);
+    if (A) await A.logout();
     location.reload();
   });
+
+  // Back to the sign-in screen: signed out elsewhere, or removed as a manager.
+  function lockOut(msg) {
+    manager = null;
+    kept.del(MANAGER_KEY);
+    $("app").hidden = true;
+    $("lock").hidden = false;
+    $("loginWait").hidden = true;
+    showStep("phone");
+    loginErr.textContent = msg || "";
+  }
 
   /* ---------- Setup ---------- */
   function start(m) {
@@ -427,10 +451,10 @@
     if (saved && saved.key === key) return saved;
     const form = snapshotForm();
     if (saved) {
-      await P.updateQuote(saved.code, { ...data, id: saved.ref }, form, await A.token(), A.phone());
+      await P.updateQuote(saved.code, { ...data, id: saved.ref }, form, await token(), manager.id);
       Object.assign(saved, { key, data });
     } else {
-      const code = await P.saveQuote(propKey, (c) => ({ ...data, id: `${prop.prefix}-${c}` }), form, await A.token(), A.phone());
+      const code = await P.saveQuote(propKey, (c) => ({ ...data, id: `${prop.prefix}-${c}` }), form, await token(), manager.id);
       saved = { code, key, data, ref: `${prop.prefix}-${code}`, url: viewUrl(code) };
     }
     showEditing();
@@ -571,7 +595,7 @@
   async function loadPackages() {
     $("pkgHint").textContent = "Loading…";
     try {
-      packages = await P.listQuotes(await A.token());
+      packages = await P.listQuotes(await token());
       await Promise.all(packages.map(async (x) => {
         if (x.statusBy) x.statusByName = await managerName(x.statusBy);
         if (x.editedBy) x.editedByName = await managerName(x.editedBy);
@@ -585,7 +609,7 @@
 
   function renderPackages() {
     const mine = $("pkgFilter").value === "mine";
-    const list = packages.filter((x) => !mine || x.by === A.phone());
+    const list = packages.filter((x) => !mine || x.by === manager.id);
     $("pkgHint").textContent = list.length
       ? `Latest ${list.length}. Tap a Ref to open the guest's page.`
       : mine ? "You haven't made any packages yet." : "No packages yet.";
@@ -620,7 +644,7 @@
     const x = packages.find((p) => p.code === code);
     btn.disabled = true;
     try {
-      const form = await P.loadForm(code, await A.token());
+      const form = await P.loadForm(code, await token());
       if (!form) return toast("This package was made before editing was added. Make a new one instead.");
       if (!manager.props.includes(form.propKey)) return toast("You can't make packages for this property.");
       restore({ ...form, editing: { code, ref: (x && x.q.id) || code, url: viewUrl(code, form.propKey) } });
@@ -643,8 +667,8 @@
     const status = e.target.value;
     e.target.disabled = true;
     try {
-      await P.setStatus(code, status, await A.token(), A.phone());
-      Object.assign(x, { status, statusBy: A.phone(), statusByName: manager.name });
+      await P.setStatus(code, status, await token(), manager.id);
+      Object.assign(x, { status, statusBy: manager.id, statusByName: manager.name });
       toast(`${x.q.id || code} marked ${STATUS[status].toLowerCase()}.`);
     } catch (err) {
       console.error(err);
@@ -654,18 +678,40 @@
   });
 
   /* ---------- Start: resume a sign-in, or ask for the number ---------- */
+  const remembered = kept.get(MANAGER_KEY);
+  if (remembered && remembered.id) start(remembered);
+
   import("/package/auth.js").then((mod) => {
     A = mod;
     A.onUser(async (user) => {
-      if (!user) { $("loginWait").hidden = true; showStep("phone"); return; }
+      if (!user) {
+        if (manager) lockOut(); // signed out on this phone since it was remembered
+        $("loginWait").hidden = true;
+        showStep("phone");
+        return;
+      }
+      // Someone else signed in on this phone since: start again as them.
+      if (manager && manager.id !== user.phoneNumber) { kept.del(MANAGER_KEY); location.reload(); return; }
+      authReady();
       let m;
       try { m = await P.loadManager(user.phoneNumber); }
-      catch (e) { console.error(e); $("loginWait").textContent = "Couldn't reach the server. Check your connection and reload."; return; }
+      catch (e) {
+        console.error(e);
+        // Already showing the form from the remembered manager: carry on.
+        if (!manager) $("loginWait").textContent = "Couldn't reach the server. Check your connection and reload.";
+        return;
+      }
+      if (!m) {
+        // Signed in on this phone, but since removed from the manager list.
+        A.logout();
+        lockOut("This number isn't on the manager list.");
+        return;
+      }
+      m.id = user.phoneNumber;
+      kept.set(MANAGER_KEY, m);
       $("loginWait").hidden = true;
-      if (m) { if (!manager) start(m); return; }
-      // Signed in on this phone, but since removed from the manager list.
-      loginErr.textContent = "This number isn't on the manager list.";
-      A.logout();
+      if (!manager) start(m);
+      else if (m.name !== manager.name) { manager.name = m.name; $("who").textContent = m.name; }
     });
   }).catch((e) => {
     console.error(e);
