@@ -6,7 +6,16 @@
 
 // Keys into a shared amenity dictionary. Extend as real amenities are confirmed.
 export type AmenityKey =
-  'wifi' | 'ac' | 'geyser' | 'breakfast' | 'attached-bathroom' | 'balcony' | 'parking';
+  | 'wifi'
+  | 'ac'
+  | 'geyser'
+  | 'breakfast'
+  | 'attached-bathroom'
+  | 'balcony'
+  | 'parking'
+  | 'private-lawn'
+  | 'hill-view'
+  | 'swing';
 
 /**
  * `base` is a manifest key — `<site>/<descriptive-name>`, e.g.

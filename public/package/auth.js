@@ -65,4 +65,6 @@ export async function confirmCode(code) {
 // Sent with each saved quote; firestore.rules checks the phone number in it.
 export const token = () => auth.currentUser.getIdToken();
 
+export const phone = () => auth.currentUser.phoneNumber;
+
 export const logout = () => signOut(auth);

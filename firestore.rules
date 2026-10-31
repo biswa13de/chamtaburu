@@ -3,9 +3,12 @@ rules_version = '2';
 // Package generator quotes (public/package/package-core.js). Managers sign in
 // with an SMS code (Firebase phone auth, public/package/auth.js):
 //   - anyone holding a code can read that one quote (the guest's link);
-//   - nobody can list quotes, so codes can't be harvested;
-//   - only a signed-in manager number can create quotes, and they can never
-//     be edited or deleted, so a link already sent always shows what was sent;
+//   - only signed-in managers can list quotes, so codes can't be harvested;
+//   - only signed-in managers can create quotes, recording their own number
+//     as `by`;
+//   - managers can change a quote's status, or edit its contents (the guest's
+//     link then shows the new version), recording who did; nobody can delete
+//     one;
 //   - created quotes must have the expected shape and size.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -26,14 +29,47 @@ service cloud.firestore {
 
     match /quotes/{code} {
       allow get: if true;
-      allow list, update, delete: if false;
+      allow list: if isManager();
+      allow delete: if false;
+      // `by` and `status` are optional only so a generator page opened before
+      // they existed can still save while this deploys; when present they
+      // must be the manager's own number and "sent".
       allow create: if isManager()
         && code.matches('^[2-9A-HJKMNP-Z]{6}$')
-        && request.resource.data.keys().hasOnly(['q', 'p', 'created'])
+        && request.resource.data.keys().hasOnly(['q', 'p', 'created', 'by', 'status'])
+        && (!('by' in request.resource.data) || request.resource.data.by == request.auth.token.phone_number)
+        && (!('status' in request.resource.data) || request.resource.data.status == 'sent')
         && request.resource.data.q is string
         && request.resource.data.q.size() < 20000
         && request.resource.data.p in ['village', 'resort']
         && request.resource.data.created == request.time;
+      allow update: if isManager() && (statusChange() || contentEdit());
+
+      function statusChange() {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'statusBy', 'statusAt'])
+          && request.resource.data.status in ['sent', 'confirmed', 'cancelled']
+          && request.resource.data.statusBy == request.auth.token.phone_number
+          && request.resource.data.statusAt == request.time;
+      }
+      function contentEdit() {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['q', 'editedBy', 'editedAt'])
+          && request.resource.data.q is string
+          && request.resource.data.q.size() < 20000
+          && request.resource.data.editedBy == request.auth.token.phone_number
+          && request.resource.data.editedAt == request.time;
+      }
+    }
+
+    // The generator form behind each quote, for Edit. Managers only: it holds
+    // the guest's phone number. Written in the same commit as its quote.
+    match /quoteForms/{code} {
+      allow get: if isManager();
+      allow list, delete: if false;
+      allow create, update: if isManager()
+        && existsAfter(/databases/$(database)/documents/quotes/$(code))
+        && request.resource.data.keys().hasOnly(['f'])
+        && request.resource.data.f is string
+        && request.resource.data.f.size() < 20000;
     }
 
     match /{document=**} {

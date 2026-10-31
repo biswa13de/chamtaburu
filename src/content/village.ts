@@ -93,6 +93,9 @@ const SHARED_GALLERY: ImageRef[] = [
   },
 ];
 
+// Every cottage has its own lawn and garden with a hill view and a swing.
+const VILLAGE_COTTAGE_AMENITIES: Cottage['amenities'] = ['private-lawn', 'hill-view', 'swing'];
+
 export const cottages: Cottage[] = [
   {
     slug: 'shal-shanti',
@@ -115,7 +118,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
-    amenities: [],
+    amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
   },
@@ -140,7 +143,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
-    amenities: [],
+    amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
   },
@@ -165,7 +168,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
-    amenities: [],
+    amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
   },
@@ -183,7 +186,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
-    amenities: [],
+    amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
   },
@@ -201,7 +204,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
-    amenities: [],
+    amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
   },
@@ -219,7 +222,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
-    amenities: [],
+    amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
   },
@@ -245,7 +248,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
-    amenities: [],
+    amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
   },
