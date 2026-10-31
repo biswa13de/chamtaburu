@@ -47,7 +47,7 @@
       l: arr(d.l).map((l) => [s(l[0]), s(l[1]), n(l[2])]),
       sub: n(d.sub), dis: n(d.dis), ov: d.ov ? 1 : 0, gp: Number(d.gp) || 0, gst: n(d.gst),
       tot: n(d.tot), ap: n(d.ap), adv: n(d.adv),
-      inc: arr(d.inc).map(s), exc: arr(d.exc).map(s), note: s(d.note), mn: d.mn ? 1 : 0,
+      inc: arr(d.inc).map(s), exc: arr(d.exc).map(s), note: s(d.note), mn: d.mn ? 1 : 0, gi: d.gi ? 1 : 0,
     };
   }
 
@@ -72,7 +72,7 @@
   let totals = row("Subtotal", P.inr(q.sub));
   if (q.dis > 0) totals += row(q.ov ? "Special price discount" : "Discount", "− " + P.inr(q.dis));
   if (q.dis < 0) totals += row("Adjustment", "+ " + P.inr(-q.dis));
-  if (q.gp) totals += row(`GST ${q.gp}%`, P.inr(q.gst));
+  if (q.gp) totals += row(q.gi ? `Includes GST ${q.gp}%` : `GST ${q.gp}%`, P.inr(q.gst));
   totals += row("Total", P.inr(q.tot), "total");
   if (q.adv) totals += row(`Advance to confirm (${q.ap}%)`, P.inr(q.adv), "adv");
 
@@ -84,7 +84,12 @@
   const confirmText = encodeURIComponent(`Hi ${q.m.n}, I'd like to confirm my package ${q.id} at ${prop.name} (${P.fmtDate(q.ci)} → ${P.fmtDate(q.co)}).`);
   const askText = encodeURIComponent(`Hi ${q.m.n}, I have a question about package ${q.id}.`);
 
+  // Opened with the generator's Preview button (#preview): a way back to it.
+  // Links sent to guests never carry #preview.
+  const preview = location.hash === "#preview";
+
   main.innerHTML = `
+    ${preview ? `<p class="actions" style="margin:12px 0 0"><button class="btn" type="button" id="back">← Back to Package Generator</button></p>` : ""}
     <p class="ref">Ref ${P.esc(q.id)}${q.cd ? " · " + P.fmtDate(q.cd) : ""}
       ${q.vu ? `· <span class="status${expired ? " expired" : ""}">${expired ? "Expired" : "Valid until"} ${P.fmtDate(q.vu)}</span>` : ""}</p>
 
@@ -118,6 +123,14 @@
       <a class="btn" href="tel:+${q.m.ph}">Call ${P.esc(q.m.n)}</a>
       <button class="btn" type="button" id="print">Save as PDF</button>
     </div>`;
+  if (preview) {
+    // Preview opens in its own tab, so closing it returns to the generator.
+    // If the browser won't close it (or it opened in the same tab), go back.
+    $("back").addEventListener("click", () => {
+      window.close();
+      setTimeout(() => (history.length > 1 ? history.back() : location.assign("/package")), 300);
+    });
+  }
 
   function payment() {
     const steps = q.adv

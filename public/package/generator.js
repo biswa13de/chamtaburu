@@ -130,10 +130,8 @@
     rooms = [newRoom(prop.rooms[0])];
     addons = {};
     edits = {};
-    $("meal").innerHTML = prop.meals.map((m) => {
-      const price = m.adult ? ` — ${P.inr(m.adult)}/adult/night` : "";
-      return `<option value="${m.id}">${P.esc(m.name + price)}</option>`;
-    }).join("");
+    $("meal").innerHTML = Object.entries(P.PLANS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+    $("meal").value = "pkg";
     $("gst").value = prop.gst;
     $("advancePct").value = prop.advance;
     $("validUntil").value = P.addDays(P.today(), prop.validDays);
@@ -144,8 +142,10 @@
   }
 
   /* ---------- Rooms & add-ons ---------- */
-  // A row is `q` rooms of one type, each with `a` adults and `k` children.
-  const newRoom = (room) => ({ id: room.id, ac: false, q: 1, a: room.adults, k: 0 });
+  // A row is `q` rooms of one type, each with `a` adults and `k` children; `pr`
+  // is the manager's package rate per adult (blank = rate card).
+  const newRoom = (room) => ({ id: room.id, ac: false, q: 1, a: room.adults, k: 0, pr: "" });
+  const isPackage = () => $("meal").value !== "room";
 
   function renderRooms() {
     $("rooms").innerHTML = rooms.map((r, i) => {
@@ -159,7 +159,9 @@
         <label class="mini">Rooms<input type="number" min="1" max="20" value="${r.q}" data-k="q"></label>
         <label class="mini">Adults / room<input type="number" min="1" max="${room.max || room.adults}" value="${r.a}" data-k="a"></label>
         <label class="mini">Children ${P.esc(prop.childAge)}<input type="number" min="0" max="6" value="${r.k}" data-k="k"></label>
-        <label class="ac${room.ac ? "" : " off"}"><input type="checkbox" data-k="ac"${r.ac ? " checked" : ""}> AC</label>
+        ${isPackage()
+          ? `<label class="mini">₹ per adult<input type="number" min="0" step="50" inputmode="numeric" value="${P.esc(r.pr || "")}" data-k="pr"></label>`
+          : `<label class="ac${room.ac ? "" : " off"}"><input type="checkbox" data-k="ac"${r.ac ? " checked" : ""}> AC</label>`}
         <button class="btn small" type="button" data-k="del" aria-label="Remove room"${rooms.length < 2 ? " disabled" : ""}>✕</button>
       </div>`;
     }).join("");
@@ -173,6 +175,7 @@
     if (k === "id") { Object.assign(r, newRoom(prop.rooms.find((x) => x.id === e.target.value)), { q: r.q }); renderRooms(); }
     if (k === "ac") r.ac = e.target.checked;
     if (k === "q" || k === "a" || k === "k") r[k] = n;
+    if (k === "pr") r.pr = e.target.value;
     update();
   });
   $("rooms").addEventListener("click", (e) => {
@@ -229,7 +232,7 @@
   function state() {
     return {
       ci: $("ci").value, co: $("co").value,
-      rooms, meal: $("meal").value, addons, edits, car: $("car").value, extraBed: num("extraBed"),
+      rooms, meal: $("meal").value, addons, edits, car: $("car").value, extraBed: num("extraBed"), gstIncl: $("gstIncl").checked,
       discount: $("discount").value, discountType: $("discountType").value,
       override: $("override").value, gst: $("gst").value, advancePct: $("advancePct").value,
     };
@@ -246,10 +249,14 @@
       : "";
 
     $("guestsHint").textContent = `Guests: ${P.plural(r.adults, "adult")}` + (r.children ? `, ${P.kids(r.children)} (${prop.childAge})` : "") + ". Younger children stay free.";
-    const season = r.nights > r.mealNights ? (prop.seasons || []).find((x) => x.meals) : null;
-    $("mealHint").textContent = !season ? ""
-      : r.mealNights ? `${season.name} nights include all meals; the meal plan and extra beds apply to the other ${P.plural(r.mealNights, "night")}.`
-      : `${season.name}: all meals included, so no meal plan or extra beds needed.`;
+    $("mealHint").textContent = r.pkg
+      ? `Price per adult per night with breakfast, lunch, evening snacks and dinner; children ${prop.childAge} half. Type a rate in "₹ per adult" to change it.`
+      : "Room rate only. Guests above a room's normal capacity are charged as extras.";
+    $("extraBedLbl").hidden = r.pkg;
+    // Rate card price beside each package rate box, so the manager sees what they're changing.
+    document.querySelectorAll('#rooms [data-k="pr"]').forEach((el, i) => {
+      el.placeholder = r.rowRates[i] ? String(r.rowRates[i]) : "rate";
+    });
 
     renderLines(r);
     $("sumRows").innerHTML = sumRows(r);
@@ -299,7 +306,7 @@
     let h = row("Subtotal", P.inr(r.subtotal));
     if (r.discount > 0) h += row(r.override ? "Special price discount" : "Discount", "− " + P.inr(r.discount));
     if (r.discount < 0) h += row("Adjustment", "+ " + P.inr(-r.discount));
-    if (r.gstPct) h += row(`GST ${r.gstPct}%`, P.inr(r.gst));
+    if (r.gstPct) h += row(r.gstIncl ? `Includes GST ${r.gstPct}%` : `GST ${r.gstPct}%`, P.inr(r.gst));
     h += row("Total", P.inr(r.total), "total");
     if (r.advance) h += row(`Advance to confirm (${$("advancePct").value}%)`, P.inr(r.advance), "adv");
     return h;
@@ -310,6 +317,7 @@
   function snapshotForm() {
     const f = {};
     FIELDS.forEach((id) => (f[id] = $(id).value));
+    f.gstIncl = $("gstIncl").checked;
     return { propKey, rooms, addons, edits, f };
   }
   function restore(d) {
@@ -319,6 +327,8 @@
     addons = d.addons;
     edits = d.edits || {};
     FIELDS.forEach((id) => { if (d.f[id] != null) $(id).value = d.f[id]; });
+    $("gstIncl").checked = !!d.f.gstIncl;
+    if (!(d.f.meal in P.PLANS)) $("meal").value = "pkg"; // drafts from the old Veg / Non-veg plans
     renderRooms();
     renderAddons();
   }
@@ -327,6 +337,8 @@
     if (e.target.closest("#rooms, #addons, #lineRows")) return;
     if (e.target.id === "prop") setProperty(e.target.value);
     if (e.target.id === "car") renderAddons();
+    if (e.target.id === "meal") renderRooms();
+    $("done").hidden = true;
     if (e.target.id === "ci" && $("ci").value) {
       $("co").min = P.addDays($("ci").value, 1);
       if (!$("co").value || $("co").value <= $("ci").value) $("co").value = P.addDays($("ci").value, 1);
@@ -335,14 +347,20 @@
   });
   $("form").addEventListener("submit", (e) => e.preventDefault());
 
-  $("reset").addEventListener("click", () => {
+  function newPackage() {
     ["gName", "gPhone", "ci", "co", "note", "override"].forEach((id) => ($(id).value = ""));
     ["extraBed", "discount"].forEach((id) => ($(id).value = 0));
     $("car").value = "5";
+    $("gstIncl").checked = false;
+    $("done").hidden = true;
+    saved = null;
     setProperty(propKey);
     update();
     window.scrollTo(0, 0);
-  });
+  }
+  $("reset").addEventListener("click", newPackage);
+  $("doneNew").addEventListener("click", newPackage);
+  $("doneClose").addEventListener("click", () => ($("done").hidden = true));
 
   /* ---------- Output ---------- */
   function quoteData() {
@@ -353,8 +371,8 @@
       m: { n: manager.name, ph: P.contactFor(manager.phone, propKey) },
       g: $("gName").value.trim(), ci: st.ci, co: st.co, n: r.nights, a: r.adults, k: r.children,
       l: r.lines, sub: r.subtotal, dis: r.discount, ov: r.override ? 1 : 0, gp: r.gstPct, gst: r.gst,
-      tot: r.total, ap: Number(st.advancePct) || 0, adv: r.advance,
-      mn: r.nights > r.mealNights ? 1 : 0, // has all-meals nights, so the guest page shows the menu
+      tot: r.total, ap: Number(st.advancePct) || 0, adv: r.advance, gi: r.gstIncl ? 1 : 0,
+      mn: r.pkg ? 1 : 0, // a package plan, so the guest page shows the menu
       inc: lines("inclusions"), exc: lines("exclusions"), note: $("note").value.trim(),
     };
   }
@@ -390,8 +408,7 @@
       const room = prop.rooms.find((x) => x.id === r.id);
       return (r.q > 1 ? r.q + " × " : "") + room.name + (r.ac && room.ac ? " (AC)" : "");
     }).join(", ");
-    const meal = result.mealNights ? prop.meals.find((m) => m.id === $("meal").value) : null;
-    const season = result.nights > result.mealNights ? (prop.seasons || []).find((x) => x.meals) : null;
+
     const out = [
       `*${prop.name}*`,
       `Hello ${d.g}, here is your stay package 🌿`,
@@ -400,8 +417,7 @@
       `👥 ${P.plural(d.a, "adult")}${d.k ? ", " + P.kids(d.k) : ""}`,
       `🏡 ${roomText}`,
     ];
-    if (season) out.push(`🎉 ${season.name} · all meals included`);
-    if (meal && (meal.adult || meal.child)) out.push(`🍽 ${meal.name}`);
+    if (result.pkg) out.push(`🍽 ${P.PLANS[$("meal").value]}: breakfast, lunch, evening snacks & dinner`);
     out.push(`💰 Total *${P.inr(d.tot)}*${d.gp ? " (incl. GST)" : ""}`);
     if (d.adv) out.push(`✅ Advance to confirm: *${P.inr(d.adv)}*`);
     out.push("", "Full details & confirm here:", s.url, "");
@@ -415,6 +431,7 @@
     if (needPhone && !P.waNumber($("gPhone").value)) return ["gPhone", "Check the guest's WhatsApp number."];
     if (!(result.nights > 0)) return ["ci", "Pick check-in and check-out dates."];
     if (!result.lines.length || !rooms.some((r) => r.q)) return ["addRoom", "Add at least one room."];
+    if (result.items.some((it) => it.tax && !it.amount)) return ["rooms", "A room has no price yet. Type the rate per adult."];
     return null;
   }
   function guard(needPhone = true) {
@@ -459,18 +476,28 @@
     else location.href = url;
   }
 
+  // After Send or Copy: the saved Ref, and a way to start the next package.
+  function done(s, what) {
+    $("doneText").textContent = `${s.ref} ${what}.`;
+    $("done").hidden = false;
+  }
+
   $("send").addEventListener("click", () => {
     if (!guard()) return;
-    withSaved((s) => openTab(`https://wa.me/${P.waNumber($("gPhone").value)}?text=${encodeURIComponent(message(s))}`));
+    withSaved((s) => {
+      openTab(`https://wa.me/${P.waNumber($("gPhone").value)}?text=${encodeURIComponent(message(s))}`);
+      done(s, "saved and opened in WhatsApp");
+    });
   });
   $("preview").addEventListener("click", () => {
     if (!guard(false)) return;
-    withSaved((s) => openTab(s.url));
+    // #preview shows a "Back to Package Generator" button there; the link sent to guests never has it.
+    withSaved((s) => openTab(s.url + "#preview"));
   });
   $("copy").addEventListener("click", () => {
     if (!guard(false)) return;
     withSaved(async (s) => {
-      try { await navigator.clipboard.writeText(message(s)); toast("Message copied."); }
+      try { await navigator.clipboard.writeText(message(s)); done(s, "saved, message copied"); }
       catch { toast("Couldn't copy. Use Send on WhatsApp instead."); }
     });
   });

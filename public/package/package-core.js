@@ -27,7 +27,8 @@
   function nightlyRate(prop, room, ac, date) {
     const base = ac && room.ac ? room.ac : room.rate;
     const s = seasonFor(prop, date);
-    if (!s) return { rate: base, season: null };
+    // A season that only sets package rates leaves the Room only rate alone.
+    if (!s || (!s.rates && !s.uplift)) return { rate: base, season: null };
     const key = room.id + (ac ? "-ac" : "");
     const rate = s.rates && s.rates[key] != null ? s.rates[key] : Math.round(base * (1 + (s.uplift || 0)));
     return { rate, season: s.name };
@@ -53,36 +54,49 @@
   // Add-ons for both properties first, then the property's own.
   const addonsFor = (prop) => (window.PACKAGE_CONFIG.addons || []).concat(prop.addons || []);
 
+  // Meal plans. A package is a price per adult per night with all meals.
+  const PLANS = { room: "Room only", "pkg-ac": "Package (AC)", pkg: "Package (Non-AC)" };
+
+  // The package rate table for a room on one night: the season's if it has
+  // one, else the property's; AC falls back to Non-AC (`fallback` set).
+  function packageTable(prop, room, ac, date) {
+    const s = seasonFor(prop, date);
+    const src = s && s.packages ? s.packages : prop.packages || {};
+    const pick = (kind) => src[kind] && src[kind][room.tier];
+    if (ac && pick("ac")) return { table: pick("ac"), season: s && s.packages ? s.name : null };
+    return { table: pick("nonac") || null, season: s && s.packages ? s.name : null, fallback: ac && !!pick("nonac") };
+  }
+
   /*
-   * state: { ci, co, rooms:[{id, ac, q, a, k}] (q rooms, each with a adults and
-   *          k children), meal, extraBed, car ("5"|"9"), addons:{id:qty},
-   *          edits:{lineKey:amount}, discount, discountType ("amt"|"pct"),
-   *          override, gst, advancePct }
+   * state: { ci, co, meal (a PLANS key), rooms:[{id, ac, q, a, k, pr}] (q rooms,
+   *          each with a adults and k children; pr = the manager's package rate
+   *          per adult, blank for the rate card), extraBed, car ("5"|"9"),
+   *          addons:{id:qty}, edits:{lineKey:amount}, discount, discountType
+   *          ("amt"|"pct"), override, gst, gstIncl, advancePct }
    * Returns line items and totals. Each item is { key, label, detail, amount,
    * rateCard, tax }: `key` identifies the line for a manager's price edit, and
    * changes whenever what the line covers changes, so an edit never sticks to
    * a different stay. `lines` is the same as [label, detail, amount] for the
-   * saved quote. GST applies to the stay (rooms, meals, extras), not add-ons.
+   * saved quote. GST applies to the stay (rooms, extras), not add-ons; with
+   * `gstIncl` the prices already include it. `rowRates[i]` is row i's rate
+   * card price per adult (first night), for showing beside the manager's box.
    */
   function calculate(prop, st) {
     const nights = Math.max(0, nightsBetween(st.ci, st.co));
+    const pkg = st.meal === "pkg" || st.meal === "pkg-ac";
+    const ac = st.meal === "pkg-ac";
     const items = [];
     const warnings = [];
+    const rowRates = [];
     const add = (label, qty, rate, amount, tax, note) => {
       const detail = [qty, rate].filter(Boolean).join(" × ") + (note ? " · " + note : "");
       items.push({ key: label + "|" + detail, label, qty, note, detail, amount, rateCard: amount, tax });
     };
     const plus = (a, k, rateA, rateK) => [a && plural(a, "adult") + " × " + inr(rateA), k && kids(k) + " × " + inr(rateK)].filter(Boolean).join(" + ");
 
-    // Nights with meals included (a `meals` season) don't also get a meal plan or extras.
-    const plain = [];
-    for (let i = 0; i < nights; i++) {
-      const s = seasonFor(prop, addDays(st.ci, i));
-      if (!(s && s.meals)) plain.push(i);
-    }
-
     let adults = 0, children = 0, extraA = 0, extraK = 0;
-    st.rooms.forEach((r) => {
+    const noRate = [], acFallback = [];
+    st.rooms.forEach((r, ri) => {
       const room = prop.rooms.find((x) => x.id === r.id);
       if (!room || !r.q) return;
       const a = r.a || 0, k = r.k || 0;
@@ -92,19 +106,24 @@
       extraK += r.q * Math.max(0, k - (room.children || 0));
       if (!a) warnings.push(room.name + ": each room needs at least 1 adult.");
       if (a > (room.max || room.adults)) warnings.push(`${room.name} takes at most ${room.max || room.adults} adults per room.`);
+      const own = Number(r.pr) > 0 ? Math.round(Number(r.pr)) : null;
 
       // Group consecutive nights priced the same, so a stay that crosses into a season shows two lines.
       const groups = [];
       for (let i = 0; i < nights; i++) {
-        const s = seasonFor(prop, addDays(st.ci, i));
-        const table = s && s.perAdult && s.perAdult[room.tier];
+        const date = addDays(st.ci, i);
         let g;
-        if (table) {
-          const pa = perAdult(table, a);
-          const child = Math.round(pa.rate / 2);
-          g = { season: s.name, per: pa.billed * pa.rate + k * child, rate: pa.rate, child, billed: pa.billed };
+        if (pkg) {
+          const t = packageTable(prop, room, ac, date);
+          if (i === 0) rowRates[ri] = t.table ? perAdult(t.table, a).rate : null;
+          if (t.fallback && !own) acFallback.push(t.season || "normal nights");
+          const pa = own ? { rate: own, billed: Math.max(a, t.table ? perAdult(t.table, a).billed : 2) } : t.table ? perAdult(t.table, a) : null;
+          if (!pa) noRate.push(room.name);
+          const rate = pa ? pa.rate : 0;
+          const child = Math.round(rate / 2);
+          g = { season: t.season, per: pa ? pa.billed * rate + k * child : 0, rate, child, billed: pa ? pa.billed : a };
         } else {
-          const nr = nightlyRate(prop, room, r.ac, addDays(st.ci, i));
+          const nr = nightlyRate(prop, room, r.ac, date);
           g = { season: nr.season, per: nr.rate };
         }
         const last = groups[groups.length - 1];
@@ -113,28 +132,25 @@
       }
       const qty = (n) => r.q + " room" + (r.q > 1 ? "s" : "") + " × " + plural(n, "night");
       groups.forEach((g) => {
-        if (g.rate != null) {
-          // Per adult: "(3 adults × ₹2,500 + 1 child × ₹1,250)", or "1 adult, charged as 2".
+        if (pkg) {
+          // "(3 adults × ₹2,500 + 1 child × ₹1,250)", or "1 adult, charged as 2".
           const who = g.billed > a ? `${plural(a, "adult")}, charged as ${g.billed}, × ${inr(g.rate)}` + (k ? " + " + kids(k) + " × " + inr(g.child) : "") : plus(a, k, g.rate, g.child);
-          add(room.name + " · " + g.season, qty(g.n), "(" + who + ")", r.q * g.n * g.per, true);
+          add(room.name + " · " + (g.season || "Package") + (ac ? " (AC)" : " (Non-AC)"), qty(g.n), "(" + who + ")", r.q * g.n * g.per, true);
         } else {
           const label = room.name + (r.ac && room.ac ? " (AC)" : room.ac ? " (Non-AC)" : "") + (g.season ? " · " + g.season : "");
           add(label, qty(g.n), inr(g.per), r.q * g.n * g.per, true);
         }
       });
     });
+    [...new Set(noRate)].forEach((name) => warnings.push(`${name}: no package rate for these dates. Type the rate per adult in the room row.`));
+    [...new Set(acFallback)].forEach((when) => warnings.push(`No AC package rate set for ${when}, so the Non-AC rate is shown. Check the price.`));
 
-    const n = plain.length;
-    const meal = prop.meals.find((m) => m.id === st.meal);
-    if (meal && (meal.adult || meal.child) && n) {
-      const amt = (adults * meal.adult + children * meal.child) * n;
-      if (amt) add(meal.name, plural(n, "night"), "(" + plus(adults, children, meal.adult, meal.child) + ")", amt, true);
+    // Room only: guests above what the room rates cover, and extra beds. A package covers them.
+    if (!pkg) {
+      [[extraA, "Extra adult", "adult"], [extraK, "Extra child (" + prop.childAge + ")", "child"], [st.extraBed || 0, "Extra bed", "bed"]].forEach(([q, name, x]) => {
+        if (q && nights) add(name, q + " × " + plural(nights, "night"), inr(prop.extras[x]), q * nights * prop.extras[x], true);
+      });
     }
-
-    // Guests above what the room rates cover, on normal nights only.
-    [[extraA, "Extra adult", "adult"], [extraK, "Extra child (" + prop.childAge + ")", "child"], [st.extraBed || 0, "Extra bed", "bed"]].forEach(([q, name, x]) => {
-      if (q && n) add(name, q + " × " + plural(n, "night"), inr(prop.extras[x]), q * n * prop.extras[x], true);
-    });
 
     const car = String(st.car || 5);
     addonsFor(prop).forEach((a) => {
@@ -170,22 +186,25 @@
     const subtotal = items.reduce((s, l) => s + l.amount, 0);
     const exempt = items.filter((l) => !l.tax).reduce((s, l) => s + l.amount, 0);
     const gstPct = Number(st.gst) || 0;
+    const gstIncl = !!st.gstIncl;
     let discount = st.discountType === "pct" ? Math.round((subtotal * (Number(st.discount) || 0)) / 100) : Math.round(Number(st.discount) || 0);
     discount = Math.min(Math.max(discount, 0), subtotal);
     // The discount comes off the stay first, so GST is charged on what the guest pays for it.
-    let gst = Math.round((Math.max(0, subtotal - exempt - discount) * gstPct) / 100);
-    let total = subtotal - discount + gst;
+    const stay = Math.max(0, subtotal - exempt - discount);
+    // GST-inclusive prices already contain it: show the part that is GST, add nothing.
+    let gst = gstIncl ? stay - Math.round(stay / (1 + gstPct / 100)) : Math.round((stay * gstPct) / 100);
+    let total = subtotal - discount + (gstIncl ? 0 : gst);
     const override = Number(st.override) > 0;
     if (override) {
       // The manager's final figure includes GST on the stay; work the stay amount back out of it.
       total = Math.round(Number(st.override));
-      const stay = Math.max(0, Math.round((total - exempt) / (1 + gstPct / 100)));
-      gst = Math.max(0, total - exempt - stay);
-      discount = subtotal - (total - gst); // negative when the special price is above the rate card
+      const net = Math.max(0, Math.round((total - exempt) / (1 + gstPct / 100)));
+      gst = Math.max(0, total - exempt - net);
+      discount = subtotal - (gstIncl ? total : total - gst); // negative when the special price is above the rate card
     }
     const advance = Math.round((total * (Number(st.advancePct) || 0)) / 100);
     const lines = items.map((l) => [l.label, l.detail, l.amount]);
-    return { nights, mealNights: n, adults, children, items, lines, subtotal, discount, gstPct, gst, total, advance, override, warnings };
+    return { nights, pkg, adults, children, items, lines, rowRates, subtotal, discount, gstPct, gstIncl, gst, total, advance, override, warnings };
   }
 
   /*
@@ -333,5 +352,5 @@
   }
   const prettyPhone = (d) => (d.length === 12 && d.startsWith("91") ? "+91 " + d.slice(2, 7) + " " + d.slice(7) : "+" + d);
 
-  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, calculate, saveQuote, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, encode, decode, waNumber, prettyPhone };
+  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, calculate, saveQuote, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
 })();

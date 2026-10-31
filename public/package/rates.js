@@ -23,9 +23,8 @@ window.PACKAGE_CONFIG = {
   // so only list ones meant to be public.
   contacts: [],
 
-  // The Celebration Package menu, shown on the guest's page when the package has
-  // nights with all meals included. Read live, so a change reaches packages
-  // already sent.
+  // The package menu, shown on the guest's page for package plans (all meals
+  // included). Read live, so a change reaches packages already sent.
   menu: {
     meals: [
       { name: "Bed tea & biscuits", time: "7:00 – 8:00 AM only", items: [] },
@@ -87,23 +86,23 @@ window.PACKAGE_CONFIG = {
         { id: "floor-t1", name: "First-floor room T1 (108 / 111)", tier: "room", rate: 2500, adults: 3, children: 1, max: 3 },
         { id: "floor-t2", name: "First-floor room T2 (109 / 110)", tier: "room", rate: 2000, adults: 2, children: 1, max: 2 },
       ],
-      // Nights from `from` to `to` (inclusive). `perAdult` prices each adult per
-      // night by how many adults share the room (table per room `tier`): fewer
-      // than the smallest size listed pay as that size, children pay half, and
-      // with `meals` every meal is included. A season can instead give
-      // `rates[roomId]` or an `uplift` on the normal room rate (0.25 = +25%).
+      // Package plans: a price per adult per night with all meals included, by
+      // how many adults share the room (a table per room `tier`). Fewer adults
+      // than the smallest size listed pay as that size; children pay half.
+      // `nonac` / `ac` are the two package plans. Not set = the manager types
+      // the rate per adult; a missing `ac` falls back to `nonac` with a warning.
+      // PLACEHOLDER — normal-season package rates aren't set yet.
+      packages: { nonac: null, ac: null },
+      // Nights from `from` to `to` (inclusive). `packages` replaces the
+      // property's package rates on those nights. A season can also change the
+      // Room only rate with `rates[roomId]` or an `uplift` (0.25 = +25%).
+      // PLACEHOLDER — no AC package rates for the Celebration Package yet.
       seasons: [{
-        name: "Celebration Package", from: "2026-12-20", to: "2027-01-01", meals: true,
-        perAdult: { cottage: { 2: 3900, 3: 2500, 4: 2000, 5: 1700 }, room: { 2: 2000, 3: 1800 } },
+        name: "Celebration Package", from: "2026-12-20", to: "2027-01-01",
+        packages: { nonac: { cottage: { 2: 3900, 3: 2500, 4: 2000, 5: 1700 }, room: { 2: 2000, 3: 1800 } } },
       }],
-      // Per person per night. The two meal packages are the real prices from /menu.
-      meals: [
-        { id: "room", name: "Room only", adult: 0, child: 0 },
-        { id: "veg", name: "Veg meal package (all meals)", adult: 550, child: 275 },
-        { id: "nonveg", name: "Non-veg meal package (all meals)", adult: 650, child: 325 },
-      ],
-      // Per night, on normal nights: each adult / child above what the room's
-      // rate covers, and each extra bed. PLACEHOLDER.
+      // Room only plan, per night: each adult / child above what the room's rate
+      // covers, and each extra bed. PLACEHOLDER.
       extras: { adult: 600, child: 300, bed: 500 },
       // Children this age pay; younger stay free.
       childAge: "5–10 yrs",
@@ -140,16 +139,12 @@ window.PACKAGE_CONFIG = {
         { id: "four-bedded", name: "Four Bedded", tier: "room", rate: 2100, ac: 2500, adults: 4, children: 0, max: 4 },
         { id: "six-bedded", name: "Six Bedded", tier: "room", rate: 2700, ac: 3300, adults: 6, children: 1, max: 6 },
       ],
-      // Same rules as the Village seasons above. No AC extra on these nights.
+      // Same rules as the Village packages and seasons above.
+      packages: { nonac: null, ac: null }, // PLACEHOLDER
       seasons: [{
-        name: "Celebration Package", from: "2026-12-20", to: "2027-01-01", meals: true,
-        perAdult: { room: { 2: 1900, 3: 1900, 4: 1700, 5: 1700, 6: 1700 }, bamboo: { 2: 2000 } },
+        name: "Celebration Package", from: "2026-12-20", to: "2027-01-01",
+        packages: { nonac: { room: { 2: 1900, 3: 1900, 4: 1700, 5: 1700, 6: 1700 }, bamboo: { 2: 2000 } } },
       }],
-      meals: [
-        { id: "room", name: "Breakfast only (included)", adult: 0, child: 0 },
-        { id: "veg", name: "Veg meal package (all meals)", adult: 550, child: 275 },
-        { id: "nonveg", name: "Non-veg meal package (all meals)", adult: 650, child: 325 },
-      ],
       extras: { adult: 500, child: 250, bed: 400 }, // PLACEHOLDER
       childAge: "5–10 yrs",
       addons: [ // PLACEHOLDER prices
