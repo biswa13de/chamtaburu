@@ -103,7 +103,7 @@ Adding or removing a manager takes effect straight away: no code change, no depl
 
 ### Known limits (by design)
 
-- A saved quote's contents can never be edited or deleted, so a link always shows what was sent; only its status changes. Only signed-in managers can list quotes; anyone else needs the code. Codes are 6 characters from 31 (887 million combinations), so guessing one is impractical.
+- Only signed-in managers can change a quote (its status, or its contents with Edit, recording who), and nobody can delete one. Only signed-in managers can list quotes; anyone else needs the code. Codes are 6 characters from 31 (887 million combinations), so guessing one is impractical.
 - Only signed-in manager numbers can create quotes. The guest page only shows UPI details and contact numbers from `rates.js`, so even a bad quote can't redirect payment.
 - Old long `#q=` links sent before v2 still open.
 - Scripts in `public/package` and `public/menu` are served `no-cache`, so an edit to `rates.js` reaches every phone on its next visit. (Before 2026-10-26 they were cached for a year; the `?v=2` on the script tags got phones holding those old copies onto the new files.)
