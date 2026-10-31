@@ -23,6 +23,29 @@ window.PACKAGE_CONFIG = {
   // so only list ones meant to be public.
   contacts: [],
 
+  // The Celebration Package menu, shown on the guest's page when the package has
+  // nights with all meals included. Read live, so a change reaches packages
+  // already sent.
+  menu: {
+    meals: [
+      { name: "Bed tea & biscuits", time: "7:00 – 8:00 AM only", items: [] },
+      { name: "Breakfast", time: "8:30 – 10:30 AM", items: [
+        "Luchi, aalur dum, boiled egg (1 pc), jalebi (1 pc) and tea",
+        "or aloo / gobi / sattu paratha or chole bhature, boiled egg (1 pc), jalebi (1 pc) and tea",
+      ] },
+      { name: "Lunch", time: "1:00 – 3:00 PM", items: [
+        "Veg thali: rice, dal, vaja, sabji, salad, doi, papad, paneer butter masala / kadai paneer, chutney",
+        "Non-veg: rice, dal, vaja, sabji, salad, doi, papad, fish curry, chutney",
+      ] },
+      { name: "Evening snacks", time: "5:00 – 7:30 PM", items: ["Chicken pakoda / onion pakoda (5 pc) and tea / coffee"] },
+      { name: "Dinner", time: "9:00 – 11:00 PM", items: [
+        "Veg: rice / roti, paneer butter masala / kadai paneer, mix veg / dal fry, mishti",
+        "Non-veg: rice / roti, mix veg / dal fry, chicken kosha, mishti",
+      ] },
+    ],
+    note: "The menu will be modified if you stay more than two nights.",
+  },
+
   // Add-ons offered at both properties, listed before each property's own.
   // No GST on add-ons (only the stay is taxed). unit "car": `price` by car
   // size, and the package's car choice (5- or 9-seater) picks one; quantity =
@@ -52,8 +75,7 @@ window.PACKAGE_CONFIG = {
       // Per room per night. `tier` picks the Celebration price table; `adults` /
       // `children` are what the normal rate covers (more are charged as extras);
       // `max` is the most adults a room takes, with extra mattresses.
-      // PLACEHOLDER — cottage `children`, and which first-floor type takes 3
-      // adults (T1 assumed, being the dearer one).
+      // PLACEHOLDER — cottage `children`.
       rooms: [
         { id: "shal-shanti", name: "Shal Shanti", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
         { id: "mahua-ghar", name: "Mahua Ghar", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },

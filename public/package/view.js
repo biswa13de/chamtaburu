@@ -47,7 +47,7 @@
       l: arr(d.l).map((l) => [s(l[0]), s(l[1]), n(l[2])]),
       sub: n(d.sub), dis: n(d.dis), ov: d.ov ? 1 : 0, gp: Number(d.gp) || 0, gst: n(d.gst),
       tot: n(d.tot), ap: n(d.ap), adv: n(d.adv),
-      inc: arr(d.inc).map(s), exc: arr(d.exc).map(s), note: s(d.note),
+      inc: arr(d.inc).map(s), exc: arr(d.exc).map(s), note: s(d.note), mn: d.mn ? 1 : 0,
     };
   }
 
@@ -76,6 +76,11 @@
   totals += row("Total", P.inr(q.tot), "total");
   if (q.adv) totals += row(`Advance to confirm (${q.ap}%)`, P.inr(q.adv), "adv");
 
+  function menuCard(m) {
+    const meals = m.meals.map((x) => `<div class="meal"><h3>${P.esc(x.name)} <span class="muted">${P.esc(x.time)}</span></h3>${x.items.length ? list(x.items) : ""}</div>`).join("");
+    return `<div class="card"><h2>Your meals</h2>${meals}${m.note ? `<p class="muted" style="margin:12px 0 0">${P.esc(m.note)}</p>` : ""}</div>`;
+  }
+
   const confirmText = encodeURIComponent(`Hi ${q.m.n}, I'd like to confirm my package ${q.id} at ${prop.name} (${P.fmtDate(q.ci)} → ${P.fmtDate(q.co)}).`);
   const askText = encodeURIComponent(`Hi ${q.m.n}, I have a question about package ${q.id}.`);
 
@@ -99,6 +104,7 @@
 
     ${q.note ? `<div class="card"><h2>A note for you</h2><p style="margin:0;white-space:pre-line">${P.esc(q.note)}</p></div>` : ""}
     ${q.inc.length ? `<div class="card"><h2>Included</h2>${list(q.inc)}</div>` : ""}
+    ${q.mn && C.menu ? menuCard(C.menu) : ""}
     ${q.exc.length ? `<div class="card"><h2>Not included</h2>${list(q.exc)}</div>` : ""}
 
     <div class="card">

@@ -354,6 +354,7 @@
       g: $("gName").value.trim(), ci: st.ci, co: st.co, n: r.nights, a: r.adults, k: r.children,
       l: r.lines, sub: r.subtotal, dis: r.discount, ov: r.override ? 1 : 0, gp: r.gstPct, gst: r.gst,
       tot: r.total, ap: Number(st.advancePct) || 0, adv: r.advance,
+      mn: r.nights > r.mealNights ? 1 : 0, // has all-meals nights, so the guest page shows the menu
       inc: lines("inclusions"), exc: lines("exclusions"), note: $("note").value.trim(),
     };
   }

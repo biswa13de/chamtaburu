@@ -115,17 +115,16 @@ Adding or removing a manager takes effect straight away: no code change, no depl
 | Resort   | Double / Triple / Four / Six  | ₹1,900   | ₹1,900 | ₹1,700 | ₹1,700 | ₹1,700 |
 | Resort   | Bamboo Cottage                | ₹2,000   |        |        |        |        |
 
-Children 5–10 pay half the adult price for their room; under 5 free. One adult alone pays for two. The night of 1 Jan is a Celebration night.
+Children 5–10 pay half the adult price for their room; under 5 free. One adult alone pays for two. The night of 1 Jan is a Celebration night. The guest's page shows the package menu (`menu` in `rates.js`) for packages with Celebration nights.
 
 ### Placeholders currently in `rates.js` (replace with real values)
 
-- Which Village first-floor type takes 3 adults: T1 (108 / 111) assumed. Cottage child capacity at the normal rate (1 assumed).
+- Cottage child capacity at the normal rate (1 assumed).
 - Meal plans on normal nights: Room only / Veg ₹550 / Non-veg ₹650 per adult per night (prices from `/menu`), children half.
 - Extras on normal nights: Village adult ₹600 · child ₹300 · bed ₹500; Resort ₹500 · ₹250 · ₹400.
 - Extras add-ons: nature trail ₹200 pp, decoration ₹1,500, BBQ ₹400 pp.
 - GST 5% · advance 50% · valid 3 days.
 - **UPI / bank: deliberately empty.** The guest page says the manager will share payment details. A made-up UPI ID could send real money to a stranger.
-- The **Celebration Package menu** (Canva) isn't in the generator yet.
 
 ## Data needed (please fill in)
 
