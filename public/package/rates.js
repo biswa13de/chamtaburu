@@ -11,6 +11,9 @@
  * out of public files: they live in Firestore. See "Managers" in
  * docs/village-resort-package.md for how to add one.
  */
+// What every Village cottage has; listed on the guest's page and in the message.
+const COTTAGE_FEATURES = ["Private lawn with garden", "Stunning hill view", "Dedicated swing"];
+
 window.PACKAGE_CONFIG = {
   // Shows the "placeholder prices" banner in the generator. Set to false once
   // every PLACEHOLDER below has a real value.
@@ -76,13 +79,13 @@ window.PACKAGE_CONFIG = {
       // `max` is the most adults a room takes, with extra mattresses.
       // PLACEHOLDER — cottage `children`.
       rooms: [
-        { id: "shal-shanti", name: "Shal Shanti", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
-        { id: "mahua-ghar", name: "Mahua Ghar", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
-        { id: "palash-kunja", name: "Palash Kunja", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
-        { id: "pahari-chaya", name: "Pahari Chaya", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
-        { id: "jharna-neer", name: "Jharna Neer", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
-        { id: "karam-kunja", name: "Karam Kunja", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
-        { id: "adivasi-aangan", name: "Adivasi Aangan", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5 },
+        { id: "shal-shanti", name: "Shal Shanti", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "mahua-ghar", name: "Mahua Ghar", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "palash-kunja", name: "Palash Kunja", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "pahari-chaya", name: "Pahari Chaya", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "jharna-neer", name: "Jharna Neer", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "karam-kunja", name: "Karam Kunja", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "adivasi-aangan", name: "Adivasi Aangan", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
         { id: "floor-t1", name: "First-floor room T1 (108 / 111)", tier: "room", rate: 2500, adults: 3, children: 1, max: 3 },
         { id: "floor-t2", name: "First-floor room T2 (109 / 110)", tier: "room", rate: 2000, adults: 2, children: 1, max: 2 },
       ],

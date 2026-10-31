@@ -10,7 +10,7 @@ import { Seo } from '../ui/Seo';
 import { cottages, village } from '../../content/village';
 import { currentSite } from '../../content/site';
 import { resolveImage } from '../../content/manifest';
-import { formatPrice, formatAdults } from '../../content/format';
+import { formatPrice, formatAdults, AMENITY_LABELS } from '../../content/format';
 import { buildBreadcrumbJsonLd, buildLodgingBusinessJsonLd } from '../../lib/seo';
 import type { Cottage } from '../../content/types';
 
@@ -124,9 +124,15 @@ export function CottageDetail() {
           </Card>
           <Card className="p-6">
             <p className="text-stone text-[10px] font-bold tracking-widest uppercase">Amenities</p>
-            <p className="mt-1 text-lg font-semibold">
-              {cottage.amenities.length > 0 ? cottage.amenities.join(', ') : 'To be confirmed'}
-            </p>
+            {cottage.amenities.length > 0 ? (
+              <ul className="mt-1 space-y-0.5 font-semibold">
+                {cottage.amenities.map((key) => (
+                  <li key={key}>{AMENITY_LABELS[key]}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-1 text-lg font-semibold">To be confirmed</p>
+            )}
           </Card>
         </div>
         <CottageGallery cottage={cottage} />

@@ -7,7 +7,8 @@
  * "what goes in the tags" logic here, separate from "how it gets into the
  * DOM", makes it independently testable and keeps Seo.tsx a thin renderer.
  */
-import type { Cottage, SiteConfig } from '../content/types';
+import type { AmenityKey, Cottage, SiteConfig } from '../content/types';
+import { AMENITY_LABELS } from '../content/format';
 import type { ResolvedImage } from '../content/manifest';
 
 /** Absolute origin for the site currently being built — used to build canonical/OG URLs. */
@@ -120,7 +121,7 @@ export function buildLodgingBusinessJsonLd(
   if (allAmenities.size > 0) {
     jsonLd.amenityFeature = [...allAmenities].map((key) => ({
       '@type': 'LocationFeatureSpecification',
-      name: key,
+      name: AMENITY_LABELS[key as AmenityKey] ?? key,
       value: true,
     }));
   }

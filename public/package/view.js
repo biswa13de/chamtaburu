@@ -47,7 +47,7 @@
       l: arr(d.l).map((l) => [s(l[0]), s(l[1]), n(l[2])]),
       sub: n(d.sub), dis: n(d.dis), ov: d.ov ? 1 : 0, gp: Number(d.gp) || 0, gst: n(d.gst),
       tot: n(d.tot), ap: n(d.ap), adv: n(d.adv),
-      inc: arr(d.inc).map(s), exc: arr(d.exc).map(s), note: s(d.note), mn: d.mn ? 1 : 0, gi: d.gi ? 1 : 0,
+      inc: arr(d.inc).map(s), exc: arr(d.exc).map(s), note: s(d.note), mn: d.mn ? 1 : 0, gi: d.gi ? 1 : 0, ft: arr(d.ft).map(s),
     };
   }
 
@@ -108,6 +108,7 @@
     </div>
 
     ${q.note ? `<div class="card"><h2>A note for you</h2><p style="margin:0;white-space:pre-line">${P.esc(q.note)}</p></div>` : ""}
+    ${q.ft.length ? `<div class="card"><h2>Your cottage</h2>${list(q.ft)}</div>` : ""}
     ${q.inc.length ? `<div class="card"><h2>Included</h2>${list(q.inc)}</div>` : ""}
     ${q.mn && C.menu ? menuCard(C.menu) : ""}
     ${q.exc.length ? `<div class="card"><h2>Not included</h2>${list(q.exc)}</div>` : ""}

@@ -386,6 +386,11 @@
   $("doneClose").addEventListener("click", () => ($("done").hidden = true));
 
   /* ---------- Output ---------- */
+  // Features of the rooms chosen (rates.js `features`), each listed once.
+  function features() {
+    return [...new Set(rooms.filter((r) => r.q).flatMap((r) => (prop.rooms.find((x) => x.id === r.id) || {}).features || []))];
+  }
+
   function quoteData() {
     const st = state();
     const r = result;
@@ -396,6 +401,7 @@
       l: r.lines, sub: r.subtotal, dis: r.discount, ov: r.override ? 1 : 0, gp: r.gstPct, gst: r.gst,
       tot: r.total, ap: Number(st.advancePct) || 0, adv: r.advance, gi: r.gstIncl ? 1 : 0,
       mn: r.pkg ? 1 : 0, // a package plan, so the guest page shows the menu
+      ft: features(),
       inc: lines("inclusions"), exc: lines("exclusions"), note: $("note").value.trim(),
     };
   }
@@ -441,6 +447,7 @@
       `👥 ${P.plural(d.a, "adult")}${d.k ? ", " + P.kids(d.k) : ""}`,
       `🏡 ${roomText}`,
     ];
+    if (d.ft.length) out.push(`🌳 ${d.ft.join(" · ")}`);
     if (result.pkg) out.push(`🍽 ${P.PLANS[$("meal").value]}: breakfast, lunch, evening snacks & dinner`);
     out.push(`💰 Total *${P.inr(d.tot)}*${d.gp ? " (incl. GST)" : ""}`);
     if (d.adv) out.push(`✅ Advance to confirm: *${P.inr(d.adv)}*`);
