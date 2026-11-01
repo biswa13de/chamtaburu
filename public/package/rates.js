@@ -26,6 +26,20 @@ window.PACKAGE_CONFIG = {
   // so only list ones meant to be public.
   contacts: [],
 
+  // Programmes on certain dates, at both properties. A stay with a night from
+  // `from` to `to` (inclusive) gets `inclusion` added to its Inclusions by
+  // default (the manager can delete it), a line in the WhatsApp message, and
+  // a card on the guest's page.
+  events: [{
+    id: "culture-2026", from: "2026-12-20", to: "2026-12-31",
+    title: "Special Cultural Programme",
+    when: "Every evening, 20 – 31 December 2026",
+    text: "This winter, enjoy an evening of live folk performances in the heart of the Ajodhya Hills, surrounded by forest and the rich tribal culture of Purulia. A wonderful experience to share with family and friends.",
+    items: ["Chhau — Purulia's traditional masked dance", "Santhali — the folk dance of the Santhal community"],
+    inclusion: "Evening cultural programme: Chhau & Santhali dance (20 – 31 Dec)",
+    message: "🎭 Included: evening Chhau & Santhali dance programme",
+  }],
+
   // The package menu, shown on the guest's page for package plans (all meals
   // included). Read live, so a change reaches packages already sent.
   menu: {

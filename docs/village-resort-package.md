@@ -132,6 +132,8 @@ To change a password: delete the user, add it again with the new password, and u
 
 Children 5–10 pay half the adult price for their room; under 5 free. One adult alone pays for two. The night of 1 Jan is a Celebration night. The guest's page shows the package menu (`menu` in `rates.js`) for packages with Celebration nights.
 
+**Special Cultural Programme (20 – 31 Dec 2026, both properties):** Chhau and Santhali dance every evening. A stay with any night from 20 to 31 Dec gets it in Inclusions by default (the manager can delete the line), a 🎭 line in the WhatsApp message and a card on the guest's page. Set in `events` in `rates.js`.
+
 ### Placeholders currently in `rates.js` (replace with real values)
 
 - Cottage child capacity at the normal rate (1 assumed).

@@ -194,6 +194,7 @@
     $("validUntil").value = P.addDays(P.today(), prop.validDays);
     $("inclusions").value = prop.inclusions.join("\n");
     $("exclusions").value = prop.exclusions.join("\n");
+    syncEvents();
     renderRooms();
     renderAddons();
   }
@@ -430,6 +431,7 @@
       $("co").min = P.addDays($("ci").value, 1);
       if (!$("co").value || $("co").value <= $("ci").value) $("co").value = P.addDays($("ci").value, 1);
     }
+    if (e.target.id === "ci" || e.target.id === "co") syncEvents();
     update();
   });
   $("form").addEventListener("submit", (e) => e.preventDefault());
@@ -451,6 +453,21 @@
   $("editNew").addEventListener("click", newPackage);
   $("doneClose").addEventListener("click", () => ($("done").hidden = true));
 
+  // Adds each rates.js event on the stay's nights to Inclusions, and takes it
+  // out again when the dates move off it. The manager can still delete it.
+  function syncEvents() {
+    const on = P.eventsFor($("ci").value, $("co").value);
+    let inc = lines("inclusions");
+    (C.events || []).forEach((ev) => {
+      const has = inc.includes(ev.inclusion);
+      if (on.includes(ev) && !has) inc.push(ev.inclusion);
+      if (!on.includes(ev) && has) inc = inc.filter((x) => x !== ev.inclusion);
+    });
+    $("inclusions").value = inc.join("\n");
+  }
+  // The events this package includes: on its nights and still in Inclusions.
+  const events = () => P.eventsFor($("ci").value, $("co").value).filter((ev) => lines("inclusions").includes(ev.inclusion));
+
   /* ---------- Output ---------- */
   // Features of the rooms chosen (rates.js `features`), each listed once.
   function features() {
@@ -468,6 +485,7 @@
       tot: r.total, ap: Number(st.advancePct) || 0, adv: r.advance, gi: r.gstIncl ? 1 : 0,
       mn: r.pkg ? 1 : 0, // a package plan, so the guest page shows the menu
       ft: features(),
+      ev: events().map((ev) => ev.id), // the guest page shows each one's card
       inc: lines("inclusions"), exc: lines("exclusions"), note: $("note").value.trim(),
     };
   }
@@ -529,6 +547,7 @@
       `🏡 ${roomText}`,
     ];
     if (d.ft.length) out.push(`🌳 ${d.ft.join(" · ")}`);
+    events().forEach((ev) => out.push(ev.message));
     if (result.pkg) out.push(`🍽 ${P.PLANS[$("meal").value]}: breakfast, lunch, evening snacks & dinner`);
     out.push(`💰 Total *${P.inr(d.tot)}*${d.gp ? " (incl. GST)" : ""}`);
     if (d.adv) out.push(`✅ Advance to confirm: *${P.inr(d.adv)}*`);
