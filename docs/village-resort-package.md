@@ -35,7 +35,7 @@ guest on WhatsApp in one tap.
 
 | #   | Topic               | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Date       |
 | --- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| 1   | Sign-in             | **Phone OTP** (Firebase phone auth): manager enters their mobile number, gets a 6-digit SMS code. Firestore rules only accept quotes from signed-in manager numbers. _Revised 2026-10-31:_ replaced the browser-checked PIN, which kept guests out but let anyone create quotes.                                                                                                                                                                                     | 2026-10-31 |
+| 1   | Sign-in             | **Phone OTP** (Firebase phone auth): manager enters their mobile number, gets a 6-digit SMS code. _2026-11-01:_ or **number + password** for managers given one (no SMS). Firestore rules only accept quotes from signed-in manager numbers. _Revised 2026-10-31:_ replaced the browser-checked PIN, which kept guests out but let anyone create quotes.                                                                                                             | 2026-10-31 |
 | 2   | What guest receives | Short WhatsApp message **+ short link** (`chamtaburu.in/p/R6X6K2`) to a styled package page. _Revised 2026-10-26:_ the first version packed the quote into the link (~700 chars), which looked like spam to guests, so quotes are now saved in Firestore under a 6-character code.                                                                                                                                                                                   | 2026-10-26 |
 | 3   | Pricing             | Auto-calculated from a rate card, with manual override / discount by the manager.                                                                                                                                                                                                                                                                                                                                                                                    | 2026-10-26 |
 | 4   | Property            | Both. Manager picks **Village / Resort from a dropdown** in one generator; rooms, rates, branding and WhatsApp number switch with it. Dropdown defaults to the site it's opened on.                                                                                                                                                                                                                                                                                  | 2026-10-26 |
@@ -76,8 +76,20 @@ Managers are **not** in the repo, so their phone numbers never reach git or any 
 - `name` (string): shown on the package as the contact person.
 - `phone` (string, optional): contact number shown to the guest, e.g. `919242748100`. It must be a property's number or listed in `contacts` in `rates.js`, otherwise the property's number is shown. Leave it out to use the property's.
 - `props` (array, optional): `village`, `resort` or both. Leave it out for both.
+- `uid` (string, only for password sign-in): the UID of the manager's password account (below).
 
 Adding or removing a manager takes effect straight away: no code change, no deploy. Anyone can check whether one exact number is a manager (the page does this before sending an SMS), but nobody can list them.
+
+### Password sign-in (instead of SMS, per manager)
+
+For managers whose SMS codes don't arrive or get rate-limited. They type their mobile number and a password; no SMS, no robot check.
+
+1. One-time: Authentication → Sign-in method → **Add new provider → Email/Password** → enable (leave "Email link" off).
+2. Authentication → Users → **Add user**: email = the number without `+` at `managers.chamtaburu.in`, e.g. `919876543210@managers.chamtaburu.in`, and a password (at least 6 characters; longer is better). Nothing is ever emailed to it.
+3. Copy that user's **User UID** from the list into the manager's Firestore document as `uid` (string).
+4. Give the manager the password. They can still use SMS too.
+
+To change a password: delete the user, add it again with the new password, and update `uid`. To stop someone: delete the user (or the manager document). If Authentication → Settings → **User actions** is offered, untick "Enable create (sign-up)". The rules already ignore accounts that don't match `uid`, so this is extra safety.
 
 ### Phone sign-in setup (one-time, Firebase console, project `chamtaburu-webapp`)
 

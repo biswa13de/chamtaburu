@@ -23,7 +23,9 @@ body{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .lock .card{width:100%;max-width:360px;text-align:center}
 .lock h1{margin:0 0 4px;color:var(--forest);font-size:2rem}
 .lock input{text-align:center;font-size:1.6rem;letter-spacing:.5em;margin:14px 0 10px}
-.lock input[type=tel]{letter-spacing:.06em}
+.lock input[type=tel]{letter-spacing:.06em;margin-bottom:0}
+.lock input.pass{letter-spacing:normal;font-size:1.1rem;margin:10px 0}
+.lock .or{font-size:.85rem;margin:14px 0 8px}
 .lock .err{color:var(--warn);min-height:1.5em;font-size:.9rem;margin:10px 0 0}
 
 /* Room and add-on rows */
@@ -109,8 +111,12 @@ ul.recent .acts{display:flex;gap:6px}
     <form id="phoneForm" hidden>
       <p class="muted" style="margin:0">Managers only. Sign in with your mobile number.</p>
       <label for="loginPhone" class="muted" style="position:absolute;left:-9999px">Mobile number</label>
-      <input id="loginPhone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="98765 43210" required>
-      <button class="btn primary" id="sendBtn" type="submit" style="width:100%">Send code</button>
+      <input id="loginPhone" type="tel" inputmode="tel" autocomplete="username" placeholder="98765 43210" required>
+      <label for="loginPass" class="muted" style="position:absolute;left:-9999px">Password</label>
+      <input id="loginPass" type="password" autocomplete="current-password" placeholder="Password" class="pass">
+      <button class="btn primary" id="passBtn" type="submit" style="width:100%">Sign in</button>
+      <p class="or muted">No password? Get a code by SMS instead.</p>
+      <button class="btn" id="sendBtn" type="button" style="width:100%">Send SMS code</button>
     </form>
     <form id="codeForm" autocomplete="off" hidden>
       <p class="muted" style="margin:0" id="codeSentTo"></p>

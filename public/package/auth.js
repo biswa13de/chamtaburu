@@ -1,5 +1,12 @@
 /*
- * Manager sign-in for /package: Firebase phone auth (a code by SMS).
+ * Manager sign-in for /package: Firebase phone auth (a code by SMS), or the
+ * mobile number and a password.
+ *
+ * Firebase only does passwords for email accounts, so a password manager's
+ * account is an address made from their number (emailFor), never emailed and
+ * never shown to them. firestore.rules only accepts it if the manager's
+ * document names that account's UID, so nobody can sign themselves up as a
+ * manager by creating the address first.
  *
  * generator.js loads this with import() so a blocked or offline CDN shows an
  * error instead of a dead page. Firebase keeps the manager signed in on that
@@ -11,7 +18,7 @@
  */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {
-  getAuth, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber, signOut,
+  getAuth, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber, signInWithEmailAndPassword, signOut,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
 // From the Firebase console: Project settings → General → Your apps → Web app.
@@ -63,9 +70,23 @@ export async function confirmCode(code) {
   dropVerifier();
 }
 
-// Sent with each saved quote; firestore.rules checks the phone number in it.
-export const token = () => auth.currentUser.getIdToken();
+// "+919876543210" → "919876543210@managers.chamtaburu.in".
+const DOMAIN = "managers.chamtaburu.in";
+export const emailFor = (phone) => phone.replace(/^\+/, "") + "@" + DOMAIN;
 
-export const phone = () => auth.currentUser.phoneNumber;
+// Throws auth/invalid-credential on a wrong number or password.
+export async function signInWithPassword(phone, password) {
+  await signInWithEmailAndPassword(auth, emailFor(phone), password);
+}
+
+// The manager's sign-in number ("+919876543210") for either kind of account.
+export function idOf(user) {
+  if (user.phoneNumber) return user.phoneNumber;
+  const m = (user.email || "").match(/^(91\d{10})@managers\.chamtaburu\.in$/);
+  return m ? "+" + m[1] : null;
+}
+
+// Sent with each saved quote; firestore.rules checks who it belongs to.
+export const token = () => auth.currentUser.getIdToken();
 
 export const logout = () => signOut(auth);
