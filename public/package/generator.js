@@ -60,6 +60,18 @@
     "auth/invalid-api-key": "Sign-in isn't set up yet (Firebase key missing in auth.js).",
     "auth/api-key-not-valid.-please-pass-a-valid-api-key.": "Sign-in isn't set up yet (Firebase key missing in auth.js).",
     "auth/network-request-failed": "No connection. Check your internet and try again.",
+    // Google's robot check (reCAPTCHA) failed or expired; common in apps' built-in browsers.
+    "auth/invalid-app-credential": "Google's robot check failed. Open this page in Chrome or Safari (not inside WhatsApp), reload, and try again.",
+    "auth/captcha-check-failed": "Google's robot check failed. Open this page in Chrome or Safari (not inside WhatsApp), reload, and try again.",
+    "auth/missing-app-credential": "Google's robot check didn't load. Reload the page and try again.",
+    "auth/web-storage-unsupported": "This browser blocks sign-in. Open the page in Chrome or Safari, not a private tab or an app's built-in browser.",
+    "auth/unauthorized-domain": "This web address isn't allowed to sign in yet (Firebase → Authentication → Settings → Authorized domains).",
+    "auth/timeout": "Google took too long to answer. Try again.",
+    // Google holds back SMS it thinks is abuse, for a while.
+    "auth/error-code:-39": "Google has paused SMS to this number for now. Try again in a few hours.",
+    "auth/missing-verification-code": "Enter the 6-digit code from the SMS.",
+    "auth/invalid-verification-id": "That code request has expired. Send a new code.",
+    "auth/session-expired": "That code has expired. Send a new one.",
   };
 
   function showStep(step) {
@@ -76,7 +88,8 @@
     try { await fn(); }
     catch (e) {
       console.error(e);
-      loginErr.textContent = AUTH_ERRORS[e && e.code] || "Couldn't sign in. Try again.";
+      // Unknown errors show their code, so it can be looked up.
+      loginErr.textContent = AUTH_ERRORS[e && e.code] || `Couldn't sign in (${(e && (e.code || e.message)) || "unknown error"}). Try again.`;
     }
     finally { btn.disabled = false; btn.textContent = text; }
   }

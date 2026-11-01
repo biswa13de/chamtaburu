@@ -57,6 +57,7 @@ export async function sendCode(phone) {
 
 // Throws on a wrong or expired code. On success onUser's callback fires.
 export async function confirmCode(code) {
+  if (!pending) throw Object.assign(new Error("no code request"), { code: "auth/invalid-verification-id" });
   await pending.confirm(code);
   pending = null;
   dropVerifier();
