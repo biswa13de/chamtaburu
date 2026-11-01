@@ -64,6 +64,10 @@
   $("propName").textContent = prop.name;
   $("guestLine").textContent = q.g ? `Prepared for ${q.g}` : "";
 
+  // Numbers to call: the property's booking managers if it lists them, else the manager.
+  const calls = (prop.bookingManagers || []).filter((k) => C.properties[k])
+    .map((k, i) => ({ name: `Booking Manager ${i + 1}`, phone: C.properties[k].phone }));
+  if (!calls.length) calls.push({ name: q.m.n, phone: q.m.ph });
   const expired = q.vu && q.vu < P.today();
   const guests = P.plural(q.a, "adult") + (q.k ? ", " + P.kids(q.k) : "");
   const row = (label, amt, cls = "sum") => `<tr class="${cls}"><td>${label}</td><td class="amt">${amt}</td></tr>`;
@@ -121,7 +125,7 @@
     <div class="actions">
       <a class="btn wa" href="https://wa.me/${q.m.ph}?text=${confirmText}" target="_blank" rel="noopener">Confirm on WhatsApp</a>
       <a class="btn" href="https://wa.me/${q.m.ph}?text=${askText}" target="_blank" rel="noopener">Ask a question</a>
-      <a class="btn" href="tel:+${q.m.ph}">Call ${P.esc(q.m.n)}</a>
+      ${calls.map((c) => `<a class="btn" href="tel:+${c.phone}">Call ${P.esc(c.name)}</a>`).join("")}
       <button class="btn" type="button" id="print">Save as PDF</button>
     </div>`;
   if (preview) {

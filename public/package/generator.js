@@ -534,7 +534,13 @@
     if (d.adv) out.push(`✅ Advance to confirm: *${P.inr(d.adv)}*`);
     out.push("", "Full details & confirm here:", s.url, "");
     out.push(`Ref ${s.ref}${d.vu ? " · valid till " + P.fmtDate(d.vu) : ""}`);
-    out.push(`${manager.name} · ${P.prettyPhone(P.contactFor(manager.phone, propKey))}`);
+    // Same numbers as the guest page's Call buttons (view.js).
+    const calls = (prop.bookingManagers || []).filter((k) => C.properties[k]);
+    if (!calls.length) out.push(`${manager.name} · ${P.prettyPhone(P.contactFor(manager.phone, propKey))}`);
+    else {
+      out.push(manager.name);
+      calls.forEach((k, i) => out.push(`📞 Booking Manager ${i + 1} · ${P.prettyPhone(C.properties[k].phone)}`));
+    }
     return out.join("\n");
   }
 

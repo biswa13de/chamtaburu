@@ -72,6 +72,11 @@ window.PACKAGE_CONFIG = {
       name: "Chamtaburu Eco Village",
       domain: "chamtaburu.in",
       phone: "919242748100",
+      // For now, Village packages give the guest two numbers to call, as
+      // "Booking Manager 1" (the Resort's) and "Booking Manager 2" (the Village's),
+      // in place of the manager's own. Remove to show only the manager's.
+      // Read live, so it reaches sent packages too.
+      bookingManagers: ["resort", "village"],
       address: "Matha, Matha Forest, Baghmundi, Purulia, West Bengal 723152",
       prefix: "CEV",
       // Per room per night. `tier` picks the Celebration price table; `adults` /
