@@ -48,6 +48,7 @@
       sub: n(d.sub), dis: n(d.dis), ov: d.ov ? 1 : 0, gp: Number(d.gp) || 0, gst: n(d.gst),
       tot: n(d.tot), ap: n(d.ap), adv: n(d.adv),
       inc: arr(d.inc).map(s), exc: arr(d.exc).map(s), note: s(d.note), mn: d.mn ? 1 : 0, gi: d.gi ? 1 : 0, ft: arr(d.ft).map(s),
+      ev: (C.events || []).filter((e) => arr(d.ev).includes(e.id)), // text from rates.js, never the quote
     };
   }
 
@@ -85,6 +86,12 @@
     return `<div class="card"><h2>Your meals</h2>${meals}${m.note ? `<p class="muted" style="margin:12px 0 0">${P.esc(m.note)}</p>` : ""}</div>`;
   }
 
+  function eventCard(e) {
+    return `<div class="card"><h2>${P.esc(e.title)}</h2>
+      <p class="muted" style="margin:0 0 8px">${P.esc(e.when)} · included in your package</p>
+      <p style="margin:0 0 8px">${P.esc(e.text)}</p>${list(e.items)}</div>`;
+  }
+
   const confirmText = encodeURIComponent(`Hi ${q.m.n}, I'd like to confirm my package ${q.id} at ${prop.name} (${P.fmtDate(q.ci)} → ${P.fmtDate(q.co)}).`);
   const askText = encodeURIComponent(`Hi ${q.m.n}, I have a question about package ${q.id}.`);
 
@@ -112,6 +119,7 @@
     </div>
 
     ${q.note ? `<div class="card"><h2>A note for you</h2><p style="margin:0;white-space:pre-line">${P.esc(q.note)}</p></div>` : ""}
+    ${q.ev.map(eventCard).join("")}
     ${q.ft.length ? `<div class="card"><h2>Your cottage</h2>${list(q.ft)}</div>` : ""}
     ${q.inc.length ? `<div class="card"><h2>Included</h2>${list(q.inc)}</div>` : ""}
     ${q.mn && C.menu ? menuCard(C.menu) : ""}

@@ -24,6 +24,12 @@
     return (prop.seasons || []).find((s) => date >= s.from && date <= s.to) || null;
   }
 
+  // rates.js `events` on any night of a stay (check-in up to the night before check-out).
+  function eventsFor(ci, co) {
+    if (!ci || !co || co <= ci) return [];
+    return (window.PACKAGE_CONFIG.events || []).filter((e) => ci <= e.to && co > e.from);
+  }
+
   function nightlyRate(prop, room, ac, date) {
     const base = ac && room.ac ? room.ac : room.rate;
     const s = seasonFor(prop, date);
@@ -388,5 +394,5 @@
   }
   const prettyPhone = (d) => (d.length === 12 && d.startsWith("91") ? "+91 " + d.slice(2, 7) + " " + d.slice(7) : "+" + d);
 
-  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
+  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
 })();
