@@ -74,7 +74,7 @@ Managers are **not** in the repo, so their phone numbers never reach git or any 
 
 - **Document ID**: the sign-in number with `+91`, e.g. `+919876543210` (no spaces).
 - `name` (string): shown on the package as the contact person.
-- `phone` (string, optional): contact number shown to the guest, e.g. `919242748100`. It must be a property's number or listed in `contacts` in `rates.js`, otherwise the property's number is shown. Leave it out to use the property's.
+- `phone` (string, optional): contact number shown to the guest, e.g. `919242748100`. It must be a property's number or listed in `contacts` in `rates.js`, otherwise the property's number is shown. Leave it out to use the property's. _2026-11-01:_ for now, Village packages show **Call Booking Manager 1** (the Resort's number) and **Call Booking Manager 2** (the Village's) in place of the manager's Call button, and both numbers in the WhatsApp message (`bookingManagers: ["resort", "village"]` on the Village in `rates.js`).
 - `props` (array, optional): `village`, `resort` or both. Leave it out for both.
 - `uid` (string, only for password sign-in): the UID of the manager's password account (below).
 
