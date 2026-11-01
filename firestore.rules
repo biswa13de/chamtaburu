@@ -1,7 +1,8 @@
 rules_version = '2';
 
 // Package generator quotes (public/package/package-core.js). Managers sign in
-// with an SMS code (Firebase phone auth, public/package/auth.js):
+// with an SMS code (Firebase phone auth) or their number and a password
+// (public/package/auth.js):
 //   - anyone holding a code can read that one quote (the guest's link);
 //   - only signed-in managers can list quotes, so codes can't be harvested;
 //   - only signed-in managers can create quotes, recording their own number
@@ -22,9 +23,25 @@ service cloud.firestore {
       allow list, write: if false;
     }
 
+    // The manager's sign-in number ("+919876543210"). A password account is the
+    // address auth.js makes from it: 919876543210@managers.chamtaburu.in.
+    function isPasswordAccount() {
+      return request.auth.token.get('email', '').matches('^91[0-9]{10}@managers[.]chamtaburu[.]in$');
+    }
+    function managerId() {
+      return isPasswordAccount()
+        ? '+' + request.auth.token.email.split('@')[0]
+        : request.auth.token.get('phone_number', '');
+    }
+    // A phone account is a manager if their number has a document. A password
+    // account also needs that document's `uid` to be its own, so creating the
+    // address yourself doesn't make you a manager.
     function isManager() {
       return request.auth != null
-        && exists(/databases/$(database)/documents/managers/$(request.auth.token.phone_number));
+        && managerId() != ''
+        && exists(/databases/$(database)/documents/managers/$(managerId()))
+        && (!isPasswordAccount()
+          || get(/databases/$(database)/documents/managers/$(managerId())).data.get('uid', '') == request.auth.uid);
     }
 
     match /quotes/{code} {
@@ -37,7 +54,7 @@ service cloud.firestore {
       allow create: if isManager()
         && code.matches('^[2-9A-HJKMNP-Z]{6}$')
         && request.resource.data.keys().hasOnly(['q', 'p', 'created', 'by', 'status'])
-        && (!('by' in request.resource.data) || request.resource.data.by == request.auth.token.phone_number)
+        && (!('by' in request.resource.data) || request.resource.data.by == managerId())
         && (!('status' in request.resource.data) || request.resource.data.status == 'sent')
         && request.resource.data.q is string
         && request.resource.data.q.size() < 20000
@@ -48,14 +65,14 @@ service cloud.firestore {
       function statusChange() {
         return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'statusBy', 'statusAt'])
           && request.resource.data.status in ['sent', 'confirmed', 'cancelled']
-          && request.resource.data.statusBy == request.auth.token.phone_number
+          && request.resource.data.statusBy == managerId()
           && request.resource.data.statusAt == request.time;
       }
       function contentEdit() {
         return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['q', 'editedBy', 'editedAt'])
           && request.resource.data.q is string
           && request.resource.data.q.size() < 20000
-          && request.resource.data.editedBy == request.auth.token.phone_number
+          && request.resource.data.editedBy == managerId()
           && request.resource.data.editedAt == request.time;
       }
     }

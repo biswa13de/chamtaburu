@@ -80,7 +80,17 @@
     $(step === "phone" ? "loginPhone" : "loginCode").focus();
   }
 
-  async function signInStep(btn, label, fn) {
+  // Password sign-in has its own meaning for some codes.
+  const PASSWORD_ERRORS = {
+    "auth/invalid-credential": "Wrong number or password. No password yet? Use Send SMS code.",
+    "auth/wrong-password": "Wrong number or password. No password yet? Use Send SMS code.",
+    "auth/user-not-found": "Wrong number or password. No password yet? Use Send SMS code.",
+    "auth/invalid-email": "That doesn't look like a mobile number.",
+    "auth/user-disabled": "This sign-in has been switched off.",
+    "auth/operation-not-allowed": "Password sign-in isn't switched on in Firebase yet (Sign-in method → Email/Password).",
+  };
+
+  async function signInStep(btn, label, fn, errors = {}) {
     const text = btn.textContent;
     btn.disabled = true;
     btn.textContent = label;
@@ -89,13 +99,22 @@
     catch (e) {
       console.error(e);
       // Unknown errors show their code, so it can be looked up.
-      loginErr.textContent = AUTH_ERRORS[e && e.code] || `Couldn't sign in (${(e && (e.code || e.message)) || "unknown error"}). Try again.`;
+      loginErr.textContent = errors[e && e.code] || AUTH_ERRORS[e && e.code] || `Couldn't sign in (${(e && (e.code || e.message)) || "unknown error"}). Try again.`;
     }
     finally { btn.disabled = false; btn.textContent = text; }
   }
 
+  // Sign in (the form's submit) uses the password; Send SMS code the OTP.
   $("phoneForm").addEventListener("submit", (e) => {
     e.preventDefault();
+    const phone = e164($("loginPhone").value);
+    if (!phone) { loginErr.textContent = "Enter your 10-digit mobile number."; return; }
+    const pass = $("loginPass").value;
+    if (!pass) { loginErr.textContent = "Enter your password, or use Send SMS code."; $("loginPass").focus(); return; }
+    signInStep($("passBtn"), "Signing in…", () => A.signInWithPassword(phone, pass), PASSWORD_ERRORS);
+  });
+
+  $("sendBtn").addEventListener("click", () => {
     const phone = e164($("loginPhone").value);
     if (!phone) { loginErr.textContent = "Enter your 10-digit mobile number."; return; }
     signInStep($("sendBtn"), "Sending…", async () => {
@@ -703,24 +722,27 @@
         showStep("phone");
         return;
       }
+      const id = A.idOf(user);
       // Someone else signed in on this phone since: start again as them.
-      if (manager && manager.id !== user.phoneNumber) { kept.del(MANAGER_KEY); location.reload(); return; }
+      if (manager && manager.id !== id) { kept.del(MANAGER_KEY); location.reload(); return; }
       authReady();
       let m;
-      try { m = await P.loadManager(user.phoneNumber); }
+      try { m = id && (await P.loadManager(id)); }
       catch (e) {
         console.error(e);
         // Already showing the form from the remembered manager: carry on.
         if (!manager) $("loginWait").textContent = "Couldn't reach the server. Check your connection and reload.";
         return;
       }
+      // A password account only counts if the manager's document names it.
+      if (m && !user.phoneNumber && m.uid !== user.uid) m = null;
       if (!m) {
         // Signed in on this phone, but since removed from the manager list.
         A.logout();
         lockOut("This number isn't on the manager list.");
         return;
       }
-      m.id = user.phoneNumber;
+      m.id = id;
       kept.set(MANAGER_KEY, m);
       $("loginWait").hidden = true;
       if (!manager) start(m);
