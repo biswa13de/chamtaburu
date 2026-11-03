@@ -82,20 +82,23 @@ ${urls}
 }
 
 /**
- * public/package/view.html is copied verbatim into both builds, but its
- * WhatsApp preview tags need absolute URLs and the property's name, so the
- * Resort build gets its own. The file ships with the Village's values.
+ * public/package/view.html and menu.html are copied verbatim into both
+ * builds, but their WhatsApp preview tags need absolute URLs and the
+ * property's name, so the Resort build gets its own. The files ship with the
+ * Village's values.
  */
 async function brandPackageView(outDir, site, origin, name) {
   if (site === 'village') return;
-  const file = path.join(outDir, 'package', 'view.html');
-  const html = (await readFile(file, 'utf8'))
-    .replaceAll(
-      'https://chamtaburu.in/img/village/village-hero-hills-960.jpg',
-      `${origin}/img/resort/resort-hero-mist-960.jpg`,
-    )
-    .replaceAll('Chamtaburu Eco Village', name);
-  await writeFile(file, html, 'utf8');
+  for (const page of ['view.html', 'menu.html']) {
+    const file = path.join(outDir, 'package', page);
+    const html = (await readFile(file, 'utf8'))
+      .replaceAll(
+        'https://chamtaburu.in/img/village/village-hero-hills-960.jpg',
+        `${origin}/img/resort/resort-hero-mist-960.jpg`,
+      )
+      .replaceAll('Chamtaburu Eco Village', name);
+    await writeFile(file, html, 'utf8');
+  }
 }
 
 function buildRobots(origin) {

@@ -66,8 +66,7 @@
   $("guestLine").textContent = q.g ? `Prepared for ${q.g}` : "";
 
   // Numbers to call: the property's booking managers if it lists them, else the manager.
-  const calls = (prop.bookingManagers || []).filter((k) => C.properties[k])
-    .map((k, i) => ({ name: `Booking Manager ${i + 1}`, phone: C.properties[k].phone }));
+  const calls = P.bookingCalls(prop);
   if (!calls.length) calls.push({ name: q.m.n, phone: q.m.ph });
   const expired = q.vu && q.vu < P.today();
   const guests = P.plural(q.a, "adult") + (q.k ? ", " + P.kids(q.k) : "");
@@ -81,9 +80,13 @@
   totals += row("Total", P.inr(q.tot), "total");
   if (q.adv) totals += row(`Advance to confirm (${q.ap}%)`, P.inr(q.adv), "adv");
 
+  // The same day of meals as /package/menu, with a link there to share it.
   function menuCard(m) {
-    const meals = m.meals.map((x) => `<div class="meal"><h3>${P.esc(x.name)} <span class="muted">${P.esc(x.time)}</span></h3>${x.items.length ? list(x.items) : ""}</div>`).join("");
-    return `<div class="card"><h2>Your meals</h2>${meals}${m.note ? `<p class="muted" style="margin:12px 0 0">${P.esc(m.note)}</p>` : ""}</div>`;
+    const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname); // no clean URLs in local dev
+    const href = `/package/menu${local ? ".html" : ""}?p=${q.p}`;
+    return `<div class="card"><h2>Your meals</h2>${P.legendHtml()}${P.mealsHtml(m)}
+      ${m.note ? `<p class="muted" style="margin:12px 0 0">${P.esc(m.note)}</p>` : ""}
+      <p class="actions" style="margin:14px 0 0;justify-content:flex-start"><a class="btn small" href="${href}">Open the menu to share</a></p></div>`;
   }
 
   function eventCard(e) {

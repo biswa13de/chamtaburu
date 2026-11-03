@@ -394,5 +394,28 @@
   }
   const prettyPhone = (d) => (d.length === 12 && d.startsWith("91") ? "+91 " + d.slice(2, 7) + " " + d.slice(7) : "+" + d);
 
-  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
+  // A property's `bookingManagers` as numbers to call: "Booking Manager 1", 2, …
+  // Empty if it lists none (the manager's own number is used instead).
+  function bookingCalls(prop) {
+    const all = window.PACKAGE_CONFIG.properties;
+    return (prop.bookingManagers || []).filter((k) => all[k]).map((k, i) => ({ name: `Booking Manager ${i + 1}`, phone: all[k].phone }));
+  }
+
+  // rates.js `menu` as a day of meals, each dish with the /menu veg / egg /
+  // non-veg marker. Shared by the guest page and /package/menu (package.css).
+  const DISH_TYPES = { veg: "Veg", egg: "Contains egg", nonveg: "Non-veg" };
+  function mealsHtml(menu) {
+    const dish = (it) => {
+      const [name, desc, type] = Array.isArray(it) ? it : [it, "", ""];
+      const dot = DISH_TYPES[type] ? `<span class="dot" role="img" aria-label="${DISH_TYPES[type]}"></span>` : `<span class="dot none"></span>`;
+      return `<li class="${DISH_TYPES[type] ? type : ""}">${dot}<div><b>${esc(name)}</b>${desc ? `<p>${esc(desc)}</p>` : ""}</div></li>`;
+    };
+    return `<ol class="day">${menu.meals.map((m) => `<li>
+      <div class="when">${esc(m.time)}</div>
+      <div><h3>${esc(m.name)}</h3>${m.items.length ? `<ul class="dishes">${m.items.map(dish).join("")}</ul>` : ""}</div>
+    </li>`).join("")}</ol>`;
+  }
+  const legendHtml = () => `<ul class="legend" aria-label="Legend">${Object.entries(DISH_TYPES).map(([k, v]) => `<li class="${k}"><span class="dot"></span>${v}</li>`).join("")}</ul>`;
+
+  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
 })();

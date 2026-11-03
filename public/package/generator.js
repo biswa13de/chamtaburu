@@ -194,6 +194,8 @@
     $("validUntil").value = P.addDays(P.today(), prop.validDays);
     $("inclusions").value = prop.inclusions.join("\n");
     $("exclusions").value = prop.exclusions.join("\n");
+    const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname); // no clean URLs in local dev
+    $("menuLink").href = `/package/menu${local ? ".html" : ""}?p=${key}`;
     syncEvents();
     renderRooms();
     renderAddons();
@@ -554,11 +556,11 @@
     out.push("", "Full details & confirm here:", s.url, "");
     out.push(`Ref ${s.ref}${d.vu ? " · valid till " + P.fmtDate(d.vu) : ""}`);
     // Same numbers as the guest page's Call buttons (view.js).
-    const calls = (prop.bookingManagers || []).filter((k) => C.properties[k]);
+    const calls = P.bookingCalls(prop);
     if (!calls.length) out.push(`${manager.name} · ${P.prettyPhone(P.contactFor(manager.phone, propKey))}`);
     else {
       out.push(manager.name);
-      calls.forEach((k, i) => out.push(`📞 Booking Manager ${i + 1} · ${P.prettyPhone(C.properties[k].phone)}`));
+      calls.forEach((c) => out.push(`📞 ${c.name} · ${P.prettyPhone(c.phone)}`));
     }
     return out.join("\n");
   }
