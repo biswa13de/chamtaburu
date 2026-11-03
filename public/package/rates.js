@@ -56,8 +56,8 @@ window.PACKAGE_CONFIG = {
         ["Non-veg thali", "rice, dal, vaja, sabji, salad, doi, papad, fish curry, chutney", "nonveg"],
       ] },
       { name: "Evening snacks", time: "5:00 – 7:30 PM", items: [
-        ["Chicken pakoda (5 pc)", "with tea / coffee", "nonveg"],
-        ["or Onion pakoda (5 pc)", "with tea / coffee", "veg"],
+        ["1st day: Onion pakoda (5 pc)", "with tea / coffee", "veg"],
+        ["2nd day: Chicken pakoda (5 pc)", "with tea / coffee", "nonveg"],
       ] },
       { name: "Dinner", time: "9:00 – 11:00 PM", items: [
         ["Veg", "rice / roti, paneer butter masala / kadai paneer, mix veg / dal fry, mishti", "veg"],
