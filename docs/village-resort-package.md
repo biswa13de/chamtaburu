@@ -59,6 +59,7 @@ guest on WhatsApp in one tap.
 | `/package` → `public/package/index.html`, `generator.js` | Manager page: SMS sign-in, form, live price, Copy / Preview / Send on WhatsApp                           |
 | `public/package/auth.js`                                 | Firebase phone sign-in (SDK from gstatic, invisible reCAPTCHA)                                           |
 | `/p/<code>` → `view.html`, `view.js`                     | Guest page the WhatsApp link opens: breakdown, inclusions, pay + confirm buttons                         |
+| `/package/menu` → `menu.html`, `menu.js`                 | The package menu to share: Share, Copy menu as text (for WhatsApp), Save as PDF (one A4 page)            |
 | `public/package/rates.js`                                | **The one file to edit** for prices — rates, meals, add-ons, GST, advance, UPI, approved contact numbers |
 | Firestore `managers` collection                          | Who may sign in (Firebase console, not in the repo)                                                      |
 | `public/package/package-core.js`                         | Shared price maths + saving / loading quotes                                                             |
@@ -130,7 +131,7 @@ To change a password: delete the user, add it again with the new password, and u
 | Resort   | Double / Triple / Four / Six  | ₹1,900   | ₹1,900 | ₹1,700 | ₹1,700 | ₹1,700 |
 | Resort   | Bamboo Cottage                | ₹2,000   |        |        |        |        |
 
-Children 5–10 pay half the adult price for their room; under 5 free. One adult alone pays for two. The night of 1 Jan is a Celebration night. The guest's page shows the package menu (`menu` in `rates.js`) for packages with Celebration nights.
+Children 5–10 pay half the adult price for their room; under 5 free. One adult alone pays for two. The night of 1 Jan is a Celebration night. The guest's page shows the package menu (`menu` in `rates.js`) for packages with Celebration nights, with a link to `/package/menu`, the same menu as a page to share (also linked from the generator's Meals card). Each dish there is `[dish, details, type]`, type `veg`, `egg` or `nonveg` for the `/menu` markers.
 
 **Special Cultural Programme (20 – 31 Dec 2026, both properties):** Chhau and Santhali dance every evening. A stay with any night from 20 to 31 Dec gets it in Inclusions by default (the manager can delete the line), a 🎭 line in the WhatsApp message and a card on the guest's page. Set in `events` in `rates.js`.
 

@@ -41,22 +41,27 @@ window.PACKAGE_CONFIG = {
   }],
 
   // The package menu, shown on the guest's page for package plans (all meals
-  // included). Read live, so a change reaches packages already sent.
+  // included) and as its own page to share, /package/menu. Read live, so a
+  // change reaches packages already sent. Each item is [dish, details, type],
+  // type "veg", "egg" or "nonveg" (the /menu markers).
   menu: {
     meals: [
       { name: "Bed tea & biscuits", time: "7:00 – 8:00 AM only", items: [] },
       { name: "Breakfast", time: "8:30 – 10:30 AM", items: [
-        "Luchi, aalur dum, boiled egg (1 pc), jalebi (1 pc) and tea",
-        "or aloo / gobi / sattu paratha or chole bhature, boiled egg (1 pc), jalebi (1 pc) and tea",
+        ["Luchi & aalur dum", "with boiled egg (1 pc), jalebi (1 pc) and tea", "egg"],
+        ["or Paratha / chole bhature", "aloo, gobi or sattu paratha, or chole bhature, with boiled egg (1 pc), jalebi (1 pc) and tea", "egg"],
       ] },
       { name: "Lunch", time: "1:00 – 3:00 PM", items: [
-        "Veg thali: rice, dal, vaja, sabji, salad, doi, papad, paneer butter masala / kadai paneer, chutney",
-        "Non-veg: rice, dal, vaja, sabji, salad, doi, papad, fish curry, chutney",
+        ["Veg thali", "rice, dal, vaja, sabji, salad, doi, papad, paneer butter masala / kadai paneer, chutney", "veg"],
+        ["Non-veg thali", "rice, dal, vaja, sabji, salad, doi, papad, fish curry, chutney", "nonveg"],
       ] },
-      { name: "Evening snacks", time: "5:00 – 7:30 PM", items: ["Chicken pakoda / onion pakoda (5 pc) and tea / coffee"] },
+      { name: "Evening snacks", time: "5:00 – 7:30 PM", items: [
+        ["Chicken pakoda (5 pc)", "with tea / coffee", "nonveg"],
+        ["or Onion pakoda (5 pc)", "with tea / coffee", "veg"],
+      ] },
       { name: "Dinner", time: "9:00 – 11:00 PM", items: [
-        "Veg: rice / roti, paneer butter masala / kadai paneer, mix veg / dal fry, mishti",
-        "Non-veg: rice / roti, mix veg / dal fry, chicken kosha, mishti",
+        ["Veg", "rice / roti, paneer butter masala / kadai paneer, mix veg / dal fry, mishti", "veg"],
+        ["Non-veg", "rice / roti, mix veg / dal fry, chicken kosha, mishti", "nonveg"],
       ] },
     ],
     note: "The menu will be modified if you stay more than two nights.",

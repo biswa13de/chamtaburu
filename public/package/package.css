@@ -1,4 +1,4 @@
-/* Shared styles for /package (generator) and /package/view (guest page). Palette matches /menu. */
+/* Shared styles for /package (generator), /package/view (guest page) and /package/menu. Palette matches /menu. */
 @font-face{font-family:"Inter";src:url("/menu/fonts/inter-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
 @font-face{font-family:"Inter";src:url("/menu/fonts/inter-latin-500-normal.woff2") format("woff2");font-weight:500;font-style:normal;font-display:swap}
 @font-face{font-family:"Inter";src:url("/menu/fonts/inter-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
@@ -66,3 +66,27 @@ table.lines tr.total td{font-weight:600;font-size:1.1rem;border-top:2px solid va
 table.lines tr.adv td{color:var(--palash);font-weight:600}
 
 @media (max-width:520px){ .grid{grid-template-columns:1fr} }
+
+/* A day of meals (P.mealsHtml): the guest page's "Your meals" and /package/menu.
+   Markers as on /menu: veg a dot, egg an amber dot, non-veg a triangle, each in a square. */
+:root{--veg:#2f7d3a;--egg:#c28a12;--nonveg:#a3321b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--veg:#63b56f;--egg:#e0ad3d;--nonveg:#e26a4f}}
+:root[data-theme="dark"]{--veg:#63b56f;--egg:#e0ad3d;--nonveg:#e26a4f}
+ol.day{list-style:none;margin:0;padding:0}
+ol.day>li{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:2px 18px;padding:14px 0;border-top:1px solid var(--line)}
+ol.day>li:first-child{border-top:0;padding-top:4px}
+ol.day .when{color:var(--palash);font-size:.86rem;font-weight:500;padding-top:5px;font-variant-numeric:tabular-nums}
+ol.day h3{margin:0;font-size:1.35rem;line-height:1.2;color:var(--forest)}
+ul.dishes{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:8px}
+ul.dishes li{display:flex;gap:10px;align-items:baseline}
+ul.dishes b{font-weight:600}
+ul.dishes p{margin:1px 0 0;color:var(--muted);font-size:.92rem}
+.dot{flex:0 0 12px;width:12px;height:12px;border:1.5px solid currentColor;border-radius:2px;display:grid;place-items:center;position:relative;top:1px}
+.dot::after{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.dot.none{border-color:transparent}.dot.none::after{display:none}
+.veg .dot{color:var(--veg)} .egg .dot{color:var(--egg)} .nonveg .dot{color:var(--nonveg)}
+.nonveg .dot::after{border-radius:0;width:0;height:0;background:none;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid currentColor}
+ul.legend{list-style:none;margin:0 0 12px;padding:0;display:flex;gap:16px;flex-wrap:wrap;font-size:.84rem;color:var(--muted)}
+ul.legend li{display:flex;gap:6px;align-items:center}
+@media (max-width:520px){ ol.day>li{grid-template-columns:1fr} ol.day .when{padding-top:0} }
+@media print{ .veg .dot,.egg .dot,.nonveg .dot{print-color-adjust:exact;-webkit-print-color-adjust:exact} }
