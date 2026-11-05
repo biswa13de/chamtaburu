@@ -49,6 +49,7 @@ function routesForSite(site, { cottages }) {
       { path: '/cottages', changefreq: 'weekly', priority: '0.9' },
       ...cottages.map((c) => ({ path: `/cottages/${c.slug}`, changefreq: 'monthly', priority: '0.8' })),
       { path: '/experiences', changefreq: 'monthly', priority: '0.7' },
+      { path: '/sightseeing', changefreq: 'monthly', priority: '0.8' },
       { path: '/gallery', changefreq: 'monthly', priority: '0.6' },
       { path: '/contact', changefreq: 'monthly', priority: '0.6' },
       { path: '/legal', changefreq: 'yearly', priority: '0.3' },

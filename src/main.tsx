@@ -41,6 +41,7 @@ const VILLAGE_ROUTES: RouteRecord[] = [
         getStaticPaths: () => cottages.map((cottage) => `cottages/${cottage.slug}`),
       },
       { path: 'experiences', element: <Experiences /> },
+      { path: 'sightseeing', element: <Sightseeing /> },
       { path: 'gallery', element: <GalleryPage /> },
       { path: 'contact', element: <Contact /> },
       { path: 'legal', element: <Legal /> },

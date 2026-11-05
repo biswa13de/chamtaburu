@@ -14,6 +14,7 @@ const VILLAGE_NAV: NavLink[] = [
   { label: 'Home', to: '/' },
   { label: 'Cottages', to: '/cottages' },
   { label: 'Experiences', to: '/experiences' },
+  { label: 'Sightseeing', to: '/sightseeing' },
   { label: 'Gallery', to: '/gallery' },
   { label: 'Contact', to: '/contact' },
 ];

@@ -1,6 +1,12 @@
 /**
- * The 3-day Purulia sightseeing plan run from Chamtaburu Eco Resort —
- * rendered at resort.chamtaburu.in/sightseeing (src/components/pages/Sightseeing.tsx).
+ * The 3-day Purulia sightseeing plan — rendered at /sightseeing on both
+ * sites (src/components/pages/Sightseeing.tsx). The Village and the Resort
+ * sit a short drive apart near Matha Forest, so the copy here stays
+ * property-neutral: say "your cottage", not "the resort".
+ *
+ * It is a self-drive plan, for guests who come in their own car: no train
+ * arrivals, station drops or car hire in the copy. (Hired cars are a
+ * separate add-on, quoted through the package generator.)
  *
  * Content is the owner's own itinerary (drafted as a standalone page,
  * 2026-11), moved here as typed data so the copy can be edited without
@@ -30,14 +36,14 @@ export const sightseeingFacts: { value: string; label: string }[] = [
   { value: '3 days', label: 'Short drives, plenty of breaks' },
   { value: 'Oct – Mar', label: 'Most pleasant weather' },
   { value: 'Feb – Mar', label: 'Palash in full red bloom' },
-  { value: 'Station drop', label: 'Included on your last day' },
+  { value: 'Self-drive', label: 'For guests in their own car' },
 ];
 
 export const sightseeingDays: SightseeingDay[] = [
   {
     title: 'Forests, bird hill & the mask village',
     intro:
-      'Come straight from the train to your cottage, freshen up and have breakfast. The day stays light and close to home.',
+      'Drive in, check in to your cottage, freshen up and have breakfast. The day stays light and close to home.',
     slots: [
       {
         label: 'Morning',
@@ -117,17 +123,17 @@ export const sightseeingDays: SightseeingDay[] = [
           },
           {
             name: 'Turga Dam',
-            description: 'A still reservoir to end the day before heading back to the resort.',
+            description: 'A still reservoir to end the day before the drive back.',
           },
         ],
       },
     ],
-    note: "Bamni Falls has many steep steps. Let us know if anyone in your group would rather skip it and we'll plan around it.",
+    note: 'Bamni Falls has many steep steps. If anyone in your group would rather not climb, skip it and go on to Turga Falls.',
   },
   {
     title: 'Old forts, rock hills & Baranti',
     intro:
-      "Check out after a hearty breakfast and drive north. We'll drop you at the station once the day is done.",
+      'Check out after a hearty breakfast and drive north, taking in these stops on your way home.',
     slots: [
       {
         label: 'On the way',
@@ -149,7 +155,6 @@ export const sightseeingDays: SightseeingDay[] = [
         ],
       },
     ],
-    note: "Station drop-off after the last stop. Tell us your train time when booking and we'll pace the day to match.",
   },
 ];
 
@@ -164,10 +169,10 @@ export const sightseeingTips: { title: string; body: string }[] = [
   },
   {
     title: 'Phone network',
-    body: 'Signal can be patchy up in the hills. Download your tickets and maps before you set out.',
+    body: 'Signal can be patchy up in the hills. Download offline maps of the route before you set out.',
   },
   {
     title: 'Your pace, your plan',
-    body: 'Travelling with kids or elders? We can trim stops or split a day in two.',
+    body: 'Travelling with kids or elders? Trim stops or split a day in two. Ask us and we’ll suggest where.',
   },
 ];
