@@ -57,6 +57,7 @@ function routesForSite(site, { cottages }) {
   return [
     { path: '/', changefreq: 'weekly', priority: '1.0' },
     { path: '/accommodation', changefreq: 'weekly', priority: '0.9' },
+    { path: '/sightseeing', changefreq: 'monthly', priority: '0.8' },
     { path: '/contact', changefreq: 'monthly', priority: '0.6' },
     { path: '/legal', changefreq: 'yearly', priority: '0.3' },
   ];
