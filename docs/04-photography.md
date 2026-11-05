@@ -21,6 +21,24 @@ lists what is missing.
 | `PHOTO-…-59 2.jpg` | 1280×960 | Desk, chairs, wardrobe, kettle | Weak — plastic chairs, exposed wire, taped surface |
 | `PHOTO-…-59.jpg` | 1280×960 | Empty room, door, window | Weak — bare, blue mop bucket visible |
 
+### `photos/eco_village/campus_image/` — 9 images (added 2026-11)
+
+Sunny-day campus exteriors, 1448×1086 (WhatsApp copies, heavily sharpened, so capped at
+960 px via `DENSE_BASES` in `scripts/photos.mjs`). They answer §2's "no daylight
+exteriors" gap for the Village.
+
+| File (`WhatsApp Image 2026-11-01 at 19.48.37…`) | Base | Subject | Used on |
+|---|---|---|---|
+| `.jpeg` | `village-campus-aerial` | Aerial: red-roofed cottages, lawns, lamp-lined paths | Home hero, default OG image, gallery |
+| `(1).jpeg` | `village-campus-main-building` | Main building, drive, lawns, cottages | Contact hero, gallery |
+| `(2).jpeg` | `village-campus-cottage-swing` | Cottage with garden swing and lawn | Cottages hero, gallery |
+| `(3).jpeg` | `village-campus-pathway` | Pathway between cottage verandas | Experiences hero, gallery |
+| `(4).jpeg` | `village-campus-garden-path` | Cottages, palms, lamp-lined path | Gallery hero, gallery |
+| `(5).jpeg` | `village-campus-overview` | Elevated view of cottages, hills beyond | Home "Our Story", gallery |
+| `(6).jpeg` | `village-campus-hill` | Forested hill behind the campus | Sightseeing hero, gallery |
+| `(7).jpeg` | `village-campus-hill-palm` | Palm and gazebo, hill behind | Gallery |
+| `(8).jpeg` | `village-campus-night` | Cottages and main building lit at night | Gallery |
+
 ### `photos/eco_resort/` — 8 images
 
 | File | Size | Subject | Verdict |

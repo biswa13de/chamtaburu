@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type ImgHTMLAttributes } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ImgHTMLAttributes } from 'react';
 
 // alt is required (no default, no optional) — Phase 1 checklist item, kept
 // intact through the Phase 3 rewrite below.
@@ -46,6 +46,17 @@ export function Image({
   ...props
 }: ImageProps) {
   const [loaded, setLoaded] = useState(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // The pages are prerendered, so the browser can finish loading an image
+  // (especially an eager hero, or one already in cache) before React
+  // hydrates and attaches onLoad. That load event is then missed and the
+  // image would stay at opacity 0 behind its blurred LQIP forever — so on
+  // mount, also check whether it has already loaded.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img?.complete && img.naturalWidth > 0) setLoaded(true);
+  }, []);
 
   const imgStyle: CSSProperties = {
     ...style,
@@ -57,6 +68,7 @@ export function Image({
       {avifSrcSet && <source type="image/avif" srcSet={avifSrcSet} sizes={sizes} />}
       {webpSrcSet && <source type="image/webp" srcSet={webpSrcSet} sizes={sizes} />}
       <img
+        ref={imgRef}
         src={src}
         srcSet={srcSet}
         sizes={sizes}

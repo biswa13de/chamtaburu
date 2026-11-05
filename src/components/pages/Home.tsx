@@ -13,12 +13,12 @@ import { resolveImage } from '../../content/manifest';
 import { buildLodgingBusinessJsonLd } from '../../lib/seo';
 
 const HERO_IMAGE = resolveImage({
-  base: 'village/village-hero-hills',
-  alt: 'Ajodhya Hills view with palm trees near Chamtaburu Eco Village, Purulia',
+  base: 'village/village-campus-aerial',
+  alt: 'Aerial view of red-roofed cottages, lawns and lamp-lined paths at Chamtaburu Eco Village, Ajodhya Hills, Purulia',
 });
 const STORY_IMAGE = resolveImage({
-  base: 'village/village-exterior',
-  alt: 'Cottage exterior with white walls and red tile roof at Chamtaburu Eco Village, Ajodhya Hills, Purulia',
+  base: 'village/village-campus-overview',
+  alt: 'Red-roofed cottages and gardens with forested hills beyond, seen from above at Chamtaburu Eco Village, Purulia',
 });
 
 // Resort-specific hero/story images — distinct from the Village's, which

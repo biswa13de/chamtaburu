@@ -7,8 +7,8 @@ import { village, experiences } from '../../content/village';
 import { resolveImage } from '../../content/manifest';
 
 const HERO_IMAGE = resolveImage({
-  base: 'village/village-window',
-  alt: 'Cottage window with curtains open to trees beyond at Chamtaburu Eco Village, Ajodhya Hills',
+  base: 'village/village-campus-pathway',
+  alt: 'Paved pathway between cottage verandas lined with young palms at Chamtaburu Eco Village, Ajodhya Hills',
 });
 
 // Only the four real, photographable experiences from

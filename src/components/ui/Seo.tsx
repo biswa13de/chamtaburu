@@ -16,7 +16,7 @@ import { absoluteUrl, buildTitle, siteOrigin, type PageMeta } from '../../lib/se
  * reasonably at the ~1.91:1 OG aspect ratio most platforms use.
  */
 const OG_IMAGE_BASE: Record<'village' | 'resort', string> = {
-  village: 'village/village-hero-hills',
+  village: 'village/village-campus-aerial',
   resort: 'resort/resort-hero-mist',
 };
 
