@@ -21,6 +21,7 @@ const VILLAGE_NAV: NavLink[] = [
 const RESORT_NAV: NavLink[] = [
   { label: 'Home', to: '/' },
   { label: 'Accommodation', to: '/accommodation' },
+  { label: 'Sightseeing', to: '/sightseeing' },
   { label: 'Contact', to: '/contact' },
 ];
 

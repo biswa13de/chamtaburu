@@ -8,6 +8,7 @@ import { Experiences } from './components/pages/Experiences';
 import { GalleryPage } from './components/pages/GalleryPage';
 import { Accommodation } from './components/pages/Accommodation';
 import { Contact } from './components/pages/Contact';
+import { Sightseeing } from './components/pages/Sightseeing';
 import { Legal } from './components/pages/Legal';
 import { NotFound } from './components/pages/NotFound';
 import { cottages } from './content/village';
@@ -56,6 +57,7 @@ const RESORT_ROUTES: RouteRecord[] = [
     children: [
       { index: true, element: <Home /> },
       { path: 'accommodation', element: <Accommodation /> },
+      { path: 'sightseeing', element: <Sightseeing /> },
       { path: 'contact', element: <Contact /> },
       { path: 'legal', element: <Legal /> },
       { path: '404', element: <NotFound /> },
