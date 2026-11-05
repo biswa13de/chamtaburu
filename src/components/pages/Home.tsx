@@ -32,6 +32,26 @@ const RESORT_STORY_IMAGE = resolveImage({
   alt: 'Row of mural-painted cottages in morning mist at Chamtaburu Eco Resort, Ajodhya Hills, Purulia',
 });
 
+// Links to /sightseeing — shown on both sites' home pages.
+function SightseeingTeaser() {
+  return (
+    <Section>
+      <div className="rounded-2xl bg-white p-8 shadow-sm md:flex md:items-center md:justify-between md:gap-10 md:p-10">
+        <div>
+          <h2 className="mb-2 font-serif text-3xl font-medium">Purulia, at an easy pace</h2>
+          <p className="text-stone max-w-xl text-sm leading-relaxed">
+            Ajodhya Pahar, Marble Lake, Turga Falls, the Chhau mask village of Charida and Garh
+            Panchakot: our 3-day sightseeing plan for guests who come in their own car.
+          </p>
+        </div>
+        <Button to="/sightseeing" variant="secondary" className="mt-6 shrink-0 md:mt-0">
+          See the 3-day plan
+        </Button>
+      </div>
+    </Section>
+  );
+}
+
 function VillageHome() {
   const { address } = currentSite;
 
@@ -181,6 +201,8 @@ function VillageHome() {
         </div>
       </Section>
 
+      <SightseeingTeaser />
+
       <Section>
         <div className="grid gap-8 rounded-2xl bg-white p-10 shadow-sm md:grid-cols-[auto_1fr] md:items-center">
           <MapPin className="text-forest mx-auto md:mx-0" size={40} aria-hidden="true" />
@@ -280,20 +302,7 @@ function ResortHome() {
         </div>
       </Section>
 
-      <Section>
-        <div className="rounded-2xl bg-white p-8 shadow-sm md:flex md:items-center md:justify-between md:gap-10 md:p-10">
-          <div>
-            <h2 className="mb-2 font-serif text-3xl font-medium">Purulia, at an easy pace</h2>
-            <p className="text-stone max-w-xl text-sm leading-relaxed">
-              Ajodhya Pahar, Marble Lake, Turga Falls, the Chhau mask village of Charida and Garh
-              Panchakot: our 3-day sightseeing plan, with a station drop on your last day.
-            </p>
-          </div>
-          <Button to="/sightseeing" variant="secondary" className="mt-6 shrink-0 md:mt-0">
-            See the 3-day plan
-          </Button>
-        </div>
-      </Section>
+      <SightseeingTeaser />
 
       <Section className="text-center">
         <h2 className="mb-4 font-serif text-3xl font-medium">Plan Your Stay</h2>

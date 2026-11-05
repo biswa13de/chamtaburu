@@ -8,10 +8,20 @@ import { resolveImage } from '../../content/manifest';
 import { sightseeingDays, sightseeingFacts, sightseeingTips } from '../../content/sightseeing';
 import { siteOrigin } from '../../lib/seo';
 
-const HERO_IMAGE = resolveImage({
-  base: 'resort/resort-hero-mist',
-  alt: 'Monsoon mist over the forested hills behind the cottages at Chamtaburu Eco Resort, Ajodhya Hills, Purulia',
-});
+// Rendered on both sites; each uses its own photo, since Village photos
+// must never appear on resort.chamtaburu.in and vice versa.
+const HERO_IMAGE = resolveImage(
+  currentSite.key === 'resort'
+    ? {
+        base: 'resort/resort-hero-mist',
+        alt: 'Monsoon mist over the forested hills behind the cottages at Chamtaburu Eco Resort, Ajodhya Hills, Purulia',
+      }
+    : {
+        base: 'village/village-hero-hills',
+        alt: 'Ajodhya Hills view with palm trees near Chamtaburu Eco Village, Purulia',
+      },
+);
+const PROPERTY_NOUN = currentSite.key === 'resort' ? 'the resort' : 'the village';
 
 // One accent per day, cycling through the brand palette (src/index.css).
 // Full class strings, not built ones, so Tailwind can see them.
@@ -29,7 +39,7 @@ function buildTouristTripJsonLd(): Record<string, unknown> {
     '@type': 'TouristTrip',
     name: `3-Day Purulia Sightseeing from ${currentSite.name}`,
     description:
-      'A relaxed 3-day itinerary covering Ajodhya Pahar, Marble Lake, Bamni and Turga Falls, Charida Chhau mask village, Joychandi Pahar, Garh Panchakot, Panchet and Baranti.',
+      'A relaxed 3-day self-drive itinerary covering Ajodhya Pahar, Marble Lake, Bamni and Turga Falls, Charida Chhau mask village, Joychandi Pahar, Garh Panchakot, Panchet and Baranti.',
     touristType: ['Nature lovers', 'Families', 'Photographers'],
     provider: {
       '@type': 'LodgingBusiness',
@@ -55,35 +65,35 @@ function buildTouristTripJsonLd(): Record<string, unknown> {
 
 export function Sightseeing() {
   const phone = currentSite.phones[0];
-  const whatsappMessage = `Hi ${currentSite.name}, I'd like to book the Purulia sightseeing trip.`;
+  const whatsappMessage = `Hi ${currentSite.name}, I'm coming by car and would like to book a stay for the Purulia sightseeing plan.`;
   const whatsappHref = `https://wa.me/${currentSite.whatsapp}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
     <div className="pb-24">
       <Seo
         title="Purulia Sightseeing Plan"
-        description={`A relaxed 3-day Purulia sightseeing plan from ${currentSite.name} — Ajodhya Pahar, Marble Lake, Turga Falls, Charida Chhau masks, Garh Panchakot and Baranti.`}
+        description={`A relaxed 3-day self-drive Purulia sightseeing plan from ${currentSite.name} — Ajodhya Pahar, Marble Lake, Turga Falls, Charida Chhau masks, Garh Panchakot and Baranti.`}
         path="/sightseeing"
         jsonLd={[buildTouristTripJsonLd()]}
       />
       <Hero
         image={HERO_IMAGE}
         heading="Purulia Sightseeing"
-        subheading="3 days from the resort"
+        subheading={`3 days by car from ${PROPERTY_NOUN}`}
         size="compact"
       />
 
       <Section className="mt-16" narrow>
         <span className="bg-forest/10 text-forest inline-block rounded-full px-3 py-1.5 text-[11px] font-bold tracking-[0.15em] uppercase">
-          3 days · From {currentSite.name}, {currentSite.address.locality}
+          3 days by car · From {currentSite.name}, {currentSite.address.locality}
         </span>
         <h2 className="mt-4 mb-3 font-serif text-4xl leading-tight font-medium md:text-5xl">
           Purulia, <em className="text-terracotta not-italic">at an easy pace</em>
         </h2>
         <p className="text-stone max-w-2xl leading-relaxed">
-          Red-soil roads, sal forests, quiet dams and the hills of Ajodhya. Here&rsquo;s the plan
-          our guests enjoy most. We&rsquo;re happy to slow it down, swap stops or stretch it into a
-          longer stay.
+          Red-soil roads, sal forests, quiet dams and the hills of Ajodhya. Here&rsquo;s the route
+          our guests who come in their own car enjoy most. Slow it down, swap stops or stretch it
+          into a longer stay; ask us and we&rsquo;ll help.
         </p>
 
         <dl className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -172,10 +182,10 @@ export function Sightseeing() {
         <div className="bg-forest-deep flex flex-col gap-6 rounded-2xl p-8 text-white md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="font-serif text-2xl font-medium md:text-3xl">
-              Want this trip planned for your dates?
+              Coming by car? Book your stay.
             </h2>
             <p className="mt-1 text-sm text-white/70">
-              Message us and we&rsquo;ll arrange your stay, car and route.
+              Message us your dates and we&rsquo;ll hold your room and help with the route.
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-3">
