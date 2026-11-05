@@ -65,6 +65,17 @@ const DENSE_BASES = new Set([
   'resort-pathway-rain',
   'resort-room-bamboo-cottage-interior',
   'resort-room-bamboo-cottage-bathroom',
+  // 2026-11 campus photos: heavily sharpened WhatsApp copies, 330–430 kB at
+  // 1440px even as AVIF.
+  'village-campus-aerial',
+  'village-campus-main-building',
+  'village-campus-cottage-swing',
+  'village-campus-pathway',
+  'village-campus-garden-path',
+  'village-campus-overview',
+  'village-campus-hill',
+  'village-campus-hill-palm',
+  'village-campus-night',
 ]);
 
 /**
@@ -136,6 +147,63 @@ const MAPPING = [
     file: 'PHOTO-2026-01-03-14-01-59.jpg',
     base: 'village-room-bare',
     alt: 'Empty cottage room with door and window at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  // Campus photos (2026-11-01), sunny-day exteriors plus one night shot —
+  // photos/eco_village/campus_image/. 1448x1086 WhatsApp copies; capped at
+  // 960px via DENSE_BASES above.
+  {
+    site: 'village',
+    file: 'campus_image/WhatsApp Image 2026-11-01 at 19.48.37.jpeg',
+    base: 'village-campus-aerial',
+    alt: 'Aerial view of red-roofed cottages, lawns and lamp-lined paths at Chamtaburu Eco Village, Ajodhya Hills, Purulia',
+  },
+  {
+    site: 'village',
+    file: 'campus_image/WhatsApp Image 2026-11-01 at 19.48.37 (1).jpeg',
+    base: 'village-campus-main-building',
+    alt: 'Main building, lawns and red-roofed cottages under a blue sky at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  {
+    site: 'village',
+    file: 'campus_image/WhatsApp Image 2026-11-01 at 19.48.37 (2).jpeg',
+    base: 'village-campus-cottage-swing',
+    alt: 'White cottage with red tile roof, garden swing and lawn at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  {
+    site: 'village',
+    file: 'campus_image/WhatsApp Image 2026-11-01 at 19.48.37 (3).jpeg',
+    base: 'village-campus-pathway',
+    alt: 'Paved pathway between cottage verandas lined with young palms at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  {
+    site: 'village',
+    file: 'campus_image/WhatsApp Image 2026-11-01 at 19.48.37 (4).jpeg',
+    base: 'village-campus-garden-path',
+    alt: 'Cottages and palm trees beside a lamp-lined garden path at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  {
+    site: 'village',
+    file: 'campus_image/WhatsApp Image 2026-11-01 at 19.48.37 (5).jpeg',
+    base: 'village-campus-overview',
+    alt: 'Red-roofed cottages and gardens with forested hills beyond, seen from above at Chamtaburu Eco Village, Purulia',
+  },
+  {
+    site: 'village',
+    file: 'campus_image/WhatsApp Image 2026-11-01 at 19.48.37 (6).jpeg',
+    base: 'village-campus-hill',
+    alt: 'Forested hill rising behind the campus wall and palms at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  {
+    site: 'village',
+    file: 'campus_image/WhatsApp Image 2026-11-01 at 19.48.37 (7).jpeg',
+    base: 'village-campus-hill-palm',
+    alt: 'Young palm and garden gazebo with a forested hill behind at Chamtaburu Eco Village, Ajodhya Hills',
+  },
+  {
+    site: 'village',
+    file: 'campus_image/WhatsApp Image 2026-11-01 at 19.48.37 (8).jpeg',
+    base: 'village-campus-night',
+    alt: 'Cottages, lawn and main building lit up at night at Chamtaburu Eco Village, Ajodhya Hills',
   },
   // --- Eco Resort (photos/eco_resort -> public/img/resort) ---
   {

@@ -139,6 +139,132 @@
     ],
     "fallback": "/img/village/village-room-bare-960.jpg"
   },
+  "village/village-campus-aerial": {
+    "width": 1448,
+    "height": 1086,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAAAAMEBf/EAB4QAAICAwADAQAAAAAAAAAAAAECAxEABBITIUEx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAQL/xAAcEQACAgIDAAAAAAAAAAAAAAACAwABEzFBUfD/2gAMAwEAAhEDEQA/AKjaY/sQr7kptmSNb8a0cq2qs0IKMU79nM8UkK9RJbUaJbJJ5jW5JLXxUCfYYWsQrGdGLTd4w3XN/BjCnN9cMQ9T/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-campus-aerial-960.jpg"
+  },
+  "village/village-campus-main-building": {
+    "width": 1448,
+    "height": 1086,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABAAC/8QAIRAAAgIBAwUBAAAAAAAAAAAAAQIAAxEEIVEFEhMiQXH/xAAWAQEBAQAAAAAAAAAAAAAAAAADAgT/xAAcEQACAQUBAAAAAAAAAAAAAAAAAgEEERITFFH/2gAMAwEAAhEDEQA/AE+JDwJnUIKKGcbkcR1nTU7PV2yICyq2ssAwOB9izVPYHnWJBJqnZcsDn8lEI9oXZUlM+5vS8FP/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-campus-main-building-960.jpg"
+  },
+  "village/village-campus-cottage-swing": {
+    "width": 1448,
+    "height": 1086,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAMEAQL/xAAeEAACAgIDAQEAAAAAAAAAAAABAgADERIEEyFBUf/EABYBAQEBAAAAAAAAAAAAAAAAAAMAAv/EABsRAAICAwEAAAAAAAAAAAAAAAABAgMEEhMh/9oADAMBAAIRAxEAPwB9ddTZ1Y+fYwVKqFvSP2SbU7NWpYYnB5fUcKWIks9yA41on5Vdncdc4hNfk7MSFhDdqfpvWKP/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-campus-cottage-swing-960.jpg"
+  },
+  "village/village-campus-pathway": {
+    "width": 1448,
+    "height": 1086,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABAAD/8QAHhAAAgMAAgMBAAAAAAAAAAAAAQIAAxEEIRITMWH/xAAVAQEBAAAAAAAAAAAAAAAAAAACA//EAB0RAAICAQUAAAAAAAAAAAAAAAABAgQDERMUUVL/2gAMAwEAAhEDEQA/AHO1VzYH7/Zg1despOsIPii2+0K5wHs4Y3m8YcVPYpJU9dxq1NIi68W9TApXv2UIRex0eOGUPNl6FsYuj//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-campus-pathway-960.jpg"
+  },
+  "village/village-campus-garden-path": {
+    "width": 1448,
+    "height": 1086,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAAQBAgMF/8QAHxAAAgICAgMBAAAAAAAAAAAAAQIAAwQREjEFFCFB/8QAFgEBAQEAAAAAAAAAAAAAAAAAAgAE/8QAHBEAAwABBQAAAAAAAAAAAAAAAAEDUQIEERJh/9oADAMBAAIRAxEAPwBq2+st1qY5R40c6gCYwPGVWvt3Yj8E5uRlDEvala9J13uTvThhc54K+xawBVfkJK5SBejCZnuaeg66cH//2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-campus-garden-path-960.jpg"
+  },
+  "village/village-campus-overview": {
+    "width": 1448,
+    "height": 1086,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAEEAgP/xAAgEAACAwACAQUAAAAAAAAAAAABAgADBBESMQUTIUFR/8QAFgEBAQEAAAAAAAAAAAAAAAAAAgED/8QAGxEAAgMAAwAAAAAAAAAAAAAAAAECAxETFFH/2gAMAwEAAhEDEQA/AKn2ZmIChjzMnRSB8VsT+SHLpR9RzuDyfBE73ZNJvC1OF4+4nfNPARqra1js9Q9tupoIhGy0oetzM7jyeITPsS9LxQP/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-campus-overview-960.jpg"
+  },
+  "village/village-campus-hill": {
+    "width": 1448,
+    "height": 1086,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAIDBP/EAB4QAAICAQUBAAAAAAAAAAAAAAECAAMRBBITFEEi/8QAFgEBAQEAAAAAAAAAAAAAAAAAAwEE/8QAHREAAQQCAwAAAAAAAAAAAAAAAAECERQDIRIxQf/aAAwDAQACEQMRAD8Ata9bpuL/ADMvJUzBQDkxKOvcTyF8jwTb0KQguUtLay9IBXbOyqWsqgJjaIRl0RYZDYz5CByd6aESNH//2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-campus-hill-960.jpg"
+  },
+  "village/village-campus-hill-palm": {
+    "width": 1448,
+    "height": 1086,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAIEAwX/xAAdEAACAgIDAQAAAAAAAAAAAAABAgADBBIRIWFR/8QAFQEBAQAAAAAAAAAAAAAAAAAAAwD/xAAbEQEAAgIDAAAAAAAAAAAAAAABAAIEEQMSIf/aAAwDAQACEQMRAD8Aewox1ZwRMSQhITv2JjLtexZd+fpnUOPWlO9iADyTlcyaqwXGqWkNWQmvZ4hLVxaHUMqAAwg9l9bRymif/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-campus-hill-palm-960.jpg"
+  },
+  "village/village-campus-night": {
+    "width": 1448,
+    "height": 1086,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAYCAwX/xAAgEAACAgIBBQEAAAAAAAAAAAABAgARAwQSEyEiMWFx/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAID/8QAGxEAAgEFAAAAAAAAAAAAAAAAAAESAhETIUH/2gAMAwEAAhEDEQA/AFfb0H1as8r+SpNbM4tcbEfkaNnGwy29OR6uQXb6WMqqgX8mGZLRcV0Xk1iV8uxhNNsz8jQWETYtSf/Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-campus-night-960.jpg"
+  },
   "resort/resort-cottages-mural": {
     "width": 4032,
     "height": 3024,

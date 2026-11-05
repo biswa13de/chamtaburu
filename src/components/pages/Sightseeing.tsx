@@ -17,8 +17,8 @@ const HERO_IMAGE = resolveImage(
         alt: 'Monsoon mist over the forested hills behind the cottages at Chamtaburu Eco Resort, Ajodhya Hills, Purulia',
       }
     : {
-        base: 'village/village-hero-hills',
-        alt: 'Ajodhya Hills view with palm trees near Chamtaburu Eco Village, Purulia',
+        base: 'village/village-campus-hill',
+        alt: 'Forested hill rising behind the campus wall and palms at Chamtaburu Eco Village, Ajodhya Hills',
       },
 );
 const PROPERTY_NOUN = currentSite.key === 'resort' ? 'the resort' : 'the village';

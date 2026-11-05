@@ -13,10 +13,20 @@ import { resolveImage } from '../../content/manifest';
 // Q8) — see src/content/village.ts's `geo: undefined`. Rather than invent
 // coordinates or drive times, this page links out to a Google Maps search
 // by address, which needs no API key and no coordinates.
-const HERO_IMAGE = resolveImage({
-  base: 'village/village-entrance-steps',
-  alt: 'Granite entrance steps with potted plants at a Chamtaburu Eco Village cottage, Ajodhya Hills',
-});
+//
+// Each site uses its own photo: Village photos must never appear on
+// resort.chamtaburu.in and vice versa.
+const HERO_IMAGE = resolveImage(
+  currentSite.key === 'resort'
+    ? {
+        base: 'resort/resort-thatched-huts',
+        alt: 'Two thatched bamboo huts framed by hedge and hills at Chamtaburu Eco Resort, Ajodhya Hills',
+      }
+    : {
+        base: 'village/village-campus-main-building',
+        alt: 'Main building, lawns and red-roofed cottages under a blue sky at Chamtaburu Eco Village, Ajodhya Hills',
+      },
+);
 
 export function Contact() {
   const { address } = currentSite;

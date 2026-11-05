@@ -9,8 +9,8 @@ import { resolveImage } from '../../content/manifest';
 import { formatPrice, formatAdults } from '../../content/format';
 
 const HERO_IMAGE = resolveImage({
-  base: 'village/village-room-wide',
-  alt: 'Wide cottage bedroom interior showing bed, desk area and wood floor at Chamtaburu Eco Village, Ajodhya Hills',
+  base: 'village/village-campus-cottage-swing',
+  alt: 'White cottage with red tile roof, garden swing and lawn at Chamtaburu Eco Village, Ajodhya Hills',
 });
 
 // /cottages — grid of all seven, with price and capacity. Village-only route
