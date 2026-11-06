@@ -98,21 +98,32 @@ window.PACKAGE_CONFIG = {
       bookingManagers: ["resort", "village"],
       address: "Matha, Matha Forest, Baghmundi, Purulia, West Bengal 723152",
       prefix: "CEV",
-      // Per room per night. `tier` picks the Celebration price table; `adults` /
-      // `children` are what the normal rate covers (more are charged as extras);
-      // `max` is the most adults a room takes, with extra mattresses.
+      // Per room per night. `type` is the room's row in the rate calendar
+      // (`rateTypes` below; defaults to the room's `id`), `tier` its package
+      // rate table; `adults` / `children` are what the normal rate covers (more
+      // are charged as extras); `max` is the most adults a room takes, with
+      // extra mattresses. Once a manager saves the rate calendar
+      // (/package/calendar), its rates replace `rate` / `ac`, `packages` and
+      // `seasons` here: those are only its starting values.
       // PLACEHOLDER — cottage `children`.
       rooms: [
-        { id: "shal-shanti", name: "Shal Shanti", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "mahua-ghar", name: "Mahua Ghar", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "palash-kunja", name: "Palash Kunja", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "pahari-chaya", name: "Pahari Chaya", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "jharna-neer", name: "Jharna Neer", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "karam-kunja", name: "Karam Kunja", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "adivasi-aangan", name: "Adivasi Aangan", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "shal-shanti", name: "Shal Shanti", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "mahua-ghar", name: "Mahua Ghar", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "palash-kunja", name: "Palash Kunja", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "pahari-chaya", name: "Pahari Chaya", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "jharna-neer", name: "Jharna Neer", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "karam-kunja", name: "Karam Kunja", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "adivasi-aangan", name: "Adivasi Aangan", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
         { id: "floor-t1", name: "First-floor room T1 (108 / 111)", tier: "room", rate: 2500, adults: 3, children: 1, max: 3 },
         { id: "floor-t2", name: "First-floor room T2 (109 / 110)", tier: "room", rate: 2000, adults: 2, children: 1, max: 2 },
       ],
+      // The rate calendar's rows: one rate covers all seven cottages.
+      rateTypes: [
+        { id: "cottage", name: "Cottage", note: "All seven cottages" },
+        { id: "floor-t1", name: "First-floor room T1", note: "Rooms 108 / 111 · “First-floor Triple Room” on the website" },
+        { id: "floor-t2", name: "First-floor room T2", note: "Rooms 109 / 110 · “First-floor Double Room” on the website" },
+      ],
+      tierNames: { cottage: "Cottages", room: "First-floor rooms" },
       // Package plans: a price per adult per night with all meals included, by
       // how many adults share the room (a table per room `tier`). Fewer adults
       // than the smallest size listed pay as that size; children pay half.
@@ -169,6 +180,14 @@ window.PACKAGE_CONFIG = {
         { id: "four-bedded", name: "Four Bedded", tier: "room", rate: 2100, ac: 2500, adults: 4, children: 0, max: 4 },
         { id: "six-bedded", name: "Six Bedded", tier: "room", rate: 2700, ac: 3300, adults: 6, children: 1, max: 6 },
       ],
+      rateTypes: [
+        { id: "bamboo-cottage", name: "Bamboo Cottage" },
+        { id: "double-bedded", name: "Double Bedded" },
+        { id: "triple-bedded", name: "Triple Bedded" },
+        { id: "four-bedded", name: "Four Bedded" },
+        { id: "six-bedded", name: "Six Bedded" },
+      ],
+      tierNames: { bamboo: "Bamboo Cottage", room: "Rooms (double to six bedded)" },
       // Same rules as the Village packages and seasons above.
       packages: { nonac: null, ac: null }, // PLACEHOLDER
       seasons: [{

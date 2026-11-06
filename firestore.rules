@@ -89,6 +89,32 @@ service cloud.firestore {
         && request.resource.data.f.size() < 20000;
     }
 
+    // The rate calendar (public/package/calendar.js), one document per
+    // property. Anyone can read it: the website's room pages show these rates.
+    // Managers save it, but only for the properties their manager document
+    // lists in `props` (every property when it lists none), recording who
+    // saved last. `base` is the normal rates and `days` each date's changes,
+    // both JSON (see "Rate calendar" in public/package/package-core.js).
+    match /rates/{property} {
+      allow get: if property in ['village', 'resort'];
+      allow list, delete: if false;
+      allow create, update: if isManager()
+        && property in ['village', 'resort']
+        && managesProperty(property)
+        && request.resource.data.keys().hasOnly(['base', 'days', 'updatedBy', 'updatedAt'])
+        && request.resource.data.base is string
+        && request.resource.data.base.size() < 20000
+        && request.resource.data.days is map
+        && request.resource.data.days.size() <= 1000
+        && request.resource.data.updatedBy == managerId()
+        && request.resource.data.updatedAt == request.time;
+
+      function managesProperty(p) {
+        let props = get(/databases/$(database)/documents/managers/$(managerId())).data.get('props', null);
+        return props == null || p in props;
+      }
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

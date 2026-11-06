@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Rate Calendar · Chamtaburu</title>
+<link rel="stylesheet" href="/package/package.css?v=2">
+<!-- Same sign-in as the Package Generator: versions must match auth.js. -->
+<link rel="modulepreload" href="/package/auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js">
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<style>
+body{padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+body.selecting{padding-bottom:calc(320px + env(safe-area-inset-bottom,0px))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0 0}
+.top h1{margin:0;font-size:1.7rem;color:var(--forest);line-height:1.1}
+.top .who{font-size:.85rem;color:var(--muted);text-align:right}
+.top .who a{color:var(--forest)}
+.lock{min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.lock .card{width:100%;max-width:360px;text-align:center}
+.lock h1{margin:0 0 4px;color:var(--forest);font-size:2rem}
+
+/* Tabs and chips */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:999px;padding:4px;margin:14px 0}
+.tabs button{font:inherit;font-size:.9rem;border:0;background:none;color:var(--muted);padding:8px 4px;border-radius:999px;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--forest);color:var(--paper);font-weight:600}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 4px;margin:0 0 4px;scrollbar-width:none}
+.chips button{font:inherit;font-size:.88rem;flex:0 0 auto;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:7px 14px;border-radius:999px;cursor:pointer}
+.chips button[aria-pressed=true]{border-color:var(--forest);background:color-mix(in srgb,var(--forest) 14%,var(--paper));font-weight:600}
+.typeNote{font-size:.84rem;color:var(--muted);margin:0 0 8px}
+
+/* Month calendar */
+.monthNav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px}
+.monthNav h2{margin:0;font-size:1.45rem}
+.monthNav .btn{padding:6px 14px;font-size:1.1rem}
+.quick{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 10px;font-size:.84rem;color:var(--muted)}
+.quick .btn{padding:5px 11px;font-size:.84rem}
+.quick label{display:flex;align-items:center;gap:6px;margin-left:auto}
+.quick input[type=checkbox]{width:18px;height:18px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal .wd{font-size:.72rem;color:var(--muted);text-align:center;padding:2px 0;font-weight:600}
+.day{font:inherit;position:relative;display:flex;flex-direction:column;align-items:stretch;gap:1px;min-height:64px;padding:4px 4px 5px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer;text-align:left;min-width:0;overflow:hidden}
+.day .dn{font-size:.78rem;color:var(--muted);font-weight:600}
+.day .v{font-size:.8rem;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day .v2{font-size:.72rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day.changed{border-color:var(--palash);background:color-mix(in srgb,var(--palash) 9%,var(--bg))}
+.day.changed .v{color:var(--palash)}
+.day.sold{background:color-mix(in srgb,var(--warn) 14%,var(--bg));border-color:var(--warn)}
+.day .so{font-size:.64rem;font-weight:700;color:var(--warn);text-transform:uppercase;letter-spacing:.03em}
+.day.sel{outline:3px solid var(--forest);outline-offset:-1px;background:color-mix(in srgb,var(--forest) 16%,var(--bg))}
+.day.today .dn{color:var(--forest);text-decoration:underline}
+.day:disabled{opacity:.4;cursor:default}
+.day.blank{visibility:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--muted);margin:12px 0 0;padding:0;list-style:none}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--line);vertical-align:-2px;margin-right:5px}
+.legend .l-changed{border-color:var(--palash);background:color-mix(in srgb,var(--palash) 20%,var(--bg))}
+.legend .l-sold{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 25%,var(--bg))}
+.legend .l-sel{border:2px solid var(--forest)}
+
+/* Bottom sheet for the selected dates */
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--paper);border-top:2px solid var(--forest);box-shadow:0 -6px 24px rgba(0,0,0,.15);padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px));max-height:75vh;overflow-y:auto}
+.sheet .head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 8px}
+.sheet .head b{font-size:1rem}
+.sheet .head span{font-size:.84rem;color:var(--muted)}
+.sheet .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.sheet .acts .primary{flex:1 1 auto}
+.chk{display:flex;align-items:center;gap:10px;margin:12px 0 0;font-size:.95rem}
+.pt{width:100%;border-collapse:collapse;font-size:.9rem}
+.pt th{font-weight:500;color:var(--muted);text-align:left;font-size:.8rem;padding:0 6px 4px 0}
+.pt td{padding:3px 6px 3px 0}
+.pt td:first-child{white-space:nowrap;color:var(--muted);width:1%}
+.pt input{padding:7px 8px}
+.hint{font-size:.84rem;color:var(--muted);margin:6px 0 0}
+.hint.warn{color:var(--warn)}
+.baseRow{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:end;padding:8px 0;border-bottom:1px solid var(--line)}
+.baseRow:last-child{border-bottom:none}
+.baseRow .nm{font-size:.92rem;padding-bottom:9px}
+.baseRow .nm small{display:block;color:var(--muted);font-size:.78rem}
+.baseRow label{font-size:.78rem}
+.tierH{font-size:1.1rem;margin:16px 0 4px;color:var(--forest)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--forest);color:var(--paper);padding:8px 16px;border-radius:999px;font-size:.9rem;z-index:7;max-width:calc(100% - 32px);text-align:center}
+body.selecting .toast{bottom:auto;top:16px}
+@media (max-width:420px){
+  .cal{gap:3px}
+  .day{min-height:58px;padding:3px 3px 4px}
+  .day .v{font-size:.74rem}
+  .day .v2{font-size:.66rem}
+  .quick label{margin-left:0;flex-basis:100%}
+}
+</style>
+</head>
+<body>
+
+<section class="lock" id="lock">
+  <div class="card">
+    <p class="muted" style="margin:0">Chamtaburu</p>
+    <h1>Rate Calendar</h1>
+    <p class="muted" id="lockMsg" style="margin:0">Checking sign-in…</p>
+    <p id="lockAct" hidden style="margin:16px 0 0"><a class="btn primary" id="signInLink" href="/package">Sign in on the Package Generator</a></p>
+  </div>
+</section>
+
+<div id="app" hidden>
+  <div class="wrap">
+    <div class="top">
+      <h1>Rate Calendar</h1>
+      <div class="who"><span id="who"></span><br><a id="genLink" href="/package">← Package Generator</a></div>
+    </div>
+
+    <p class="banner" id="notLive" hidden><strong>Not switched on yet.</strong> These are the rates the website and the Package Generator use today. The first change you save switches the calendar on, and from then on both use these rates.</p>
+
+    <div class="card">
+      <label class="f">Property<select id="prop"></select></label>
+      <p class="hint" id="updated"></p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" id="tab-rooms" data-view="rooms" aria-selected="true">Room rates</button>
+      <button type="button" role="tab" id="tab-pkg" data-view="pkg" aria-selected="false">Package rates</button>
+      <button type="button" role="tab" id="tab-base" data-view="base" aria-selected="false">Normal rates</button>
+    </div>
+
+    <p class="hint warn" id="loadErr" hidden></p>
+
+    <section id="calView">
+      <div class="chips" id="chips" role="group" aria-label="Room type"></div>
+      <p class="typeNote" id="typeNote"></p>
+      <div class="card">
+        <div class="monthNav">
+          <button class="btn" type="button" id="prevMonth" aria-label="Previous month">‹</button>
+          <h2 id="monthName" aria-live="polite"></h2>
+          <button class="btn" type="button" id="nextMonth" aria-label="Next month">›</button>
+        </div>
+        <div class="quick">
+          <span>Select:</span>
+          <button class="btn" type="button" data-pick="weekend">Fri &amp; Sat</button>
+          <button class="btn" type="button" data-pick="weekday">Sun – Thu</button>
+          <button class="btn" type="button" data-pick="month">Whole month</button>
+          <button class="btn" type="button" data-pick="none">Clear</button>
+          <label><input type="checkbox" id="rangeMode"> Tap first &amp; last date</label>
+        </div>
+        <div class="cal" id="grid"></div>
+        <ul class="legend" id="legend"></ul>
+      </div>
+      <p class="hint" id="calHint"></p>
+    </section>
+
+    <section id="baseView" hidden>
+      <div class="card">
+        <h2>Normal rates</h2>
+        <p class="hint" style="margin:0 0 6px">Used on every date you haven't changed in the calendar.</p>
+        <h3 class="tierH">Room rates · per room per night</h3>
+        <div id="baseRooms"></div>
+        <div id="basePkg"></div>
+        <div class="acts" style="margin-top:14px;display:flex;gap:8px">
+          <button class="btn primary" type="button" id="saveBase">Save normal rates</button>
+          <button class="btn" type="button" id="undoBase">Undo changes</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="wrap">
+    <div class="head"><b id="selCount"></b><span id="selRange"></span></div>
+    <div id="sheetRooms">
+      <div class="grid">
+        <label class="f">Rate per night (₹)<input id="sRate" type="number" inputmode="numeric" min="1" placeholder="Normal rate"></label>
+        <label class="f" id="sAcLbl">AC rate per night (₹)<input id="sAc" type="number" inputmode="numeric" min="1" placeholder="Normal rate"></label>
+      </div>
+      <label class="chk"><input type="checkbox" id="sSold"> Sold out: the website shows “Sold out” for these dates</label>
+    </div>
+    <div id="sheetPkg">
+      <label class="f">Name on the package (optional)<input id="sLabel" maxlength="60" placeholder="e.g. Celebration Package"></label>
+      <table class="pt" style="margin-top:10px"><thead><tr><th>Adults in the room</th><th>Non-AC ₹ / adult</th><th>AC ₹ / adult</th></tr></thead><tbody id="sTable"></tbody></table>
+    </div>
+    <p class="hint" id="sHint"></p>
+    <div class="acts">
+      <button class="btn primary" type="button" id="sSave">Save</button>
+      <button class="btn" type="button" id="sReset">Back to normal rate</button>
+      <button class="btn" type="button" id="sCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="/package/rates.js?v=2"></script>
+<script src="/package/package-core.js?v=2"></script>
+<script src="/package/calendar.js?v=1"></script>
+</body>
+</html>

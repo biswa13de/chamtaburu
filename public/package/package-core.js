@@ -30,7 +30,95 @@
     return (window.PACKAGE_CONFIG.events || []).filter((e) => ci <= e.to && co > e.from);
   }
 
+  /*
+   * Rate calendar (/package/calendar): one Firestore document per property,
+   * rates/{village|resort}, also read by the website's room pages. `base`
+   * (JSON) is the normal rates; `days` maps "YYYY-MM-DD" to that date's
+   * changes (JSON):
+   *   base { rooms: { <type>: { rate, ac } }, pkg: { <tier>: { nonac, ac } } }
+   *   day  { rooms: { <type>: { rate?, ac?, soldOut? } }, pkg: { <tier>: { label?, nonac?, ac? } } }
+   * `nonac` / `ac` are package tables (adults sharing → price per adult). A
+   * date's package entry replaces the tier's normal tables on that date, as a
+   * rates.js season did; `label` names it on the package ("Celebration
+   * Package"). A room's type is its rates.js `type`, else its `id`.
+   *
+   * Once loaded into `prop.calendar` it replaces rates.js `rate` / `ac`,
+   * `packages` and `seasons`. Until a manager first saves the calendar there
+   * is no document, and rates.js applies as before.
+   */
+  const typeOf = (room) => room.type || room.id;
+  const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+  function parseCalendar(f) {
+    const json = (v, fallback) => { try { return JSON.parse(v); } catch { return fallback; } };
+    const days = {};
+    const df = (f.days && f.days.mapValue && f.days.mapValue.fields) || {};
+    Object.keys(df).forEach((d) => { if (DATE_RE.test(d)) days[d] = json(df[d].stringValue, {}); });
+    const base = json(str(f, "base"), {});
+    return { base: { rooms: base.rooms || {}, pkg: base.pkg || {} }, days, updatedBy: str(f, "updatedBy"), updatedAt: (f.updatedAt && f.updatedAt.timestampValue) || "" };
+  }
+
+  // null = not set up yet (no document).
+  async function loadCalendar(propKey) {
+    const res = await fetch(`${API}/rates/${propKey}`, { cache: "no-store" });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error("calendar load failed: " + res.status);
+    return parseCalendar((await res.json()).fields || {});
+  }
+
+  // A room type on one date. `rate` / `ac` null = not set in the calendar.
+  function calRoom(cal, type, date) {
+    const b = (cal.base.rooms || {})[type] || {};
+    const d = (((cal.days[date] || {}).rooms) || {})[type] || {};
+    return { rate: d.rate ?? b.rate ?? null, ac: d.ac ?? b.ac ?? null, soldOut: !!d.soldOut, changed: d.rate != null || d.ac != null };
+  }
+
+  // A package tier's tables on one date: the date's own, else the normal ones.
+  function calPackage(cal, tier, date) {
+    const d = (((cal.days[date] || {}).pkg) || {})[tier];
+    if (d) return { nonac: d.nonac || null, ac: d.ac || null, label: d.label || "", changed: true };
+    const b = (cal.base.pkg || {})[tier] || {};
+    return { nonac: b.nonac || null, ac: b.ac || null, label: "", changed: false };
+  }
+
+  /*
+   * Saves calendar changes. `changes.base` replaces the normal rates;
+   * `changes.days[date]` replaces that date's changes, or null removes them.
+   * Only those fields are written, so two managers editing different dates
+   * don't overwrite each other. `create` writes the whole document, the first
+   * time (`changes` must then hold the full base and every date).
+   */
+  async function saveCalendar(propKey, changes, idToken, phone, create) {
+    const fields = { updatedBy: { stringValue: phone } };
+    const mask = ["updatedBy"];
+    if (changes.base) { fields.base = { stringValue: JSON.stringify(changes.base) }; mask.push("base"); }
+    const days = Object.entries(changes.days || {});
+    if (days.length || create) {
+      const dayFields = {};
+      days.forEach(([d, v]) => {
+        if (!DATE_RE.test(d)) throw new Error("bad date " + d);
+        mask.push("days.`" + d + "`");
+        if (v) dayFields[d] = { stringValue: JSON.stringify(v) };
+      });
+      fields.days = { mapValue: { fields: dayFields } };
+    }
+    const write = { update: { name: `${DB}/rates/${propKey}`, fields }, updateTransforms: [{ fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" }] };
+    if (create) write.currentDocument = { exists: false };
+    else Object.assign(write, { updateMask: { fieldPaths: mask }, currentDocument: { exists: true } });
+    const res = await fetch(API + ":commit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+      body: JSON.stringify({ writes: [write] }),
+    });
+    if (!res.ok) throw Object.assign(new Error("calendar save failed: " + res.status), { status: res.status });
+  }
+
   function nightlyRate(prop, room, ac, date) {
+    if (prop.calendar) {
+      const c = calRoom(prop.calendar, typeOf(room), date);
+      const rate = ac && room.ac && c.ac ? c.ac : c.rate;
+      return { rate: rate ?? (ac && room.ac ? room.ac : room.rate), season: null, soldOut: c.soldOut };
+    }
     const base = ac && room.ac ? room.ac : room.rate;
     const s = seasonFor(prop, date);
     // A season that only sets package rates leaves the Room only rate alone.
@@ -66,6 +154,12 @@
   // The package rate table for a room on one night: the season's if it has
   // one, else the property's; AC falls back to Non-AC (`fallback` set).
   function packageTable(prop, room, ac, date) {
+    if (prop.calendar) {
+      const c = calPackage(prop.calendar, room.tier, date);
+      const season = c.label || null;
+      if (ac && c.ac) return { table: c.ac, season };
+      return { table: c.nonac, season, fallback: ac && !!c.nonac };
+    }
     const s = seasonFor(prop, date);
     const src = s && s.packages ? s.packages : prop.packages || {};
     const pick = (kind) => src[kind] && src[kind][room.tier];
@@ -101,7 +195,7 @@
     const plus = (a, k, rateA, rateK) => [a && plural(a, "adult") + " × " + inr(rateA), k && kids(k) + " × " + inr(rateK)].filter(Boolean).join(" + ");
 
     let adults = 0, children = 0, extraA = 0, extraK = 0;
-    const noRate = [], acFallback = [];
+    const noRate = [], acFallback = [], soldOut = {};
     st.rooms.forEach((r, ri) => {
       const room = prop.rooms.find((x) => x.id === r.id);
       if (!room || !r.q) return;
@@ -118,6 +212,7 @@
       const groups = [];
       for (let i = 0; i < nights; i++) {
         const date = addDays(st.ci, i);
+        if (prop.calendar && calRoom(prop.calendar, typeOf(room), date).soldOut) (soldOut[room.name] = soldOut[room.name] || new Set()).add(date);
         let g;
         if (pkg) {
           const t = packageTable(prop, room, ac, date);
@@ -150,6 +245,7 @@
     });
     [...new Set(noRate)].forEach((name) => warnings.push(`${name}: no package rate for these dates. Type the rate per adult in the room row.`));
     [...new Set(acFallback)].forEach((when) => warnings.push(`No AC package rate set for ${when}, so the Non-AC rate is shown. Check the price.`));
+    Object.entries(soldOut).forEach(([name, dates]) => warnings.push(`${name} is marked sold out on ${[...dates].map(fmtDate).join(", ")} in the rate calendar.`));
 
     // Room only: guests above what the room rates cover, and extra beds. A package covers them.
     if (!pkg) {
@@ -417,5 +513,5 @@
   }
   const legendHtml = () => `<ul class="legend" aria-label="Legend">${Object.entries(DISH_TYPES).map(([k, v]) => `<li class="${k}"><span class="dot"></span>${v}</li>`).join("")}</ul>`;
 
-  window.PKG = { esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
+  window.PKG = { typeOf, loadCalendar, calRoom, calPackage, saveCalendar, nightlyRate, esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
 })();

@@ -21,7 +21,7 @@
  * SHARED_GALLERY comment for the `base` key convention.
  */
 
-import type { Cottage, Experience, ImageRef, SiteConfig } from './types';
+import type { Cottage, Experience, ImageRef, Room, SiteConfig } from './types';
 import { validateCottages, validateExperiences, validateSiteConfig } from './validate';
 
 export const village: SiteConfig = {
@@ -118,6 +118,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
+    rateType: 'cottage',
     amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
@@ -143,6 +144,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
+    rateType: 'cottage',
     amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
@@ -168,6 +170,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
+    rateType: 'cottage',
     amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
@@ -186,6 +189,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
+    rateType: 'cottage',
     amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
@@ -204,6 +208,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
+    rateType: 'cottage',
     amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
@@ -222,6 +227,7 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
+    rateType: 'cottage',
     amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
@@ -248,9 +254,34 @@ export const cottages: Cottage[] = [
     occupancy: { adults: 'TBD' },
     beds: 'TBD',
     price: 'TBD',
+    rateType: 'cottage',
     amenities: VILLAGE_COTTAGE_AMENITIES,
     images: SHARED_GALLERY,
     available: false,
+  },
+];
+
+/**
+ * The first-floor rooms, rows T1 and T2 in the rate calendar and the package
+ * generator (public/package/rates.js: rooms 108 / 111 and 109 / 110).
+ * Occupancy is what the room's rate covers there. Prices are 'TBD' here: the
+ * rate calendar's live rates replace them. No photographs of these rooms yet,
+ * so they're listed without one rather than with a cottage's.
+ */
+export const rooms: Room[] = [
+  {
+    slug: 'floor-t1',
+    name: 'First-floor Triple Room',
+    description: 'A first-floor room for small families or groups of three.',
+    occupancy: { adults: 3, children: 1 },
+    price: 'TBD',
+  },
+  {
+    slug: 'floor-t2',
+    name: 'First-floor Double Room',
+    description: 'A first-floor room for couples.',
+    occupancy: { adults: 2, children: 1 },
+    price: 'TBD',
   },
 ];
 
