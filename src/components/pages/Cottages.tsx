@@ -4,9 +4,12 @@ import { Section } from '../ui/Section';
 import { Card } from '../ui/Card';
 import { Image } from '../ui/Image';
 import { Seo } from '../ui/Seo';
-import { village, cottages } from '../../content/village';
+import { RoomPrice } from '../ui/RoomPrice';
+import { StayDates } from '../ui/StayDates';
+import { stayQuery, useStayDates } from '../../lib/stayDates';
+import { village, cottages, rooms } from '../../content/village';
 import { resolveImage } from '../../content/manifest';
-import { formatPrice, formatAdults } from '../../content/format';
+import { formatAdults } from '../../content/format';
 
 const HERO_IMAGE = resolveImage({
   base: 'village/village-campus-cottage-swing',
@@ -17,6 +20,7 @@ const HERO_IMAGE = resolveImage({
 // (docs/01-strategy.md §3): the Resort has no cottages, so this page and
 // component are never wired into the Resort route tree.
 export function Cottages() {
+  const { checkIn, checkOut } = useStayDates();
   return (
     <div className="pb-24">
       <Seo
@@ -32,6 +36,10 @@ export function Cottages() {
       />
 
       <Section className="mt-16">
+        <StayDates note="Prices are per room per night, before GST." />
+      </Section>
+
+      <Section className="mt-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {cottages.map((cottage) => {
             // Build-time validation (src/content/validate.ts) guarantees every
@@ -45,7 +53,7 @@ export function Cottages() {
             const coverImage = resolveImage(coverImageRef);
             return (
               <Card key={cottage.slug}>
-                <Link to={`/cottages/${cottage.slug}`}>
+                <Link to={`/cottages/${cottage.slug}${stayQuery(checkIn, checkOut)}`}>
                   <Image
                     src={coverImage.fallbackSrc}
                     avifSrcSet={coverImage.avifSrcSet}
@@ -62,7 +70,10 @@ export function Cottages() {
                   <p className="text-forest text-[10px] font-bold tracking-widest uppercase">
                     {cottage.number} · {cottage.theme}
                   </p>
-                  <Link to={`/cottages/${cottage.slug}`} className="hover:text-forest block">
+                  <Link
+                    to={`/cottages/${cottage.slug}${stayQuery(checkIn, checkOut)}`}
+                    className="hover:text-forest block"
+                  >
                     <h3 className="text-lg font-bold">{cottage.name}</h3>
                   </Link>
                   <p className="text-stone text-xs leading-relaxed">{cottage.tagline}</p>
@@ -75,11 +86,11 @@ export function Cottages() {
                     <span>{formatAdults(cottage.occupancy.adults)}</span>
                     <span>{cottage.beds === 'TBD' ? 'Beds TBD' : cottage.beds}</span>
                   </div>
-                  <div className="flex items-center justify-between pt-4">
-                    <span className="text-ink font-bold">{formatPrice(cottage.price)}</span>
+                  <div className="flex items-center justify-between gap-3 pt-4">
+                    <RoomPrice type={cottage.rateType ?? cottage.slug} price={cottage.price} />
                     <Link
-                      to={`/cottages/${cottage.slug}`}
-                      className="bg-forest/10 text-forest hover:bg-forest inline-flex items-center justify-center gap-2 rounded-full px-5 py-2 text-[10px] font-bold tracking-[0.2em] uppercase transition-colors hover:text-white"
+                      to={`/cottages/${cottage.slug}${stayQuery(checkIn, checkOut)}`}
+                      className="bg-forest/10 text-forest hover:bg-forest inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-2 text-[10px] font-bold tracking-[0.2em] uppercase transition-colors hover:text-white"
                     >
                       View
                     </Link>
@@ -88,6 +99,38 @@ export function Cottages() {
               </Card>
             );
           })}
+        </div>
+      </Section>
+
+      <Section className="mt-16">
+        <h2 className="mb-2 font-serif text-3xl font-medium">First-floor Rooms</h2>
+        <p className="text-stone mb-6 max-w-2xl text-sm leading-relaxed">
+          Two rooms on the first floor, alongside the seven cottages.
+        </p>
+        <div className="grid gap-8 sm:grid-cols-2">
+          {rooms.map((room) => (
+            <Card key={room.slug}>
+              <div className="space-y-3 p-6">
+                <h3 className="text-lg font-bold">{room.name}</h3>
+                <p className="text-stone text-xs leading-relaxed">{room.description}</p>
+                <p className="text-stone pt-2 text-xs">
+                  {formatAdults(room.occupancy.adults)}
+                  {room.occupancy.children
+                    ? ` + ${room.occupancy.children} child${room.occupancy.children === 1 ? '' : 'ren'}`
+                    : ''}
+                </p>
+                <div className="flex items-center justify-between gap-3 pt-4">
+                  <RoomPrice type={room.slug} price={room.price} />
+                  <Link
+                    to={`/contact${stayQuery(checkIn, checkOut, { cottage: room.slug })}`}
+                    className="bg-forest/10 text-forest hover:bg-forest inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-2 text-[10px] font-bold tracking-[0.2em] uppercase transition-colors hover:text-white"
+                  >
+                    Enquire
+                  </Link>
+                </div>
+              </div>
+            </Card>
+          ))}
         </div>
       </Section>
     </div>

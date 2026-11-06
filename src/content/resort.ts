@@ -124,7 +124,7 @@ export const accommodation: Cottage[] = [
     slug: 'triple-bedded',
     number: '03',
     name: 'Triple Bedded',
-    tagline: 'A three-bed room for small families or groups. AC available for ₹2,200 / night.',
+    tagline: 'A three-bed room for small families or groups. AC available.',
     theme: 'Triple Bedded',
     inspiration: 'A larger room for three guests travelling together.',
     story:
@@ -133,6 +133,7 @@ export const accommodation: Cottage[] = [
     occupancy: { adults: 3, children: 1 },
     beds: '2 Queen Beds',
     price: 1800,
+    acPrice: 2200,
     amenities: ['attached-bathroom', 'breakfast'],
     images: [
       {
@@ -154,7 +155,7 @@ export const accommodation: Cottage[] = [
     slug: 'four-bedded',
     number: '04',
     name: 'Four Bedded',
-    tagline: 'A four-bed room for groups or larger families. AC available for ₹2,500 / night.',
+    tagline: 'A four-bed room for groups or larger families. AC available.',
     theme: 'Four Bedded',
     inspiration: 'A spacious room for four guests travelling together.',
     story:
@@ -163,6 +164,7 @@ export const accommodation: Cottage[] = [
     occupancy: { adults: 4 },
     beds: '2 Queen Beds',
     price: 2100,
+    acPrice: 2500,
     amenities: ['attached-bathroom', 'breakfast'],
     images: [
       {
@@ -184,7 +186,7 @@ export const accommodation: Cottage[] = [
     slug: 'six-bedded',
     number: '05',
     name: 'Six Bedded',
-    tagline: 'Our largest room, for bigger groups. AC available for ₹3,300 / night.',
+    tagline: 'Our largest room, for bigger groups. AC available.',
     theme: 'Six Bedded',
     inspiration: 'The resort’s largest room, built for groups travelling together.',
     story:
@@ -193,6 +195,7 @@ export const accommodation: Cottage[] = [
     occupancy: { adults: 6, children: 1 },
     beds: '2 King Beds',
     price: 2700,
+    acPrice: 3300,
     amenities: ['attached-bathroom', 'breakfast'],
     images: [
       {

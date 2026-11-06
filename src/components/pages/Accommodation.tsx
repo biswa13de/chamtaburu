@@ -4,9 +4,12 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Image } from '../ui/Image';
 import { Seo } from '../ui/Seo';
+import { RoomPrice } from '../ui/RoomPrice';
+import { StayDates } from '../ui/StayDates';
+import { stayQuery, useStayDates } from '../../lib/stayDates';
 import { resort, accommodation } from '../../content/resort';
 import { resolveImage } from '../../content/manifest';
-import { formatPrice, formatAdults } from '../../content/format';
+import { formatAdults } from '../../content/format';
 
 const HERO_IMAGE = resolveImage({
   base: 'resort/resort-room-bamboo-cottage',
@@ -20,6 +23,7 @@ const HERO_IMAGE = resolveImage({
 // they exist and an honest "coming soon" note while the array is empty —
 // never fabricated room types or prices.
 export function Accommodation() {
+  const { checkIn, checkOut } = useStayDates();
   return (
     <div className="pb-24">
       <Seo
@@ -29,7 +33,13 @@ export function Accommodation() {
       />
       <Hero image={HERO_IMAGE} heading="Accommodation" subheading={resort.name} size="compact" />
 
-      <Section className="mt-16">
+      {accommodation.length > 0 && (
+        <Section className="mt-16">
+          <StayDates note="Prices are per room per night, with breakfast, before GST." />
+        </Section>
+      )}
+
+      <Section className={accommodation.length > 0 ? 'mt-8' : 'mt-16'}>
         {accommodation.length === 0 ? (
           <Card className="p-10 text-center">
             <h2 className="mb-2 font-serif text-2xl font-medium">Room details coming soon</h2>
@@ -69,9 +79,17 @@ export function Accommodation() {
                       <span>{formatAdults(room.occupancy.adults)}</span>
                       <span>{room.beds === 'TBD' ? 'Beds TBD' : room.beds}</span>
                     </div>
-                    <div className="flex items-center justify-between pt-4">
-                      <span className="text-ink font-bold">{formatPrice(room.price)}</span>
-                      <Button to="/contact" variant="secondary" className="px-5 py-2 text-[10px]">
+                    <div className="flex items-center justify-between gap-3 pt-4">
+                      <RoomPrice
+                        type={room.rateType ?? room.slug}
+                        price={room.price}
+                        acPrice={room.acPrice}
+                      />
+                      <Button
+                        to={`/contact${stayQuery(checkIn, checkOut, { cottage: room.name })}`}
+                        variant="secondary"
+                        className="shrink-0 px-5 py-2 text-[10px]"
+                      >
                         Enquire
                       </Button>
                     </div>

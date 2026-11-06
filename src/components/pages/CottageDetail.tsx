@@ -10,7 +10,10 @@ import { Seo } from '../ui/Seo';
 import { cottages, village } from '../../content/village';
 import { currentSite } from '../../content/site';
 import { resolveImage } from '../../content/manifest';
-import { formatPrice, formatAdults, AMENITY_LABELS } from '../../content/format';
+import { formatAdults, AMENITY_LABELS } from '../../content/format';
+import { RoomPrice } from '../ui/RoomPrice';
+import { StayDates } from '../ui/StayDates';
+import { stayQuery, useStayDates } from '../../lib/stayDates';
 import { buildBreadcrumbJsonLd, buildLodgingBusinessJsonLd } from '../../lib/seo';
 import type { Cottage } from '../../content/types';
 
@@ -40,6 +43,7 @@ function CottageGallery({ cottage }: { cottage: Cottage }) {
 
 export function CottageDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const { checkIn, checkOut } = useStayDates();
   const cottage = cottages.find((c) => c.slug === slug);
 
   if (!cottage) {
@@ -159,14 +163,18 @@ export function CottageDetail() {
         </Section>
       )}
 
-      {/* 7. Price + Enquire CTA */}
+      {/* 7. Dates, price + Enquire CTA */}
       <Section className="mt-16">
-        <Card className="flex flex-col items-center gap-4 p-10 text-center sm:flex-row sm:justify-between sm:text-left">
+        <StayDates note="Prices are per room per night, before GST." />
+        <Card className="mt-4 flex flex-col items-center gap-4 p-10 text-center sm:flex-row sm:justify-between sm:text-left">
           <div>
             <p className="text-stone text-[10px] font-bold tracking-widest uppercase">Price</p>
-            <p className="text-ink text-2xl font-bold">{formatPrice(cottage.price)}</p>
+            <RoomPrice type={cottage.rateType ?? cottage.slug} price={cottage.price} large />
           </div>
-          <Button to={`/contact?cottage=${cottage.slug}`} variant="primary">
+          <Button
+            to={`/contact${stayQuery(checkIn, checkOut, { cottage: cottage.slug })}`}
+            variant="primary"
+          >
             Enquire About {cottage.name}
           </Button>
         </Card>

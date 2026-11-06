@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { currentSite } from '../../content/site';
-import { cottages } from '../../content/village';
+import { cottages, rooms } from '../../content/village';
 import { Button } from './Button';
 
 /**
@@ -67,15 +67,25 @@ type Errors = Partial<Record<keyof FormState, string>>;
 interface EnquiryFormProps {
   /** Preselect a cottage (e.g. arriving from a cottage detail page's "Enquire" button). */
   initialCottage?: string;
+  /** Preselect the stay dates ("YYYY-MM-DD"), e.g. from the room list's date picker. */
+  initialCheckIn?: string;
+  initialCheckOut?: string;
   className?: string;
 }
 
-export function EnquiryForm({ initialCottage, className = '' }: EnquiryFormProps) {
+export function EnquiryForm({
+  initialCottage,
+  initialCheckIn,
+  initialCheckOut,
+  className = '',
+}: EnquiryFormProps) {
   const idPrefix = useId();
   const isVillage = currentSite.key === 'village';
   const [values, setValues] = useState<FormState>({
     ...INITIAL_STATE,
     cottage: initialCottage ?? '',
+    checkIn: initialCheckIn ?? '',
+    checkOut: initialCheckOut ?? '',
   });
   const [errors, setErrors] = useState<Errors>({});
   const [whatsappHref, setWhatsappHref] = useState<string | null>(null);
@@ -97,7 +107,7 @@ export function EnquiryForm({ initialCottage, className = '' }: EnquiryFormProps
     }
 
     if (isVillage && !values.cottage) {
-      next.cottage = 'Please select a cottage.';
+      next.cottage = 'Please select a cottage or room.';
     }
 
     const adultsNum = Number(values.adults);
@@ -125,13 +135,15 @@ export function EnquiryForm({ initialCottage, className = '' }: EnquiryFormProps
 
   function buildMessage(normalizedPhone: string): string {
     const cottageName = isVillage
-      ? (cottages.find((c) => c.slug === values.cottage)?.name ?? values.cottage)
+      ? ([...cottages, ...rooms].find((c) => c.slug === values.cottage)?.name ?? values.cottage)
       : values.cottage || undefined;
 
     const lines = [
       `Hi ${currentSite.name}! I'd like to enquire about a booking.`,
       '',
-      ...(cottageName ? [`Cottage: ${cottageName}`] : []),
+      ...(cottageName
+        ? [`${rooms.some((r) => r.slug === values.cottage) ? 'Room' : 'Cottage'}: ${cottageName}`]
+        : []),
       `Check-in: ${formatDateForMessage(values.checkIn)}`,
       `Check-out: ${formatDateForMessage(values.checkOut)}`,
       `Guests: ${values.adults} adult${values.adults === '1' ? '' : 's'}${
@@ -238,7 +250,7 @@ export function EnquiryForm({ initialCottage, className = '' }: EnquiryFormProps
 
       <div>
         <label htmlFor={fieldId('cottage')} className={labelClass}>
-          {isVillage ? 'Cottage' : 'What are you interested in?'}
+          {isVillage ? 'Cottage or room' : 'What are you interested in?'}
         </label>
         {isVillage ? (
           <select
@@ -249,12 +261,21 @@ export function EnquiryForm({ initialCottage, className = '' }: EnquiryFormProps
             aria-invalid={Boolean(errors.cottage)}
             aria-describedby={errors.cottage ? errorId('cottage') : undefined}
           >
-            <option value="">Select a cottage</option>
-            {cottages.map((cottage) => (
-              <option key={cottage.slug} value={cottage.slug}>
-                {cottage.number} · {cottage.name}
-              </option>
-            ))}
+            <option value="">Select a cottage or room</option>
+            <optgroup label="Cottages">
+              {cottages.map((cottage) => (
+                <option key={cottage.slug} value={cottage.slug}>
+                  {cottage.number} · {cottage.name}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="First-floor rooms">
+              {rooms.map((room) => (
+                <option key={room.slug} value={room.slug}>
+                  {room.name}
+                </option>
+              ))}
+            </optgroup>
           </select>
         ) : (
           <input

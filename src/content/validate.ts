@@ -86,6 +86,17 @@ export function validateCottages(cottages: Cottage[]): void {
     }
 
     assert(
+      cottage.acPrice === undefined ||
+        cottage.acPrice === 'TBD' ||
+        (typeof cottage.acPrice === 'number' && cottage.acPrice > 0),
+      `${ctx}: acPrice must be a positive number, 'TBD', or omitted`,
+    );
+    assert(
+      cottage.rateType === undefined || (typeof cottage.rateType === 'string' && SLUG_RE.test(cottage.rateType)),
+      `${ctx}: rateType must be lowercase-hyphenated, or omitted`,
+    );
+
+    assert(
       cottage.extraBedPrice === undefined || cottage.extraBedPrice === 'TBD' || typeof cottage.extraBedPrice === 'number',
       `${ctx}: extraBedPrice must be a number, 'TBD', or omitted`,
     );

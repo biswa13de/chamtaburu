@@ -7,6 +7,7 @@ import { EnquiryForm } from '../ui/EnquiryForm';
 import { Seo } from '../ui/Seo';
 import { currentSite } from '../../content/site';
 import { resolveImage } from '../../content/manifest';
+import { isDate } from '../../lib/liveRates';
 
 // Real embedded map / drive times need a Maps API key and confirmed geo
 // coordinates, neither of which exist yet (docs/06-open-questions.md Q6,
@@ -43,6 +44,13 @@ export function Contact() {
   // what they already told us they were interested in.
   const [searchParams] = useSearchParams();
   const initialCottage = searchParams.get('cottage') ?? undefined;
+  // And the dates picked on the room list (src/components/ui/StayDates.tsx).
+  const initialCheckIn = isDate(searchParams.get('in'))
+    ? (searchParams.get('in') ?? undefined)
+    : undefined;
+  const initialCheckOut = isDate(searchParams.get('out'))
+    ? (searchParams.get('out') ?? undefined)
+    : undefined;
 
   return (
     <div className="pb-24">
@@ -56,7 +64,11 @@ export function Contact() {
       <Section className="mt-16">
         <h2 className="mb-6 font-serif text-3xl font-medium">Send an Enquiry</h2>
         <Card className="max-w-2xl p-8">
-          <EnquiryForm initialCottage={initialCottage} />
+          <EnquiryForm
+            initialCottage={initialCottage}
+            initialCheckIn={initialCheckIn}
+            initialCheckOut={initialCheckOut}
+          />
         </Card>
       </Section>
 

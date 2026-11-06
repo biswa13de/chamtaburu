@@ -196,9 +196,24 @@
     $("exclusions").value = prop.exclusions.join("\n");
     const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname); // no clean URLs in local dev
     $("menuLink").href = `/package/menu${local ? ".html" : ""}?p=${key}`;
+    $("calLink").href = `/package/calendar${local ? ".html" : ""}?p=${key}`;
     syncEvents();
     renderRooms();
     renderAddons();
+    loadCalendar(key);
+  }
+
+  // The rate calendar's rates replace rates.js once it exists (P.loadCalendar).
+  // Until it loads, or if it can't, the rates.js rates show.
+  const calendars = {};
+  function loadCalendar(key) {
+    if (!calendars[key]) calendars[key] = P.loadCalendar(key).catch((e) => { console.error(e); delete calendars[key]; return null; });
+    calendars[key].then((cal) => {
+      C.properties[key].calendar = cal;
+      if (key !== propKey) return;
+      renderRooms();
+      update();
+    });
   }
 
   /* ---------- Rooms & add-ons ---------- */
@@ -212,7 +227,8 @@
       const room = prop.rooms.find((x) => x.id === r.id) || prop.rooms[0];
       const opts = prop.rooms.map((x) => {
         const cap = "up to " + (x.max || x.adults) + " adults";
-        return `<option value="${x.id}"${x.id === room.id ? " selected" : ""}>${P.esc(x.name)} — ${P.inr(x.rate)} · ${cap}</option>`;
+        const rate = P.nightlyRate(prop, x, false, $("ci").value || P.today()).rate;
+        return `<option value="${x.id}"${x.id === room.id ? " selected" : ""}>${P.esc(x.name)} — ${P.inr(rate)} · ${cap}</option>`;
       }).join("");
       return `<div class="row" data-i="${i}">
         <select data-k="id" aria-label="Room type">${opts}</select>
@@ -434,6 +450,7 @@
       if (!$("co").value || $("co").value <= $("ci").value) $("co").value = P.addDays($("ci").value, 1);
     }
     if (e.target.id === "ci" || e.target.id === "co") syncEvents();
+    if (e.target.id === "ci") renderRooms(); // the room list shows each room's rate on the check-in date
     update();
   });
   $("form").addEventListener("submit", (e) => e.preventDefault());

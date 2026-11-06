@@ -60,6 +60,7 @@ guest on WhatsApp in one tap.
 | `public/package/auth.js`                                 | Firebase phone sign-in (SDK from gstatic, invisible reCAPTCHA)                                           |
 | `/p/<code>` → `view.html`, `view.js`                     | Guest page the WhatsApp link opens: breakdown, inclusions, pay + confirm buttons                         |
 | `/package/menu` → `menu.html`, `menu.js`                 | The package menu to share: Share, Copy menu as text (for WhatsApp), Save as PDF (one A4 page)            |
+| `/package/calendar` → `calendar.html`, `calendar.js`     | The rate calendar: room rates, package rates and sold-out dates by date (see "Rate calendar" below)      |
 | `public/package/rates.js`                                | **The one file to edit** for prices — rates, meals, add-ons, GST, advance, UPI, approved contact numbers |
 | Firestore `managers` collection                          | Who may sign in (Firebase console, not in the repo)                                                      |
 | `public/package/package-core.js`                         | Shared price maths + saving / loading quotes                                                             |
@@ -121,6 +122,27 @@ To change a password: delete the user, add it again with the new password, and u
 - Old long `#q=` links sent before v2 still open.
 - Scripts in `public/package` and `public/menu` are served `no-cache`, so an edit to `rates.js` reaches every phone on its next visit. (Before 2026-10-26 they were cached for a year; the `?v=2` on the script tags got phones holding those old copies onto the new files.)
 - The Packages list shows the latest 60. Any older quote still opens at `/p/<code>` from its Ref.
+
+### Rate calendar (2026-11-07)
+
+Managers change room rates, package rates and sold-out dates at **`/package/calendar`** (also linked under Property in the generator). Same sign-in as the generator: a manager signed in there is signed in here.
+
+- **Room rates**: one row per room type. The Village has three: **Cottage** (one rate for all seven), **First-floor room T1** (108 / 111, "First-floor Triple Room" on the website) and **T2** (109 / 110, "First-floor Double Room"). The Resort has its five rooms, with an AC rate where the room has AC. Tap dates (or **Fri & Sat**, **Sun – Thu**, **Whole month**, or tap first and last date), type the rate, tick **Sold out** if needed, **Save**. **Back to normal rate** undoes a date.
+- **Package rates**: per package tier (Village: cottages, first-floor rooms; Resort: Bamboo Cottage, other rooms), price per adult by how many adults share, Non-AC and AC, with an optional name shown on the package ("Celebration Package").
+- **Normal rates**: what every date uses unless changed in the calendar.
+
+Where it shows, as soon as it's saved (no deploy):
+
+- **Website**: `/cottages`, `/cottages/<slug>` (Village) and `/accommodation` (Resort) have a check-in / check-out picker. Each room shows the price for those dates (or tonight's rate per night), "Sold out" on dates marked so, and the AC price where there is one. Enquire carries the room and dates into the enquiry form.
+- **Package Generator**: Room only and package prices per night come from the calendar, and a sold-out night shows a warning.
+
+How it's stored: Firestore `rates/village` and `rates/resort` (shape in `package-core.js`, "Rate calendar"). Anyone can read them; `firestore.rules` lets a manager save only the properties in their `props` (all when it has none). Dates more than a week past are dropped on save.
+
+**Switching it on:** until a manager first saves, there is no document, so the website keeps its built-in prices (the Village's say "Price to be announced") and the generator keeps the `rates.js` rates. The calendar page starts from those `rates.js` rates and the Celebration Package dates, so the first save carries them over. After that, room rates, package rates and seasons in `rates.js` are not used; extras, add-ons, GST, advance and terms still are.
+
+One-time, after merging: deploy the rules with `firebase deploy --only firestore:rules`. Until then nobody can save the calendar (the website and generator just carry on as before).
+
+To try the room pages locally without Firestore, build with `VITE_RATES_URL=/test-rates.json` and put a document in that shape in `dist/<site>/`. `/package/calendar.html?demo` on localhost shows the calendar without signing in or saving.
 
 ### Celebration Package rates (20 Dec 2026 – 1 Jan 2027, Package (Non-AC), per adult per night, all meals)
 

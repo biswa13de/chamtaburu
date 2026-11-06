@@ -75,6 +75,11 @@ export interface Cottage {
   occupancy: { adults: number | 'TBD'; children?: number };
   beds: string | 'TBD'; // '1 King Bed', or 'TBD' until confirmed
   price: Price; // per night, INR, before GST
+  acPrice?: Price; // the AC version's price, for rooms that have one
+  // The room's row in the manager's rate calendar (src/lib/liveRates.ts),
+  // whose rates replace `price` / `acPrice` on the site once set. Defaults to
+  // `slug`; the seven Village cottages share one rate, 'cottage'.
+  rateType?: string;
   extraBedPrice?: Price;
   amenities: AmenityKey[]; // keys into a shared amenity dictionary
   images: ImageRef[];
@@ -82,6 +87,18 @@ export interface Cottage {
   // false until docs/06-open-questions.md Q1 (which cottages are actually
   // built and bookable) is answered — see docs/06-open-questions.md Q1.
   available: boolean;
+}
+
+/**
+ * A plain room, without a cottage's story or detail page: the Village's
+ * first-floor rooms, listed under the cottages on /cottages.
+ */
+export interface Room {
+  slug: string; // also its row in the rate calendar
+  name: string;
+  description: string;
+  occupancy: { adults: number | 'TBD'; children?: number };
+  price: Price; // per night, INR, before GST; the rate calendar's replaces it
 }
 
 export interface Experience {
