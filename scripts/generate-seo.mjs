@@ -93,11 +93,15 @@ async function brandPackageView(outDir, site, origin, name) {
   if (site === 'village') return;
   for (const page of ['view.html', 'menu.html']) {
     const file = path.join(outDir, 'package', page);
-    const html = (await readFile(file, 'utf8'))
-      .replaceAll(
-        'https://chamtaburu.in/img/village/village-hero-hills-960.jpg',
-        `${origin}/img/resort/resort-hero-mist-960.jpg`,
-      )
+    // Whichever Village photo the file names (it changes), so a new one can't
+    // slip through to the Resort's preview unreplaced.
+    const villageImage = /https:\/\/chamtaburu\.in\/img\/village\/[\w-]+\.jpg/g;
+    const source = await readFile(file, 'utf8');
+    if (!villageImage.test(source)) {
+      throw new Error(`package/${page}: no Village og:image to swap for the Resort's`);
+    }
+    const html = source
+      .replace(villageImage, `${origin}/img/resort/resort-hero-mist-960.jpg`)
       .replaceAll('Chamtaburu Eco Village', name);
     await writeFile(file, html, 'utf8');
   }

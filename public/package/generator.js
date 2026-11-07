@@ -28,6 +28,7 @@
   let propKey = "";
   let rooms = [];
   let addons = {};
+  let custom = []; // the manager's own items: [{ n: name, q: quantity, p: price each }]
   let edits = {}; // a manager's own price per line, by line key (P.calculate)
 
   /* ---------- Sign-in ---------- */
@@ -185,6 +186,7 @@
     $("prop").value = key;
     rooms = [newRoom(prop.rooms[0])];
     addons = {};
+    custom = [];
     edits = {};
     $("addonsCard").open = false;
     $("meal").innerHTML = Object.entries(P.PLANS).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
@@ -195,11 +197,15 @@
     $("inclusions").value = prop.inclusions.join("\n");
     $("exclusions").value = prop.exclusions.join("\n");
     const local = /^(localhost|127\.0\.0\.1)$/.test(location.hostname); // no clean URLs in local dev
-    $("menuLink").href = `/package/menu${local ? ".html" : ""}?p=${key}`;
+    // On the live sites, the property's own domain, so the shared link's
+    // preview shows that property's photo and name (scripts/generate-seo.mjs).
+    const menuHost = /(^|\.)chamtaburu\.in$/.test(location.hostname) ? `https://${prop.domain}` : "";
+    $("menuLink").href = `${menuHost}/package/menu${local ? ".html" : ""}?p=${key}`;
     $("calLink").href = `/package/calendar${local ? ".html" : ""}?p=${key}`;
     syncEvents();
     renderRooms();
     renderAddons();
+    renderCustom();
     loadCalendar(key);
   }
 
@@ -218,8 +224,9 @@
 
   /* ---------- Rooms & add-ons ---------- */
   // A row is `q` rooms of one type, each with `a` adults and `k` children; `pr`
-  // is the manager's package rate per adult (blank = rate card).
-  const newRoom = (room) => ({ id: room.id, ac: false, q: 1, a: room.adults, k: 0, pr: "" });
+  // is the manager's package rate per adult and `rr` their Room only rate per
+  // room per night (blank = rate card).
+  const newRoom = (room) => ({ id: room.id, ac: false, q: 1, a: room.adults, k: 0, pr: "", rr: "" });
   const isPackage = () => $("meal").value !== "room";
 
   function renderRooms() {
@@ -237,7 +244,8 @@
         <label class="mini">Children ${P.esc(prop.childAge)}<input type="number" min="0" max="6" value="${r.k}" data-k="k"></label>
         ${isPackage()
           ? `<label class="mini">₹ per adult<input type="number" min="0" step="50" inputmode="numeric" value="${P.esc(r.pr || "")}" data-k="pr"></label>`
-          : `<label class="ac${room.ac ? "" : " off"}"><input type="checkbox" data-k="ac"${r.ac ? " checked" : ""}> AC</label>`}
+          : `<label class="mini">₹ per night<input type="number" min="0" step="50" inputmode="numeric" value="${P.esc(r.rr || "")}" data-k="rr"></label>
+             <label class="ac${room.ac ? "" : " off"}"><input type="checkbox" data-k="ac"${r.ac ? " checked" : ""}> AC</label>`}
         <button class="btn small" type="button" data-k="del" aria-label="Remove room"${rooms.length < 2 ? " disabled" : ""}>✕</button>
       </div>`;
     }).join("");
@@ -252,6 +260,7 @@
     if (k === "ac") r.ac = e.target.checked;
     if (k === "q" || k === "a" || k === "k") r[k] = n;
     if (k === "pr") r.pr = e.target.value;
+    if (k === "rr") r.rr = e.target.value;
     update();
   });
   $("rooms").addEventListener("click", (e) => {
@@ -270,8 +279,8 @@
 
   const unitLabel = { stay: "per stay", person: "per person", night: "per night", car: "per car" };
   const qtyLabel = { car: "cars", kg: "kg", person: "people" };
+  const CAR_SIZES = ["5", "9"];
   function addonPrice(a) {
-    if (a.unit === "car") return `${P.inr(a.price[$("car").value])} per car`;
     if (a.unit === "kg") return `${P.inr(Object.values(a.price)[0])} for 1 kg`;
     return `${P.inr(a.price)} ${unitLabel[a.unit]}`;
   }
@@ -283,6 +292,20 @@
     $("addons").innerHTML = (list.length ? `<div class="addon-head"><span></span><span>Qty</span><span>₹ price</span></div>` : "") + list.map((a) => {
       const q = addons[a.id] || 0;
       const head = a.group && a.group !== group ? `<p class="grp">${P.esc((group = a.group))}</p>` : "";
+      // Car hire: a number of cars for each size, so a group can mix them.
+      if (a.unit === "car") {
+        const cars = q ? P.carQty(q) : { 5: 1 };
+        const sizes = CAR_SIZES.filter((sz) => a.price[sz] != null);
+        return `${head}<label class="addon carHead" data-id="${a.id}">
+          <input type="checkbox"${q ? " checked" : ""} data-k="on">
+          <span>${P.esc(a.name)}${a.desc ? `<small>${P.esc(a.desc)}</small>` : ""}</span>
+        </label>` + sizes.map((sz, i) => `<label class="addon sub${i === sizes.length - 1 ? " last" : ""}" data-id="${a.id}" data-size="${sz}">
+          <span></span>
+          <span>${sz}-seater<small>${P.inr(a.price[sz])} per car</small></span>
+          <input type="number" min="0" max="20" value="${cars[sz] || 0}" data-k="q" aria-label="${P.esc(a.name)}, ${sz}-seater cars"${q ? "" : " disabled"}>
+          <input type="number" min="0" step="1" inputmode="numeric" data-k="pr" aria-label="${P.esc(a.name)}, ${sz}-seater price"${q && cars[sz] ? "" : " disabled"}>
+        </label>`).join("");
+      }
       return `${head}<label class="addon" data-id="${a.id}">
         <input type="checkbox"${q ? " checked" : ""} data-k="on">
         <span>${P.esc(a.name)}<small>${addonPrice(a)}${a.desc ? " · " + P.esc(a.desc) : ""}</small></span>
@@ -295,8 +318,9 @@
   // Rate card price as the placeholder; the box shows a number only once changed.
   function syncAddonPrices(r) {
     $("addons").querySelectorAll(".addon").forEach((row) => {
-      const it = r.items.find((x) => x.addon === row.dataset.id);
       const input = row.querySelector("[data-k=pr]");
+      if (!input) return;
+      const it = r.items.find((x) => x.addon === row.dataset.id && (!row.dataset.size || x.size === row.dataset.size));
       input.placeholder = it ? String(it.rateCard) : "";
       if (document.activeElement !== input) input.value = it && it.edited ? it.amount : "";
     });
@@ -308,10 +332,30 @@
     const row = e.target.closest(".addon");
     if (!row) return;
     if (e.target.dataset.k === "pr") {
-      const it = result.items.find((x) => x.addon === row.dataset.id);
+      const it = result.items.find((x) => x.addon === row.dataset.id && (!row.dataset.size || x.size === row.dataset.size));
       if (!it) return;
       if (e.target.value === "") delete edits[it.key];
       else edits[it.key] = e.target.value;
+      update();
+      return;
+    }
+    const id = row.dataset.id;
+    const subs = [...$("addons").querySelectorAll(`.addon.sub[data-id="${id}"]`)];
+    if (subs.length) {
+      // Car hire: cars by size. Ticking it with no cars yet starts with one of the first size.
+      const on = $("addons").querySelector(`.carHead[data-id="${id}"] [data-k=on]`).checked;
+      const cars = {};
+      subs.forEach((sr) => (cars[sr.dataset.size] = Math.max(0, parseInt(sr.querySelector("[data-k=q]").value, 10) || 0)));
+      if (on && e.target.dataset.k === "on" && !Object.values(cars).some(Boolean)) {
+        cars[subs[0].dataset.size] = 1;
+        subs[0].querySelector("[data-k=q]").value = 1;
+      }
+      subs.forEach((sr) => {
+        sr.querySelector("[data-k=q]").disabled = !on;
+        sr.querySelector("[data-k=pr]").disabled = !on || !cars[sr.dataset.size];
+      });
+      if (on) addons[id] = cars;
+      else delete addons[id];
       update();
       return;
     }
@@ -323,6 +367,35 @@
     update();
   });
 
+  // The manager's own items, under Add-ons. Rows are rebuilt only when one is
+  // added or removed, so typing doesn't lose the cursor.
+  function renderCustom() {
+    $("custom").innerHTML = custom.map((c, i) => `<div class="crow" data-i="${i}">
+      <input data-k="n" maxlength="80" placeholder="Item, e.g. Birthday cake" value="${P.esc(c.n || "")}" aria-label="Item">
+      <input type="number" min="1" max="99" inputmode="numeric" data-k="q" value="${P.esc(c.q || 1)}" aria-label="Quantity">
+      <input type="number" min="0" step="1" inputmode="numeric" data-k="p" placeholder="₹ each" value="${P.esc(c.p || "")}" aria-label="Price each">
+      <button class="btn small" type="button" data-k="del" aria-label="Remove item">✕</button>
+    </div>`).join("");
+  }
+  $("custom").addEventListener("input", (e) => {
+    const row = e.target.closest(".crow");
+    if (!row) return;
+    custom[row.dataset.i][e.target.dataset.k] = e.target.value;
+    update();
+  });
+  $("custom").addEventListener("click", (e) => {
+    if (e.target.dataset.k !== "del") return;
+    custom.splice(e.target.closest(".crow").dataset.i, 1);
+    renderCustom();
+    update();
+  });
+  $("addCustom").addEventListener("click", () => {
+    custom.push({ n: "", q: 1, p: "" });
+    renderCustom();
+    update();
+    $("custom").querySelector(".crow:last-child [data-k=n]").focus();
+  });
+
   /* ---------- State, calculation, rendering ---------- */
   const num = (id) => Math.max(0, parseInt($(id).value, 10) || 0);
   const lines = (id) => $(id).value.split("\n").map((s) => s.trim()).filter(Boolean);
@@ -330,7 +403,7 @@
   function state() {
     return {
       ci: $("ci").value, co: $("co").value,
-      rooms, meal: $("meal").value, addons, edits, car: $("car").value, extraBed: num("extraBed"), gstIncl: $("gstIncl").value === "1",
+      rooms, meal: $("meal").value, addons, custom, edits, extraBed: num("extraBed"), gstIncl: $("gstIncl").value === "1",
       discount: $("discount").value, discountType: $("discountType").value,
       override: $("override").value, gst: $("gst").value, advancePct: $("advancePct").value,
     };
@@ -349,18 +422,19 @@
     $("guestsHint").textContent = `Guests: ${P.plural(r.adults, "adult")}` + (r.children ? `, ${P.kids(r.children)} (${prop.childAge})` : "") + ". Younger children stay free.";
     $("mealHint").textContent = r.pkg
       ? `Price per adult per night with breakfast, lunch, evening snacks and dinner; children ${prop.childAge} half. Type a rate in "₹ per adult" to change it.`
-      : "Room rate only. Guests above a room's normal capacity are charged as extras.";
+      : `Room rate only. Guests above a room's normal capacity are charged as extras. Type a rate in "₹ per night" to change it.`;
     $("extraBedLbl").hidden = r.pkg;
     // Rate card price beside each package rate box, so the manager sees what they're changing.
-    document.querySelectorAll('#rooms [data-k="pr"]').forEach((el, i) => {
+    document.querySelectorAll('#rooms [data-k="pr"], #rooms [data-k="rr"]').forEach((el, i) => {
       el.placeholder = r.rowRates[i] ? String(r.rowRates[i]) : "rate";
     });
 
     renderLines(r);
     syncAddonPrices(r);
-    const picked = r.items.filter((it) => it.addon);
-    $("addonsSum").textContent = picked.length
-      ? `${picked.length} selected · ${P.inr(picked.reduce((s, it) => s + it.amount, 0))}`
+    const picked = r.items.filter((it) => it.addon || it.custom != null);
+    const count = new Set(picked.map((it) => it.addon || "custom-" + it.custom)).size;
+    $("addonsSum").textContent = count
+      ? `${count} selected · ${P.inr(picked.reduce((s, it) => s + it.amount, 0))}`
       : "Car hire, bonfire & more";
     $("sumRows").innerHTML = sumRows(r);
     $("warnings").innerHTML = r.warnings.map((w) => `<li>${P.esc(w)}</li>`).join("");
@@ -416,33 +490,38 @@
   }
 
   // The whole form, so a reload or an accidental back-swipe keeps the work.
-  const FIELDS = ["gName", "gPhone", "ci", "co", "meal", "extraBed", "car", "discount", "discountType", "override", "gst", "advancePct", "validUntil", "inclusions", "exclusions", "note"];
+  const FIELDS = ["gName", "gPhone", "ci", "co", "meal", "extraBed", "discount", "discountType", "override", "gst", "advancePct", "validUntil", "inclusions", "exclusions", "note"];
   function snapshotForm() {
     const f = {};
     FIELDS.forEach((id) => (f[id] = $(id).value));
     f.gstIncl = $("gstIncl").value === "1";
-    return { propKey, rooms, addons, edits, f, editing: saved && { code: saved.code, ref: saved.ref, url: saved.url } };
+    return { propKey, rooms, addons, custom, edits, f, editing: saved && { code: saved.code, ref: saved.ref, url: saved.url } };
   }
   function restore(d) {
     setProperty(d.propKey);
     // Drafts from before rooms had guests get the room's normal occupancy.
     rooms = d.rooms.map((r) => ("a" in r ? r : { ...newRoom(prop.rooms.find((x) => x.id === r.id) || prop.rooms[0]), ...r }));
-    addons = d.addons;
+    // Car hire from before sizes were per add-on: a number of cars of the form's one size.
+    addons = Object.fromEntries(Object.entries(d.addons || {}).map(([id, q]) => {
+      const a = P.addonsFor(prop).find((x) => x.id === id);
+      return [id, a && a.unit === "car" ? P.carQty(q, d.f.car) : q];
+    }));
+    custom = d.custom || [];
     edits = d.edits || {};
-    $("addonsCard").open = Object.keys(addons).length > 0;
+    $("addonsCard").open = Object.keys(addons).length > 0 || custom.length > 0;
     FIELDS.forEach((id) => { if (d.f[id] != null) $(id).value = d.f[id]; });
     $("gstIncl").value = d.f.gstIncl ? "1" : "";
     if (!(d.f.meal in P.PLANS)) $("meal").value = "pkg"; // drafts from the old Veg / Non-veg plans
     renderRooms();
     renderAddons();
+    renderCustom();
     saved = d.editing ? { ...d.editing, key: null } : null;
     showEditing();
   }
 
   $("form").addEventListener("input", (e) => {
-    if (e.target.closest("#rooms, #addons, #lineRows")) return;
+    if (e.target.closest("#rooms, #addons, #custom, #lineRows")) return;
     if (e.target.id === "prop") { saved = null; showEditing(); setProperty(e.target.value); }
-    if (e.target.id === "car") renderAddons();
     if (e.target.id === "meal") renderRooms();
     $("done").hidden = true;
     if (e.target.id === "ci" && $("ci").value) {
@@ -458,7 +537,6 @@
   function newPackage() {
     ["gName", "gPhone", "ci", "co", "note", "override"].forEach((id) => ($(id).value = ""));
     ["extraBed", "discount"].forEach((id) => ($(id).value = 0));
-    $("car").value = "5";
     $("gstIncl").value = "";
     $("done").hidden = true;
     saved = null;
