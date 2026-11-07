@@ -546,5 +546,355 @@
       1440
     ],
     "fallback": "/img/resort/resort-room-six-bedded-interior-1440.jpg"
+  },
+  "village/village-cottage-interior-tv": {
+    "width": 1086,
+    "height": 1448,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGQAAAwADAAAAAAAAAAAAAAAAAAQFAQID/8QAIhAAAgIBAwQDAAAAAAAAAAAAAQIAAyEEERIFIkFRMmGB/8QAFwEAAwEAAAAAAAAAAAAAAAAAAAIDBP/EAB4RAAIBAwUAAAAAAAAAAAAAAAABEQIDEiExMkFR/9oADAMBAAIRAxEAPwB5NWgd02IImwsrtr7sZiD8i9/AgNxwYnQ9y6dxbZyPggbTGrdS4voaS0lB2xb59wkRbW2w5H7CNlX6GLKtWnc3uxHaROraJHqKkAD0I2AMzI+Jk99WWxSJo6VT9wlICEJY0I//2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-cottage-interior-tv-960.jpg"
+  },
+  "village/village-ac-cottage-interior": {
+    "width": 1280,
+    "height": 960,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAECBf/EAB8QAAEEAgIDAAAAAAAAAAAAAAEAAgMREhMEISIxUf/EABUBAQEAAAAAAAAAAAAAAAAAAAED/8QAFxEBAQEBAAAAAAAAAAAAAAAAAAERIf/aAAwDAQACEQMRAD8AzmzWbF4/UnzNjkaWm7VwxDXiHHEqzw4yLrsKFsVyja6Xyce0JNYWih6Qgdf/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-ac-cottage-interior-960.jpg"
+  },
+  "village/village-ac-cottage-window": {
+    "width": 960,
+    "height": 1280,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAMEBQL/xAAgEAABBAEEAwAAAAAAAAAAAAABAAIDEVEEEiExE0Fh/8QAFwEAAwEAAAAAAAAAAAAAAAAAAQIDAP/EABYRAQEBAAAAAAAAAAAAAAAAAAARAf/aAAwDAQACEQMRAD8Azo6FE8qoa5oGyKKvqzGSksNHhVNkc6FgLaA95UZc09XNkjItw5Qo94yhThqQ3TNqgaTxA8NAuwF3QwmdUqDCPC7AQqx0hBn/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-ac-cottage-window-960.jpg"
+  },
+  "village/village-cottages-row-hill": {
+    "width": 3120,
+    "height": 4160,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAQFAwH/xAAgEAACAgEEAwEAAAAAAAAAAAABAgADEQQSITETQVHR/8QAFwEAAwEAAAAAAAAAAAAAAAAAAgMEAP/EABsRAAICAwEAAAAAAAAAAAAAAAABEhMDESEx/9oADAMBAAIRAxEAPwB/AHfE0XH2IatL6bWwdyA4H2ZVWX+TNikqOhGvP3wnqaKT6mms7WsUGEnXV0+TL1lmPOYTWsOpFg0VscnmL6pbKSLKhkDtZwkqnBxF7LXFiYY9yNPuylobr1VDoCyBW9grCJ2MS5/IRkwYn//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-cottages-row-hill-960.jpg"
+  },
+  "village/village-shal-shanti-exterior": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAUDBAb/xAAhEAACAgEDBQEAAAAAAAAAAAABAwACBAURIRMUIkFRUv/EABcBAAMBAAAAAAAAAAAAAAAAAAABAgT/xAAcEQEAAgEFAAAAAAAAAAAAAAABAAIDBBETITH/2gAMAwEAAhEDEQA/AIVac6jTSvO3JjtTbLXWpA4ES5TX4lyau8vko21h246nr5ILsfHXeanva/kwi7BZXIxqsAI3hB1FTpZnaZB8n//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-shal-shanti-exterior-960.jpg"
+  },
+  "village/village-shal-shanti-night": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAQDBQb/xAAgEAACAgEDBQAAAAAAAAAAAAABAgARAxITMQQFIUFx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAQL/xAAWEQEBAQAAAAAAAAAAAAAAAAAAERL/2gAMAwEAAhEDEQA/AMjtMuTQwoyVulyhb22r5G8z6cwdaYg+xGH7w5xMjItkVxJ0YparmEYLITZTzCNTX//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-shal-shanti-night-960.jpg"
+  },
+  "village/village-karam-kunja-exterior": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAAAAQDBf/EACEQAAICAgIBBQAAAAAAAAAAAAECAAMEERIhQQUTUWGR/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAED/8QAGxEAAgIDAQAAAAAAAAAAAAAAAAECAxIhMYH/2gAMAwEAAhEDEQA/AKsXPq9Qrss9tq2QdxVfzBHZI+pYmGUqfar34XqYY1DC0hAAfMzlY1qIdafSd8xlbXFvyJ2VrUDRAJ+dRJ6MT//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-karam-kunja-exterior-960.jpg"
+  },
+  "village/village-karam-kunja-hill-view": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAQCAwX/xAAeEAABBAIDAQAAAAAAAAAAAAABAAIDBBESFCFhE//EABUBAQEAAAAAAAAAAAAAAAAAAAMB/8QAGxEAAgEFAAAAAAAAAAAAAAAAAAERAgMSE0H/2gAMAwEAAhEDEQA/AGnTxGPfcalK8uMuDQCSUjXnpyDEof4AtFtKt82zM28Vd6sPUpLTY16A6QpcfPYOMoQ5Po0H/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-karam-kunja-hill-view-960.jpg"
+  },
+  "village/village-mahua-ghar-exterior": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAMBAgX/xAAfEAACAgICAwEAAAAAAAAAAAABAgADBBESMQUiQXH/xAAVAQEBAAAAAAAAAAAAAAAAAAACA//EAB0RAAEEAgMAAAAAAAAAAAAAAAABAgMREhMhMVH/2gAMAwEAAhEDEQA/ANe7IsQEBCxHZ+RTZVFNQuvs0rdAStthPJj6jrQg+FXbjorLzTsbko5Ed0osb5Et5/BQ64kwkN4rB37Unf7CO2D1v8P/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-mahua-ghar-exterior-960.jpg"
+  },
+  "village/village-palash-kunja-exterior": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAABAACBf/EAB4QAAICAgMBAQAAAAAAAAAAAAECAAMEEhEhQQWR/8QAFgEBAQEAAAAAAAAAAAAAAAAAAwAC/8QAGxEBAAICAwAAAAAAAAAAAAAAAQAEAyExUWH/2gAMAwEAAhEDEQA/AE6DfUA/kLm3nGAOvM6OUltvHQTg+Qj0varo5BPkm2hthlQ5IenNrasFiAZTNvyzv0wHUpguew3AdT//2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-palash-kunja-exterior-960.jpg"
+  },
+  "village/village-palash-kunja-side": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAABAABA//EACEQAAICAgEEAwAAAAAAAAAAAAECAAMREgQFEzFhISJR/8QAFgEBAQEAAAAAAAAAAAAAAAAAAgAB/8QAHREAAgIBBQAAAAAAAAAAAAAAAAECAxESFCExUv/aAAwDAQACEQMRAD8AWLaXqrtRiFfxmI+UTYAeswVnGu7CLha0TwBMN1rp22YHX1JXPpGSoWeTq3VGqOllX2Eoa3iPa+zDJI/ZQbiPoGhH/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-palash-kunja-side-960.jpg"
+  },
+  "village/village-pahari-chaya-exterior": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAQBAwX/xAAgEAACAgEEAwEAAAAAAAAAAAABAgARAwQSE3EFMUFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAQD/xAAZEQACAwEAAAAAAAAAAAAAAAAAAQITQQP/2gAMAwEAAhEDEQA/ANNdYwdizAqPkjn5CfUryePBBbEa7iOTBq0yVa7e4XPCjyWjZyKSbUX3CJggWNtkfsIXsa4n/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-pahari-chaya-exterior-960.jpg"
+  },
+  "village/village-jharna-neer-exterior": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAQFAQL/xAAfEAACAgIBBQAAAAAAAAAAAAABAgADBBESEzEyQXH/xAAWAQEBAQAAAAAAAAAAAAAAAAABAgT/xAAbEQABBAMAAAAAAAAAAAAAAAAAAQITFBEhUf/aAAwDAQACEQMRAD8AppmgoxdeIHacNbz2dAyYllZfpK7HfsibZXkVvsEFfsmxvAwtUYbKUNoCEWRrOPgsI2VMsLuH/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-jharna-neer-exterior-960.jpg"
+  },
+  "village/village-adivasi-aangan-exterior": {
+    "width": 4032,
+    "height": 3024,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAMEAQL/xAAfEAABBAICAwAAAAAAAAAAAAABAAIDEQQhEjEUIkL/xAAWAQEBAQAAAAAAAAAAAAAAAAADAAT/xAAcEQACAQUBAAAAAAAAAAAAAAAAARMDERIhMVH/2gAMAwEAAhEDEQA/AOsKaWaYBjCWn6T8uMiQBtWO1vjSYzhwdV7oJphJaST7Hu1mdTVmJGukdSN0BYQqxG9oAadIQSLwsUf/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-adivasi-aangan-exterior-960.jpg"
+  },
+  "village/village-reception-building": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAMEBf/EABwQAAICAwEBAAAAAAAAAAAAAAEDAAIEBREhMf/EABcBAAMBAAAAAAAAAAAAAAAAAAABAwT/xAAcEQABAwUAAAAAAAAAAAAAAAAAAQISAwQUIVH/2gAMAwEAAhEDEQA/AFYzM3HyC9qLE2+iaI3Sx4KEWH0GKXsQws7U8qeCBottha6x2Z33CU02KBcrbptQGx4YSQJWB5UCElnN4ET/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-reception-building-960.jpg"
+  },
+  "village/village-floor-t1-balcony": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAwQA/8QAIBAAAgIBBAMBAAAAAAAAAAAAAQIAAxEEBRNBITEyYf/EABYBAQEBAAAAAAAAAAAAAAAAAAMCBP/EABkRAQEAAwEAAAAAAAAAAAAAAAEAAhEhQf/aAAwDAQACEQMRAD8Ar0JLUVfXrzLq3TLKXGR0ZBt7jirZ2OOhB3Crl1BspYqe/wBhh7Wull1ABubHqaCGIUBvJxNDS1YvL//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-floor-t1-balcony-960.jpg"
+  },
+  "village/village-floor-t1-bed": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAAAwACBf/EAB4QAAIDAQACAwAAAAAAAAAAAAECAAMEERIxIUFh/8QAFgEBAQEAAAAAAAAAAAAAAAAABAID/8QAGREAAwEBAQAAAAAAAAAAAAAAAAECEQMx/9oADAMBAAIRAxEAPwB8zqbnI5xfgzFt6po6R39EC5LMltroAwsPPEw2za7k6zqin6EyaHT1XuHbwqLM4YeiZR8NQpyVp74JS8DVbdNn/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-floor-t1-bed-960.jpg"
+  },
+  "village/village-floor-t1-window": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABAAD/8QAIRAAAgICAgEFAAAAAAAAAAAAAQIAAxESBBMxBSEiQVH/xAAWAQEBAQAAAAAAAAAAAAAAAAACAwT/xAAZEQACAwEAAAAAAAAAAAAAAAAAAQIREoH/2gAMAwEAAhEDEQA/ANq7z0qWPz2xF7rXy3ZvtRAj0lmu7DacbZCxoGvJL2gEEYgqmXc1JcM+VYttxbI/PMolkoz7p5lHozYP/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-floor-t1-window-960.jpg"
+  },
+  "village/village-floor-t1-bed-2": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAwUA/8QAIBAAAgEDBAMAAAAAAAAAAAAAAQIAAwQRBRIhQRMUMf/EABYBAQEBAAAAAAAAAAAAAAAAAAMBAv/EABkRAAIDAQAAAAAAAAAAAAAAAAARARIhIv/aAAwDAQACEQMRAD8AvNtKyNqqn37YjIQDkw6eoPtCXLHI+Mvcel5L0hmwKQ67Mw9Epyyla0yKC4PB5mhAsg2qxwJpVAen/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-floor-t1-bed-2-960.jpg"
+  },
+  "village/village-floor-t1-hill-window": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAUCBAb/xAAjEAEAAQMEAAcAAAAAAAAAAAABAgADBAUREiEUIiMxQWGh/8QAFgEBAQEAAAAAAAAAAAAAAAAAAgAB/8QAGBEAAwEBAAAAAAAAAAAAAAAAAAERIQL/2gAMAwEAAhEDEQA/AJ43WPY8qI9/lNsZJ7o1VynwsG5ceUfr4pZHWbmJL1AlbXrb3oNbolzEaNjRSuerReKCDEaKojKf/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-floor-t1-hill-window-960.jpg"
+  },
+  "village/village-floor-t1-bathroom": {
+    "width": 3120,
+    "height": 4160,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAIEAwX/xAAgEAABBAICAwEAAAAAAAAAAAABAAIDEQQhEiIFEzJS/8QAFwEAAwEAAAAAAAAAAAAAAAAAAQIDAP/EABYRAQEBAAAAAAAAAAAAAAAAAAABEf/aAAwDAQACEQMRAD8A6EeXKTRi6Abcn9hey2jSZgEjTQpZWT1YpZR1zfKWcvf5CE3kgBlbO+IQqQV8T3sZRUkpkjPO7BKvx+zd7WOS0GSiNUltCIM0RumBJ3xCFrmMb7RofIQmZ//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-floor-t1-bathroom-960.jpg"
+  },
+  "village/village-floor-t2-bed": {
+    "width": 3120,
+    "height": 4160,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGQAAAwADAAAAAAAAAAAAAAAAAAQFAgMG/8QAJBAAAgICAAQHAAAAAAAAAAAAAQIAAwQRBRIxURQVISMyQYH/xAAXAQADAQAAAAAAAAAAAAAAAAAAAQID/8QAFxEBAQEBAAAAAAAAAAAAAAAAAAECEf/aAAwDAQACEQMRAD8Atmxm1v6Em0OWy9k71uUFZCN86j9mm2inHrfI5/TRMlrjUzLK5XLz7/E2asIAYiERvZ7L7HCNosT0hGjpzzW5T71JjY4pZn1CmtNKnUd4zbUjfJAZjw+mtMpuRQJHQbxAGoBegBu2oRxekIyf/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-floor-t2-bed-960.jpg"
+  },
+  "village/village-floor-t2-bed-2": {
+    "width": 3120,
+    "height": 4160,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGQAAAwADAAAAAAAAAAAAAAAAAAQFAgMG/8QAJBAAAgIBAgUFAAAAAAAAAAAAAQIAAwQFERIhIkFxFTFDUmH/xAAWAQEBAQAAAAAAAAAAAAAAAAABAwL/xAAYEQEAAwEAAAAAAAAAAAAAAAAAAQIRA//aAAwDAQACEQMRAD8A3V9N5T6tMHyrRrS1hyFPaWGwaXsLnkx5naT8rTCmoplrYOEe6mZXv0i0Qs8UIutysNwdxCKKIb2x23uzFAHYGI5Os44JCl7j+nlOfZmY9RJ8xvTq0st61B8wOYd9bzPir4U7DaEqpWgUAKAPEIaX/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-floor-t2-bed-2-960.jpg"
+  },
+  "village/village-floor-t2-room": {
+    "width": 3120,
+    "height": 4160,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAMFBgT/xAAkEAABBAIBAgcAAAAAAAAAAAABAAIDBBESBSFRExQiMTVBcf/EABYBAQEBAAAAAAAAAAAAAAAAAAECAP/EABcRAQEBAQAAAAAAAAAAAAAAAAABEhH/2gAMAwEAAhEDEQA/AL9nqFB849nLxwADUlWeQn8Cq+QDOoWVpzPtcrFOWkDKlUbTKEgztBxkISEWxZkmturlpLSevZddWtA2VkTWAAp2jR6tRnul1vkI/wAUyG3olpWGSERN2Z9ElCsD2QtmNqv/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-floor-t2-room-960.jpg"
+  },
+  "village/village-floor-t2-bathroom": {
+    "width": 3120,
+    "height": 4160,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAbABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAMEAQL/xAAfEAABBAICAwAAAAAAAAAAAAABAAIDBBEhEjFBUYH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAf/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AKL89mCuZKpJdnoKitcmkrxvlGHY2Cp4Ji7jvtbZlLHcQdhQMfYdyOkKZrnkZwUIMqMDqrXewubLSIctBJCZT1Uhx5Cc4AvAPSKgbfma0DA+oSrepzhCD//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/village/village-floor-t2-bathroom-960.jpg"
   }
 }

@@ -134,6 +134,7 @@ function VillageHome() {
                   <div className="space-y-1 p-5">
                     <p className="text-forest text-[10px] font-bold tracking-widest uppercase">
                       {cottage.number}
+                      {cottage.amenities.includes('ac') ? ' · AC' : ''}
                     </p>
                     <h3 className="text-base font-bold">{cottage.name}</h3>
                     <p className="text-stone text-xs leading-relaxed">{cottage.tagline}</p>

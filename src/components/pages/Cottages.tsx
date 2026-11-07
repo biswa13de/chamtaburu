@@ -5,6 +5,7 @@ import { Card } from '../ui/Card';
 import { Image } from '../ui/Image';
 import { Seo } from '../ui/Seo';
 import { RoomPrice } from '../ui/RoomPrice';
+import { PhotoStrip } from '../ui/PhotoStrip';
 import { StayDates } from '../ui/StayDates';
 import { stayQuery, useStayDates } from '../../lib/stayDates';
 import { village, cottages, rooms } from '../../content/village';
@@ -69,6 +70,9 @@ export function Cottages() {
                 <div className="space-y-3 p-6">
                   <p className="text-forest text-[10px] font-bold tracking-widest uppercase">
                     {cottage.number} · {cottage.theme}
+                    {cottage.amenities.includes('ac') && (
+                      <span className="bg-forest/10 ml-2 rounded-full px-2 py-0.5">AC</span>
+                    )}
                   </p>
                   <Link
                     to={`/cottages/${cottage.slug}${stayQuery(checkIn, checkOut)}`}
@@ -105,11 +109,12 @@ export function Cottages() {
       <Section className="mt-16">
         <h2 className="mb-2 font-serif text-3xl font-medium">First-floor Rooms</h2>
         <p className="text-stone mb-6 max-w-2xl text-sm leading-relaxed">
-          Two rooms on the first floor, alongside the seven cottages.
+          Two rooms on the first floor above reception, alongside the seven cottages.
         </p>
         <div className="grid gap-8 sm:grid-cols-2">
           {rooms.map((room) => (
             <Card key={room.slug}>
+              <PhotoStrip images={room.images} />
               <div className="space-y-3 p-6">
                 <h3 className="text-lg font-bold">{room.name}</h3>
                 <p className="text-stone text-xs leading-relaxed">{room.description}</p>

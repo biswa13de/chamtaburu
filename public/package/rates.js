@@ -13,6 +13,8 @@
  */
 // What every Village cottage has; listed on the guest's page and in the message.
 const COTTAGE_FEATURES = ["Private lawn with garden", "Stunning hill view", "Dedicated swing"];
+// Cottages 02–04 (Karam Kunja, Mahua Ghar, Palash Kunja) are air-conditioned.
+const AC_COTTAGE_FEATURES = ["Air-conditioned", ...COTTAGE_FEATURES];
 
 window.PACKAGE_CONFIG = {
   // Shows the "placeholder prices" banner in the generator. Set to false once
@@ -107,19 +109,21 @@ window.PACKAGE_CONFIG = {
       // `seasons` here: those are only its starting values.
       // PLACEHOLDER — cottage `children`.
       rooms: [
-        { id: "shal-shanti", name: "Shal Shanti", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "mahua-ghar", name: "Mahua Ghar", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "palash-kunja", name: "Palash Kunja", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "pahari-chaya", name: "Pahari Chaya", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "jharna-neer", name: "Jharna Neer", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "karam-kunja", name: "Karam Kunja", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
-        { id: "adivasi-aangan", name: "Adivasi Aangan", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "shal-shanti", name: "01 Shal Shanti", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "karam-kunja", name: "02 Karam Kunja (AC)", type: "cottage-ac", tier: "cottage", rate: 5500, adults: 2, children: 1, max: 5, features: AC_COTTAGE_FEATURES },
+        { id: "mahua-ghar", name: "03 Mahua Ghar (AC)", type: "cottage-ac", tier: "cottage", rate: 5500, adults: 2, children: 1, max: 5, features: AC_COTTAGE_FEATURES },
+        { id: "palash-kunja", name: "04 Palash Kunja (AC)", type: "cottage-ac", tier: "cottage", rate: 5500, adults: 2, children: 1, max: 5, features: AC_COTTAGE_FEATURES },
+        { id: "pahari-chaya", name: "05 Pahari Chaya", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "jharna-neer", name: "06 Jharna Neer", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
+        { id: "adivasi-aangan", name: "07 Adivasi Aangan", type: "cottage", tier: "cottage", rate: 5000, adults: 2, children: 1, max: 5, features: COTTAGE_FEATURES },
         { id: "floor-t1", name: "First-floor room T1 (108 / 111)", tier: "room", rate: 2500, adults: 3, children: 1, max: 3 },
         { id: "floor-t2", name: "First-floor room T2 (109 / 110)", tier: "room", rate: 2000, adults: 2, children: 1, max: 2 },
       ],
-      // The rate calendar's rows: one rate covers all seven cottages.
+      // The rate calendar's rows: one rate for the four non-AC cottages, one for
+      // the three AC ones.
       rateTypes: [
-        { id: "cottage", name: "Cottage", note: "All seven cottages" },
+        { id: "cottage", name: "Cottage", note: "Shal Shanti, Pahari Chaya, Jharna Neer, Adivasi Aangan" },
+        { id: "cottage-ac", name: "AC Cottage", note: "Karam Kunja, Mahua Ghar, Palash Kunja" },
         { id: "floor-t1", name: "First-floor room T1", note: "Rooms 108 / 111 · “First-floor Triple Room” on the website" },
         { id: "floor-t2", name: "First-floor room T2", note: "Rooms 109 / 110 · “First-floor Double Room” on the website" },
       ],

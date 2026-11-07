@@ -5,7 +5,10 @@ before any of it is answered.
 
 ## Blocking
 
-### Q1 — Are all seven cottages actually built and bookable?
+### Q1 — Are all seven cottages actually built and bookable? — ANSWERED 2026-11-07
+Yes: all seven are open, and 02 Karam Kunja, 03 Mahua Ghar and 04 Palash Kunja are AC. The property numbers them 01 Shal Shanti, 02 Karam Kunja, 03 Mahua Ghar, 04 Palash Kunja, 05 Pahari Chaya, 06 Jharna Neer, 07 Adivasi Aangan, which the website now follows.
+
+_Original question:_
 The vision doc describes seven. The photographs appear to show four or five structures,
 some with construction debris still visible. If only some are ready, the site should
 list the ready ones as bookable and present the rest as "opening soon" — that is honest
