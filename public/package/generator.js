@@ -648,6 +648,7 @@
     if (result.pkg) out.push(`🍽 ${P.PLANS[$("meal").value]}: breakfast, lunch, evening snacks & dinner`);
     out.push(`💰 Total *${P.inr(d.tot)}*${d.gp ? " (incl. GST)" : ""}`);
     if (d.adv) out.push(`✅ Advance to confirm: *${P.inr(d.adv)}*`);
+    if (prop.payLink) out.push(`💳 Pay online: ${prop.payLink}`);
     out.push("", "Full details & confirm here:", s.url, "");
     out.push(`Ref ${s.ref}${d.vu ? " · valid till " + P.fmtDate(d.vu) : ""}`);
     // Same numbers as the guest page's Call buttons (view.js).

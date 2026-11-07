@@ -152,10 +152,14 @@
     const steps = q.adv
       ? `<p style="margin:0">Pay the advance of <strong>${P.inr(q.adv)}</strong> to confirm, then send us the payment screenshot on WhatsApp.</p>`
       : `<p style="margin:0">Reply on WhatsApp to confirm your booking.</p>`;
-    if (!prop.upi && !prop.bank) {
+    if (!prop.upi && !prop.bank && !prop.payLink) {
       return steps + `<p class="muted" style="margin:8px 0 0">${P.esc(q.m.n)} will share payment details with you on WhatsApp.</p>`;
     }
     let h = `<div class="pay">${steps}`;
+    if (prop.payLink) {
+      h += `<div class="online"><a class="btn primary" href="${P.esc(prop.payLink)}" target="_blank" rel="noopener">Pay ${P.inr(q.adv || q.tot)} online ↗</a>
+        <span class="muted" style="font-size:.85rem">Opens our Cashfree payment page.${prop.upi || prop.bank ? ` Or pay by ${[prop.upi && "UPI", prop.bank && "bank transfer"].filter(Boolean).join(" or ")} below.` : ""}</span></div>`;
+    }
     if (prop.upi) {
       const upiLink = `upi://pay?pa=${encodeURIComponent(prop.upi.id)}&pn=${encodeURIComponent(prop.upi.payee)}&am=${q.adv || q.tot}&cu=INR&tn=${encodeURIComponent(q.id)}`;
       h += `<div class="upi"><div><span class="muted" style="font-size:.85rem">UPI ID</span><br><strong id="upiId">${P.esc(prop.upi.id)}</strong></div>
