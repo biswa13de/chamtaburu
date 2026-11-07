@@ -145,6 +145,13 @@
     return a.price[sizes.find((n) => n >= kg)];
   }
 
+  // A car add-on's quantity as cars by size. Older drafts and saved forms hold
+  // a number of cars, all of the one size the form had then (`car`).
+  function carQty(q, car) {
+    if (q && typeof q === "object") return q;
+    return { [String(car || 5)]: Number(q) || 0 };
+  }
+
   // Add-ons for both properties first, then the property's own.
   const addonsFor = (prop) => (window.PACKAGE_CONFIG.addons || []).concat(prop.addons || []);
 
@@ -168,16 +175,21 @@
   }
 
   /*
-   * state: { ci, co, meal (a PLANS key), rooms:[{id, ac, q, a, k, pr}] (q rooms,
-   *          each with a adults and k children; pr = the manager's package rate
-   *          per adult, blank for the rate card), extraBed, car ("5"|"9"),
-   *          addons:{id:qty}, edits:{lineKey:amount}, discount, discountType
-   *          ("amt"|"pct"), override, gst, gstIncl, advancePct }
+   * state: { ci, co, meal (a PLANS key), rooms:[{id, ac, q, a, k, pr, rr}] (q
+   *          rooms, each with a adults and k children; pr = the manager's
+   *          package rate per adult, rr = their Room only rate per room per
+   *          night, blank for the rate card), extraBed, addons:{id:qty} (a car
+   *          add-on's qty is cars by size, {5: n, 9: n}; a plain number is
+   *          that many of the size in `car`, from before sizes were per
+   *          add-on), custom:[{n, q, p}] (the manager's own items: name,
+   *          quantity, price each), edits:{lineKey:amount}, discount,
+   *          discountType ("amt"|"pct"), override, gst, gstIncl, advancePct }
    * Returns line items and totals. Each item is { key, label, detail, amount,
    * rateCard, tax }: `key` identifies the line for a manager's price edit, and
    * changes whenever what the line covers changes, so an edit never sticks to
    * a different stay. `lines` is the same as [label, detail, amount] for the
-   * saved quote. GST applies to the stay (rooms, extras), not add-ons; with
+   * saved quote. GST applies to the stay (rooms, extras), not add-ons or the
+   * manager's own items; with
    * `gstIncl` the prices already include it. `rowRates[i]` is row i's rate
    * card price per adult (first night), for showing beside the manager's box.
    */
@@ -207,6 +219,7 @@
       if (!a) warnings.push(room.name + ": each room needs at least 1 adult.");
       if (a > (room.max || room.adults)) warnings.push(`${room.name} takes at most ${room.max || room.adults} adults per room.`);
       const own = Number(r.pr) > 0 ? Math.round(Number(r.pr)) : null;
+      const ownRoom = Number(r.rr) > 0 ? Math.round(Number(r.rr)) : null;
 
       // Group consecutive nights priced the same, so a stay that crosses into a season shows two lines.
       const groups = [];
@@ -225,7 +238,9 @@
           g = { season: t.season, per: pa ? pa.billed * rate + k * child : 0, rate, child, billed: pa ? pa.billed : a };
         } else {
           const nr = nightlyRate(prop, room, r.ac, date);
-          g = { season: nr.season, per: nr.rate };
+          if (i === 0) rowRates[ri] = nr.rate;
+          // The manager's own rate covers every night, so the stay is one line.
+          g = ownRoom ? { season: null, per: ownRoom } : { season: nr.season, per: nr.rate };
         }
         const last = groups[groups.length - 1];
         if (last && last.per === g.per && last.season === g.season) last.n++;
@@ -254,13 +269,18 @@
       });
     }
 
-    const car = String(st.car || 5);
     addonsFor(prop).forEach((a) => {
       const q = st.addons[a.id] || 0;
       if (!q) return;
       if (a.unit === "car") {
-        const price = a.price[car];
-        add(a.name, (q > 1 ? q + " cars · " : "") + car + "-seater", q > 1 ? inr(price) : "", q * price, false, a.desc);
+        // A line per car size, so a group can have, say, a 9-seater and a 5-seater.
+        Object.entries(carQty(q, st.car)).forEach(([size, n]) => {
+          const price = a.price[size];
+          if (!n || price == null) return;
+          add(a.name, (n > 1 ? n + " cars · " : "") + size + "-seater", n > 1 ? inr(price) : "", n * price, false, a.desc);
+          Object.assign(items[items.length - 1], { addon: a.id, size });
+        });
+        return;
       } else if (a.unit === "kg") {
         add(a.name, q + " kg", "", kgPrice(a, q), false);
       } else if (a.unit === "person") {
@@ -271,6 +291,16 @@
         add(a.name, q > 1 ? String(q) : "", q > 1 ? inr(a.price) : "", q * a.price, false);
       }
       items[items.length - 1].addon = a.id;
+    });
+
+    // The manager's own items: anything else, at their price. No GST, like add-ons.
+    (st.custom || []).forEach((c, i) => {
+      const name = String(c.n || "").trim();
+      const q = Math.max(1, parseInt(c.q, 10) || 1);
+      const p = Math.round(Number(c.p));
+      if (!name || !(p > 0)) return;
+      add(name, q > 1 ? String(q) : "", q > 1 ? inr(p) : "", q * p, false);
+      items[items.length - 1].custom = i;
     });
 
     // A manager's own price for a line replaces the rate card. The guest sees
@@ -513,5 +543,5 @@
   }
   const legendHtml = () => `<ul class="legend" aria-label="Legend">${Object.entries(DISH_TYPES).map(([k, v]) => `<li class="${k}"><span class="dot"></span>${v}</li>`).join("")}</ul>`;
 
-  window.PKG = { typeOf, loadCalendar, calRoom, calPackage, saveCalendar, nightlyRate, esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
+  window.PKG = { carQty, typeOf, loadCalendar, calRoom, calPackage, saveCalendar, nightlyRate, esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
 })();

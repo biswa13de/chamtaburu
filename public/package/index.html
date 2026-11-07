@@ -29,7 +29,7 @@ body{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .lock .err{color:var(--warn);min-height:1.5em;font-size:.9rem;margin:10px 0 0}
 
 /* Room and add-on rows */
-.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto auto;gap:8px;align-items:end;padding:0 0 12px;margin-bottom:12px;border-bottom:1px solid var(--line)}
+.row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto auto;gap:8px;align-items:end;padding:0 0 12px;margin-bottom:12px;border-bottom:1px solid var(--line)}
 .row select{grid-column:1/-1}
 .row .mini{display:flex;flex-direction:column;gap:3px;font-size:.78rem;color:var(--muted)}
 .row .mini input{padding:6px 8px}
@@ -46,6 +46,14 @@ body{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 .lines .was{color:var(--muted);font-size:.78rem;text-decoration:line-through}
 .addon input[type=number]{padding:6px 8px}
 .addon input[type=number]:disabled{opacity:.4}
+/* Car hire: a heading row, then a row per car size. */
+.addon.carHead{border-bottom:none;padding-bottom:2px}
+.addon.sub{border-bottom:none;padding:3px 0}
+.addon.sub.last{border-bottom:1px solid var(--line);padding-bottom:8px}
+.addon.sub > span:nth-child(2){font-size:.9rem}
+/* The manager's own items */
+.crow{display:grid;grid-template-columns:minmax(0,1fr) 56px 96px auto;gap:8px;align-items:center;margin:0 0 8px}
+.crow input{padding:7px 8px}
 .addon-head{display:grid;grid-template-columns:minmax(0,1fr) 56px 84px;gap:10px;font-size:.78rem;color:var(--muted);text-align:center}
 .addon-head span:first-child{text-align:left}
 /* Collapsible card (Add-ons): the summary line says what's picked while closed. */
@@ -96,6 +104,10 @@ ul.recent .acts{display:flex;gap:6px}
   .addon > span{grid-column:2/-1}
   .addon [data-k=q]{grid-row:2;grid-column:3}
   .addon [data-k=pr]{grid-row:2;grid-column:4}
+  .addon.sub > span{grid-column:auto}
+  .addon.sub [data-k=q],.addon.sub [data-k=pr]{grid-row:auto;grid-column:auto}
+  .crow{grid-template-columns:minmax(0,1fr) 84px auto}
+  .crow [data-k=n]{grid-column:1/-1}
   .done{flex-wrap:wrap}
   .done span{flex-basis:100%}
 }
@@ -179,8 +191,11 @@ ul.recent .acts{display:flex;gap:6px}
       <details class="card fold" id="addonsCard">
         <summary><h2>Add-ons</h2><span class="foldSum" id="addonsSum"></span></summary>
         <div class="foldBody">
-          <label class="f" style="margin-bottom:10px">Car for car hire<select id="car"><option value="5">5-seater</option><option value="9">9-seater</option></select></label>
           <div id="addons"></div>
+          <p class="grp" style="margin-top:18px">Other items</p>
+          <div id="custom"></div>
+          <button class="btn small" type="button" id="addCustom">+ Add item</button>
+          <p class="hint">Anything else, at your price: name, quantity and price each. No GST is added, as with add-ons.</p>
         </div>
       </details>
 
