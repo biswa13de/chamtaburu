@@ -39,6 +39,19 @@ exteriors" gap for the Village.
 | `(7).jpeg` | `village-campus-hill-palm` | Palm and gazebo, hill behind | Gallery |
 | `(8).jpeg` | `village-campus-night` | Cottages and main building lit at night | Gallery |
 
+### `photos/eco_village/<n>-<COTTAGE>/` and `1st_floor_room/` — room photos (added 2026-11)
+
+One folder per cottage, numbered as on the property (`1-Shal Shanti`, `2-KARAM KUNJA`, `3-MAHUA GHAR`, `4-PALASH KUNJA`, `5-PAHARI CHAYA`, `6-JHARNA NEER`, `7-ADIVASI AANGAN`; the website uses the same numbers, and 02–04 are the AC cottages), plus `1st_floor_room/T1` (rooms 8 / 11) and `T2` (rooms 9 / 10). 12–13 MP phone photos, capped at 960 px via `DENSE_BASES`. Files that sit in several folders are the same photo, processed once.
+
+| Base | From | Used on |
+|---|---|---|
+| `village-cottage-interior-tv` | `cottage_wth_TV.jpeg` (all seven folders) | Every cottage page |
+| `village-ac-cottage-interior`, `village-ac-cottage-window` | `cottage-int-view.jpeg`, `village-ac-cottage.jpeg` (folders 2–4) | The three AC cottages |
+| `village-cottages-row-hill` | `village-cottage-2-3-4-5-ext-garden-hill-view-12.jpeg` (folders 2–5) | Cottages 02–05 |
+| `village-<slug>-exterior` | each folder's `village-cottage-<n>-ext-…` | That cottage's card, hero and gallery |
+| `village-shal-shanti-night`, `village-karam-kunja-hill-view`, `village-palash-kunja-side` | the folder's second photo | That cottage's gallery |
+| `village-floor-t1-*`, `village-floor-t2-*`, `village-reception-building` | `1st_floor_room/` | The first-floor room cards on `/cottages` (swipe through) |
+
 ### `photos/eco_resort/` — 8 images
 
 | File | Size | Subject | Verdict |

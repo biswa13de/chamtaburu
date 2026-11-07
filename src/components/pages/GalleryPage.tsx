@@ -2,7 +2,7 @@ import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
 import { Gallery } from '../ui/Gallery';
 import { Seo } from '../ui/Seo';
-import { village, cottages } from '../../content/village';
+import { village, cottages, rooms } from '../../content/village';
 import { resolveImage } from '../../content/manifest';
 import type { ImageRef } from '../../content/types';
 
@@ -74,8 +74,8 @@ const EXTRA_IMAGES: ImageRef[] = [
 function collectGalleryImages(): ImageRef[] {
   const seen = new Map<string, ImageRef>();
   for (const ref of CAMPUS_IMAGES) seen.set(ref.base, ref);
-  for (const cottage of cottages) {
-    for (const ref of cottage.images) {
+  for (const unit of [...cottages, ...rooms]) {
+    for (const ref of unit.images) {
       if (!seen.has(ref.base)) seen.set(ref.base, ref);
     }
   }

@@ -99,6 +99,7 @@ export interface Room {
   description: string;
   occupancy: { adults: number | 'TBD'; children?: number };
   price: Price; // per night, INR, before GST; the rate calendar's replaces it
+  images: ImageRef[]; // the first is the card's photo
 }
 
 export interface Experience {
