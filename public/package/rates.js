@@ -161,6 +161,10 @@ window.PACKAGE_CONFIG = {
       // (`qr` optional: a scannable image of the property's UPI QR.)
       // bank: { name: "...", account: "...", ifsc: "...", holder: "..." },
       upi: null,
+      // Online payment page (Cashfree payment form). The guest's page shows a
+      // "Pay online" button to it, and the WhatsApp message the link. Read
+      // live, so packages already sent get it too.
+      payLink: "https://payments.cashfree.com/forms/chamtaburu",
       bank: { name: "Axis Bank", account: "925020051130088", ifsc: "UTIB0000397", holder: "CHAMTABURU ECO VILLAGE" },
       inclusions: ["Accommodation as listed", "Meals as per the selected plan", "Free parking", "Access to the central garden"],
       exclusions: ["Personal expenses", "Anything not mentioned in inclusions"],
