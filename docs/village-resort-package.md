@@ -144,6 +144,20 @@ One-time, after merging: deploy the rules with `firebase deploy --only firestore
 
 To try the room pages locally without Firestore, build with `VITE_RATES_URL=/test-rates.json` and put a document in that shape in `dist/<site>/`. `/package/calendar.html?demo` on localhost shows the calendar without signing in or saving.
 
+### Booking requests (2026-11-08)
+
+Guests can **request to book** on the website: `/book` on both sites, linked as **Request to book** from room cards, cottage pages and the home page. They pick a room and dates, see the live price (and sold-out dates) from the rate calendar, add guests, name, WhatsApp number and a note, and send. **Nothing is paid on the website**: rooms are also sold on Booking.com and by phone, so a manager checks availability first.
+
+Each request is saved to Firestore `bookingRequests/<code>` (anyone can create one in exactly the expected shape, as status `new`; only managers can read them, since they hold the guest's number). A copy is emailed through Formspree, and the guest can also message it on WhatsApp. If saving fails, the guest is offered WhatsApp instead.
+
+In the Package Generator, **Booking requests** (above the form) lists them, opening by itself when one is waiting:
+
+1. Check availability, including Booking.com.
+2. **Make package** fills in property, guest, number, dates, room, AC and guests (Room only, as the website priced it; change the plan for meals).
+3. Send the package as usual. Sending marks the request **Package sent** with the package's code. Otherwise set **Booked** or **Declined** in its status box.
+
+The guest then pays the advance from the package page (**Pay online** for the Village).
+
 ### Celebration Package rates (20 Dec 2026 – 1 Jan 2027, Package (Non-AC), per adult per night, all meals)
 
 | Property | Room                          | 2 adults | 3      | 4      | 5      | 6      |

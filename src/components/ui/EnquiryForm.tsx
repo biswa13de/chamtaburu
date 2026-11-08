@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { currentSite } from '../../content/site';
 import { cottages, rooms } from '../../content/village';
 import { Button } from './Button';
+import { normalizePhone } from '../../lib/phone';
 
 /**
  * Enquiry form — docs/02-architecture.md §8 and docs/05-build-phases.md
@@ -22,19 +23,6 @@ import { Button } from './Button';
  * unmodified on both Village and Resort builds — never hardcode a number
  * or greeting here.
  */
-
-// Matches src/content/validate.ts's INDIA_PHONE_RE intent (a valid Indian
-// mobile in +91 international format) but tolerant of how a person actually
-// types into a form field: optional +91/91 prefix, optional spaces, a
-// 10-digit number starting 6-9. Normalized to '+91 XXXXX XXXXX' for the
-// outgoing WhatsApp/email message regardless of how it was typed.
-const PHONE_INPUT_RE = /^(?:\+?91[\s-]?)?([6-9]\d{4})[\s-]?(\d{5})$/;
-
-function normalizePhone(raw: string): string | null {
-  const match = PHONE_INPUT_RE.exec(raw.trim());
-  if (!match) return null;
-  return `+91 ${match[1]}${match[2]}`.replace(/^\+91 (\d{5})(\d{5})$/, '+91 $1 $2');
-}
 
 function formatDateForMessage(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number);

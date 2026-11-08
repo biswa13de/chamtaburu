@@ -115,6 +115,39 @@ service cloud.firestore {
       }
     }
 
+    // Booking requests from the website's /book page (src/lib/bookingRequest.ts).
+    // Anyone can send one, in exactly this shape, as status "new"; it holds the
+    // guest's name and number, so only managers can read them. Managers move
+    // it on (a package sent, booked, declined), recording who; nobody deletes.
+    match /bookingRequests/{code} {
+      allow get, list: if isManager();
+      allow delete: if false;
+      allow create: if code.matches('^[2-9A-HJKMNP-Z]{6}$')
+        && request.resource.data.keys().hasOnly(['p', 'room', 'roomName', 'ac', 'ci', 'co', 'a', 'k', 'name', 'phone', 'note', 'est', 'status', 'created'])
+        && request.resource.data.keys().hasAll(['p', 'room', 'roomName', 'ac', 'ci', 'co', 'a', 'k', 'name', 'phone', 'status', 'created'])
+        && request.resource.data.p in ['village', 'resort']
+        && request.resource.data.room is string && request.resource.data.room.matches('^[a-z0-9-]{1,40}$')
+        && request.resource.data.roomName is string && request.resource.data.roomName.size() <= 80
+        && request.resource.data.ac is bool
+        && request.resource.data.ci is string && request.resource.data.ci.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.co is string && request.resource.data.co.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.co > request.resource.data.ci
+        && request.resource.data.a is int && request.resource.data.a >= 1 && request.resource.data.a <= 30
+        && request.resource.data.k is int && request.resource.data.k >= 0 && request.resource.data.k <= 30
+        && request.resource.data.name is string && request.resource.data.name.size() >= 1 && request.resource.data.name.size() <= 80
+        && request.resource.data.phone is string && request.resource.data.phone.matches('^91[6-9][0-9]{9}$')
+        && (!('note' in request.resource.data) || (request.resource.data.note is string && request.resource.data.note.size() <= 500))
+        && (!('est' in request.resource.data) || (request.resource.data.est is int && request.resource.data.est >= 0))
+        && request.resource.data.status == 'new'
+        && request.resource.data.created == request.time;
+      allow update: if isManager()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'statusBy', 'statusAt', 'quote'])
+        && request.resource.data.status in ['new', 'quoted', 'booked', 'declined']
+        && request.resource.data.statusBy == managerId()
+        && request.resource.data.statusAt == request.time
+        && (!('quote' in request.resource.data) || request.resource.data.quote.matches('^[2-9A-HJKMNP-Z]{6}$'));
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

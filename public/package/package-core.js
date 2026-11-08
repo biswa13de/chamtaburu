@@ -479,6 +479,55 @@
     if (!res.ok) throw new Error("update failed: " + res.status);
   }
 
+  /*
+   * Booking requests from the website's /book page (src/lib/bookingRequest.ts),
+   * newest first. Only managers can read them (firestore.rules): they hold
+   * the guest's name and number. `status` is new, quoted (a package was
+   * sent; `quote` is its code), booked or declined.
+   */
+  async function listRequests(idToken, limit = 40) {
+    const res = await fetch(API + ":runQuery", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+      body: JSON.stringify({
+        structuredQuery: { from: [{ collectionId: "bookingRequests" }], orderBy: [{ field: { fieldPath: "created" }, direction: "DESCENDING" }], limit },
+      }),
+    });
+    if (!res.ok) throw new Error("requests failed: " + res.status);
+    const int = (f, k) => Number((f[k] && f[k].integerValue) || 0);
+    return (await res.json()).filter((r) => r.document).map(({ document: d }) => {
+      const f = d.fields || {};
+      return {
+        code: d.name.split("/").pop(), p: str(f, "p"), room: str(f, "room"), roomName: str(f, "roomName"),
+        ac: !!(f.ac && f.ac.booleanValue), ci: str(f, "ci"), co: str(f, "co"), a: int(f, "a"), k: int(f, "k"),
+        name: str(f, "name"), phone: str(f, "phone"), note: str(f, "note"), est: int(f, "est"),
+        status: str(f, "status") || "new", quote: str(f, "quote"), statusBy: str(f, "statusBy"),
+        created: (f.created && f.created.timestampValue) || "",
+      };
+    });
+  }
+
+  // `quote`: the package made from it, when there is one.
+  async function setRequestStatus(code, status, idToken, phone, quote) {
+    if (!CODE_RE.test(code)) throw new Error("bad code");
+    const fields = { status: { stringValue: status }, statusBy: { stringValue: phone } };
+    const mask = ["status", "statusBy"];
+    if (quote) { fields.quote = { stringValue: quote }; mask.push("quote"); }
+    const res = await fetch(API + ":commit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+      body: JSON.stringify({
+        writes: [{
+          update: { name: `${DB}/bookingRequests/${code}`, fields },
+          updateMask: { fieldPaths: mask },
+          currentDocument: { exists: true },
+          updateTransforms: [{ fieldPath: "statusAt", setToServerValue: "REQUEST_TIME" }],
+        }],
+      }),
+    });
+    if (!res.ok) throw new Error("request status failed: " + res.status);
+  }
+
   // null for packages saved before Edit existed (no form was kept).
   async function loadForm(code, idToken) {
     if (!CODE_RE.test(code)) return null;
@@ -543,5 +592,5 @@
   }
   const legendHtml = () => `<ul class="legend" aria-label="Legend">${Object.entries(DISH_TYPES).map(([k, v]) => `<li class="${k}"><span class="dot"></span>${v}</li>`).join("")}</ul>`;
 
-  window.PKG = { carQty, typeOf, loadCalendar, calRoom, calPackage, saveCalendar, nightlyRate, esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
+  window.PKG = { listRequests, setRequestStatus, carQty, typeOf, loadCalendar, calRoom, calPackage, saveCalendar, nightlyRate, esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
 })();

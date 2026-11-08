@@ -127,10 +127,10 @@ export function Cottages() {
                 <div className="flex items-center justify-between gap-3 pt-4">
                   <RoomPrice type={room.slug} price={room.price} />
                   <Link
-                    to={`/contact${stayQuery(checkIn, checkOut, { cottage: room.slug })}`}
+                    to={`/book${stayQuery(checkIn, checkOut, { room: room.slug })}`}
                     className="bg-forest/10 text-forest hover:bg-forest inline-flex shrink-0 items-center justify-center gap-2 rounded-full px-5 py-2 text-[10px] font-bold tracking-[0.2em] uppercase transition-colors hover:text-white"
                   >
-                    Enquire
+                    Request to book
                   </Link>
                 </div>
               </div>
