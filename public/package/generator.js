@@ -843,6 +843,11 @@
 
   /* ---------- Booking requests from the website (/book) ---------- */
   const REQ_STATUS = { new: "New", quoted: "Package sent", booked: "Booked", declined: "Declined" };
+  // The extras a guest ticked (src/content/extras.ts): add-on ids, plus "meals".
+  const extraName = (p, id) => id === "meals" ? "All meals"
+    : ((P.addonsFor(C.properties[p] || prop).find((a) => a.id === id) || {}).name || id).replace(/^Day \d · /, "");
+  // A car big enough for the guests: up to 4 in a 5-seater, up to 8 in a 9-seater.
+  const carsFor = (people) => (people <= 4 ? { 5: 1, 9: 0 } : { 5: 0, 9: Math.ceil(people / 8) });
   let requests = [];
 
   async function loadRequests() {
@@ -880,6 +885,7 @@
       return `<li data-code="${P.esc(x.code)}">
         <span class="who">${P.esc(x.name)} <a href="https://wa.me/${P.esc(x.phone)}" target="_blank" rel="noopener">${P.esc(P.prettyPhone(x.phone))}</a></span>
         <span class="what">${P.esc(what)} · ${P.esc(x.code)}${x.quote ? " · package " + P.esc(x.quote) : ""}</span>
+        ${x.extras.length ? `<span class="what">Also: ${P.esc(x.extras.map((id) => extraName(x.p, id)).join(", "))}</span>` : ""}
         ${x.note ? `<span class="note">“${P.esc(x.note)}”</span>` : ""}
         <select class="st-${P.esc(x.status)}" data-k="status" aria-label="Status of request ${P.esc(x.code)}">${opts}</select>
         <span class="acts"><button class="btn small primary" type="button" data-make="${P.esc(x.code)}">Make package</button></span>
@@ -899,15 +905,25 @@
     $("ci").value = x.ci;
     $("co").value = x.co;
     $("co").min = P.addDays(x.ci, 1);
-    $("meal").value = "room"; // what the website priced; change it for meals
+    // Room only, as the website priced it, unless they asked for all meals.
+    $("meal").value = x.extras.includes("meals") ? "pkg" : "room";
     const room = prop.rooms.find((r) => r.id === x.room) || prop.rooms[0];
     rooms = [{ ...newRoom(room), a: x.a || room.adults, k: x.k || 0, ac: !!(x.ac && room.ac) }];
+    // The extras they ticked, as add-ons: cars sized for the group.
+    const list = P.addonsFor(prop);
+    x.extras.forEach((id) => {
+      const a = list.find((y) => y.id === id);
+      if (a) addons[id] = a.unit === "car" ? carsFor((x.a || 1) + (x.k || 0)) : 1;
+    });
+    $("addonsCard").open = Object.keys(addons).length > 0;
     fromReq = x.code;
     syncEvents();
     renderRooms();
+    renderAddons();
     update();
     window.scrollTo(0, 0);
-    toast(`Package started for ${x.name}. Sending it marks the request.`);
+    const cars = x.extras.some((id) => (list.find((y) => y.id === id) || {}).unit === "car");
+    toast(`Package started for ${x.name}.${cars ? " Check the car size." : ""} Sending it marks the request.`);
   }
 
   $("reqFilter").addEventListener("change", renderRequests);

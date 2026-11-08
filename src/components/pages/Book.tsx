@@ -20,6 +20,7 @@ import {
 import { useStayDates } from '../../lib/stayDates';
 import { normalizePhone } from '../../lib/phone';
 import { saveBookingRequest } from '../../lib/bookingRequest';
+import { extraGroups, extraLabel } from '../../content/extras';
 
 // Each site uses its own photo: Village photos never appear on the Resort.
 const HERO_IMAGE = resolveImage(
@@ -37,7 +38,7 @@ const HERO_IMAGE = resolveImage(
 const PRICE_NOTE =
   currentSite.key === 'resort'
     ? 'Room only, with breakfast, before GST.'
-    : 'Room only, before GST. Want meals included? Say so in the note.';
+    : 'Room only, before GST.';
 
 const FORMSPREE_ENDPOINT = 'https://formspree.io/f/meajprwj';
 
@@ -113,6 +114,7 @@ export function Book() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [note, setNote] = useState('');
+  const [extras, setExtras] = useState<string[]>([]);
   const [website, setWebsite] = useState(''); // honeypot: people never see it, bots fill it
   const [errors, setErrors] = useState<Errors>({});
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'failed'>('idle');
@@ -169,6 +171,7 @@ export function Book() {
       `Guests: ${adults} adult${adults === '1' ? '' : 's'}${k ? `, ${k} child${k === 1 ? '' : 'ren'}` : ''}`,
       `Name: ${name.trim()}`,
       `Phone: ${normalizedPhone}`,
+      ...(extras.length ? [`Also: ${extras.map(extraLabel).join(', ')}`] : []),
       ...(note.trim() ? [`Note: ${note.trim()}`] : []),
       ...(quote.total != null ? [`Price shown: ${inr(quote.total)} (${PRICE_NOTE})`] : []),
     ].join('\n');
@@ -211,6 +214,7 @@ export function Book() {
         name: name.trim(),
         phone: normalizedPhone.replace(/\D/g, ''),
         note: note.trim(),
+        extras,
         estimate: quote.total ?? 0,
       });
     } catch {
@@ -427,6 +431,58 @@ export function Book() {
                   </div>
                 </div>
 
+                <fieldset>
+                  <legend className={labelClass}>
+                    Anything else? <span className="text-stone/70 normal-case">(optional)</span>
+                  </legend>
+                  <p className="text-stone mb-4 text-xs">
+                    Tick what you&rsquo;d like and we&rsquo;ll add it to your package with its
+                    price.
+                  </p>
+                  <div className="space-y-5">
+                    {extraGroups.map((g) => (
+                      <div key={g.title}>
+                        <p className="text-ink text-sm font-semibold">{g.title}</p>
+                        {g.note && <p className="text-stone text-xs">{g.note}</p>}
+                        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                          {g.items.map((x) => {
+                            const on = extras.includes(x.id);
+                            return (
+                              <label
+                                key={x.id}
+                                className={`flex cursor-pointer items-start gap-3 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
+                                  on
+                                    ? 'border-forest bg-forest/5'
+                                    : 'border-stone/20 hover:border-forest/50'
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={on}
+                                  onChange={(e) =>
+                                    setExtras((prev) =>
+                                      e.target.checked
+                                        ? [...prev, x.id]
+                                        : prev.filter((id) => id !== x.id),
+                                    )
+                                  }
+                                  className="accent-forest mt-0.5 h-4 w-4 shrink-0"
+                                />
+                                <span>
+                                  <span className="text-ink block">{x.label}</span>
+                                  {x.detail && (
+                                    <span className="text-stone block text-xs">{x.detail}</span>
+                                  )}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </fieldset>
+
                 <div>
                   <label htmlFor="book-note" className={labelClass}>
                     Note <span className="text-stone/70 normal-case">(optional)</span>
@@ -435,7 +491,7 @@ export function Book() {
                     id="book-note"
                     rows={3}
                     maxLength={500}
-                    placeholder="e.g. meals included, arriving late, a birthday"
+                    placeholder="e.g. arriving late, train times, food preferences"
                     className={inputClass}
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
@@ -479,6 +535,11 @@ export function Book() {
                       </div>
                     ) : (
                       <p className="text-stone text-sm">We&rsquo;ll send you the price.</p>
+                    )}
+                    {extras.length > 0 && !soldOut && (
+                      <p className="text-stone text-xs">
+                        Plus {extras.map(extraLabel).join(', ')}: priced in your package.
+                      </p>
                     )}
                   </>
                 ) : (
