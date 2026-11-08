@@ -34,6 +34,8 @@ export interface BookingRequest {
   note: string;
   /** The room-only total shown to the guest, 0 when there was none. */
   estimate: number;
+  /** Extras asked for (src/content/extras.ts ids). */
+  extras: string[];
 }
 
 /** Returns the request's code, e.g. "R6X6K2". Throws if it couldn't be saved. */
@@ -52,6 +54,7 @@ export async function saveBookingRequest(r: BookingRequest): Promise<string> {
     note: { stringValue: r.note.slice(0, 500) },
     est: { integerValue: String(Math.max(0, Math.round(r.estimate))) },
     status: { stringValue: 'new' },
+    extras: { arrayValue: { values: r.extras.map((id) => ({ stringValue: id })) } },
   };
   for (let attempt = 0; attempt < 3; attempt++) {
     const code = newCode();
