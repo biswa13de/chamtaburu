@@ -148,12 +148,17 @@
     });
   }
 
+  // The property's cancellation and refund terms (its website's /legal page).
+  function terms() {
+    return `<p class="muted" style="margin:8px 0 0;font-size:.85rem">Free cancellation up to 25 days before check-in. <a href="https://${P.esc(prop.domain)}/legal#cancellation" target="_blank" rel="noopener">Cancellation &amp; refund policy</a></p>`;
+  }
+
   function payment() {
     const steps = q.adv
       ? `<p style="margin:0">Pay the advance of <strong>${P.inr(q.adv)}</strong> to confirm, then send us the payment screenshot on WhatsApp.</p>`
       : `<p style="margin:0">Reply on WhatsApp to confirm your booking.</p>`;
     if (!prop.upi && !prop.bank && !prop.payLink) {
-      return steps + `<p class="muted" style="margin:8px 0 0">${P.esc(q.m.n)} will share payment details with you on WhatsApp.</p>`;
+      return steps + `<p class="muted" style="margin:8px 0 0">${P.esc(q.m.n)} will share payment details with you on WhatsApp.</p>` + terms();
     }
     let h = `<div class="pay">${steps}`;
     if (prop.payLink) {
@@ -173,7 +178,7 @@
       const b = prop.bank;
       h += `<dl><dt>Account name</dt><dd>${P.esc(b.holder)}</dd><dt>Bank</dt><dd>${P.esc(b.name)}</dd><dt>Account no.</dt><dd>${P.esc(b.account)}</dd><dt>IFSC</dt><dd>${P.esc(b.ifsc)}</dd></dl>`;
     }
-    return h + `<p class="muted" style="margin:0;font-size:.85rem">Please add <strong>${P.esc(q.id)}</strong> as the payment note.</p></div>`;
+    return h + `<p class="muted" style="margin:0;font-size:.85rem">Please add <strong>${P.esc(q.id)}</strong> as the payment note.</p>${terms()}</div>`;
   }
 
   $("print").addEventListener("click", () => window.print());

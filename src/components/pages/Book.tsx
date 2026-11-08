@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { CheckCircle2, MessageCircle } from 'lucide-react';
 import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
@@ -433,7 +433,7 @@ export function Book() {
 
                 <fieldset>
                   <legend className={labelClass}>
-                    Anything else? <span className="text-stone/70 normal-case">(optional)</span>
+                    Anything else? <span className="text-stone normal-case">(optional)</span>
                   </legend>
                   <p className="text-stone mb-4 text-xs">
                     Tick what you&rsquo;d like and we&rsquo;ll add it to your package with its
@@ -485,7 +485,7 @@ export function Book() {
 
                 <div>
                   <label htmlFor="book-note" className={labelClass}>
-                    Note <span className="text-stone/70 normal-case">(optional)</span>
+                    Note <span className="text-stone normal-case">(optional)</span>
                   </label>
                   <textarea
                     id="book-note"
@@ -551,6 +551,12 @@ export function Book() {
                   <li>We check availability and message you on WhatsApp with your package.</li>
                   <li>Pay the advance online to confirm.</li>
                 </ol>
+                <p className="text-stone text-xs">
+                  Free cancellation up to 25 days before check-in.{' '}
+                  <Link to="/legal#cancellation" className="text-forest font-semibold">
+                    Cancellation policy
+                  </Link>
+                </p>
 
                 {state === 'failed' && (
                   <div className="bg-palash/10 rounded-lg p-4 text-sm">

@@ -2,14 +2,14 @@ import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { Image } from '../ui/Image';
 import { Seo } from '../ui/Seo';
 import { RoomPrice } from '../ui/RoomPrice';
+import { PhotoStrip } from '../ui/PhotoStrip';
 import { StayDates } from '../ui/StayDates';
 import { stayQuery, useStayDates } from '../../lib/stayDates';
 import { resort, accommodation } from '../../content/resort';
 import { resolveImage } from '../../content/manifest';
-import { formatAdults } from '../../content/format';
+import { formatOccupancy } from '../../content/format';
 
 const HERO_IMAGE = resolveImage({
   base: 'resort/resort-room-bamboo-cottage',
@@ -53,30 +53,16 @@ export function Accommodation() {
           </Card>
         ) : (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <h2 className="sr-only">Our rooms</h2>
             {accommodation.map((room) => {
-              const coverImageRef = room.images[0] ?? {
-                base: 'village/village-exterior',
-                alt: room.name,
-              };
-              const coverImage = resolveImage(coverImageRef);
               return (
                 <Card key={room.slug}>
-                  <Image
-                    src={coverImage.fallbackSrc}
-                    avifSrcSet={coverImage.avifSrcSet}
-                    webpSrcSet={coverImage.webpSrcSet}
-                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                    lqip={coverImage.lqip}
-                    alt={coverImage.alt}
-                    width={coverImage.width}
-                    height={coverImage.height}
-                    className="h-64 w-full object-cover"
-                  />
+                  <PhotoStrip images={room.images} />
                   <div className="space-y-3 p-6">
                     <h3 className="text-lg font-bold">{room.name}</h3>
                     <p className="text-stone text-xs leading-relaxed">{room.tagline}</p>
                     <div className="text-stone flex items-center justify-between pt-2 text-xs">
-                      <span>{formatAdults(room.occupancy.adults)}</span>
+                      <span>{formatOccupancy(room.occupancy)}</span>
                       <span>{room.beds === 'TBD' ? 'Beds TBD' : room.beds}</span>
                     </div>
                     <div className="flex items-center justify-between gap-3 pt-4">

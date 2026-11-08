@@ -306,7 +306,7 @@ export function EnquiryForm({
 
         <div>
           <label htmlFor={fieldId('children')} className={labelClass}>
-            Children <span className="normal-case text-stone/70">(optional)</span>
+            Children <span className="normal-case text-stone">(optional)</span>
           </label>
           <input
             id={fieldId('children')}

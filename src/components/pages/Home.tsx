@@ -1,4 +1,4 @@
-import { Leaf, Users, Globe, MapPin } from 'lucide-react';
+import { Leaf, Users, Globe, MapPin, UtensilsCrossed } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
@@ -6,11 +6,15 @@ import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Image } from '../ui/Image';
 import { Seo } from '../ui/Seo';
+import { RoomPrice } from '../ui/RoomPrice';
+import { PhotoStrip } from '../ui/PhotoStrip';
 import { currentSite } from '../../content/site';
-import { cottages, experiences } from '../../content/village';
+import { cottages, experiences, village } from '../../content/village';
 import { resort, accommodation as resortAccommodation } from '../../content/resort';
 import { resolveImage } from '../../content/manifest';
+import type { ImageRef } from '../../content/types';
 import { buildLodgingBusinessJsonLd } from '../../lib/seo';
+import { formatOccupancy } from '../../content/format';
 
 const HERO_IMAGE = resolveImage({
   base: 'village/village-campus-aerial',
@@ -31,6 +35,78 @@ const RESORT_STORY_IMAGE = resolveImage({
   base: 'resort/resort-cottages-mural',
   alt: 'Row of mural-painted cottages in morning mist at Chamtaburu Eco Resort, Ajodhya Hills, Purulia',
 });
+
+// A row of cards that swipes sideways on a phone and becomes a grid from
+// tablet width up, so a list of rooms doesn't fill five phone screens.
+const SWIPE_ROW =
+  '-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-8 sm:overflow-visible sm:px-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden';
+const SWIPE_CARD = 'w-[78%] shrink-0 snap-start sm:w-auto';
+
+// The hero's second button, light so it reads on the photo.
+const HERO_LINK =
+  'inline-flex items-center justify-center gap-2 rounded-full bg-white/90 px-6 py-3 text-xs font-bold tracking-[0.2em] text-ink uppercase transition-colors hover:bg-white';
+
+// Resort campus photos for "Around the resort" — Resort-only images.
+const RESORT_CAMPUS: ImageRef[] = [
+  {
+    base: 'resort/resort-thatched-huts',
+    alt: 'Two thatched bamboo huts framed by hedge and hills at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    base: 'resort/resort-cottages-mural',
+    alt: 'Row of mural-painted cottages in morning mist at Chamtaburu Eco Resort, Ajodhya Hills, Purulia',
+  },
+  {
+    base: 'resort/resort-evening-garden',
+    alt: 'Evening garden with thatched hut and swing set at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    base: 'resort/resort-pathway-rain',
+    alt: 'Rain falling on the pathway between cottages at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    base: 'resort/resort-night-gate',
+    alt: 'Night view of the garden, hedges and decorative gate at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    base: 'resort/resort-hero-mist',
+    alt: 'Chamtaburu Eco Resort cottages in monsoon mist with lush green hills behind, Purulia',
+  },
+];
+
+// Food — both sites. The menu is the static page at /menu (public/menu),
+// hence a plain link, not a router one.
+function FoodSection({ unit }: { unit: string }) {
+  return (
+    <Section>
+      <div className="rounded-2xl bg-white p-8 shadow-sm md:flex md:items-center md:justify-between md:gap-10 md:p-10">
+        <div className="flex gap-5">
+          <UtensilsCrossed
+            className="text-forest mt-1 hidden shrink-0 sm:block"
+            size={32}
+            aria-hidden="true"
+          />
+          <div>
+            <h2 className="mb-3 font-serif text-3xl font-medium">Food &amp; Dining</h2>
+            <p className="text-stone max-w-2xl text-sm leading-relaxed">
+              Home-style meals in our dining hall, or in your {unit} on request: breakfasts, thalis,
+              Bengali posto specials, starters and more, with veg, egg and non-veg dishes. Prefer it
+              all taken care of? Choose a package with all meals included when you request to book.
+            </p>
+          </div>
+        </div>
+        <div className="mt-6 flex shrink-0 flex-wrap gap-3 md:mt-0">
+          <a
+            href="/menu"
+            className="bg-forest hover:bg-forest-deep inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-bold tracking-[0.2em] text-white uppercase transition-colors"
+          >
+            See the menu
+          </a>
+        </div>
+      </div>
+    </Section>
+  );
+}
 
 // Links to /sightseeing — shown on both sites' home pages.
 function SightseeingTeaser() {
@@ -68,9 +144,14 @@ function VillageHome() {
         heading={currentSite.name}
         subheading={currentSite.tagline}
         cta={
-          <Button to="/cottages" variant="primary">
-            Explore Cottages
-          </Button>
+          <>
+            <Button to="/book" variant="primary">
+              Request to Book
+            </Button>
+            <Link to="/cottages" className={HERO_LINK}>
+              Explore Cottages
+            </Link>
+          </>
         }
       />
 
@@ -84,8 +165,10 @@ function VillageHome() {
                 {address.region} — {currentSite.tagline.toLowerCase()}
               </p>
               <p>
-                Seven named cottages, each with its own character. Read each cottage&rsquo;s story
-                below.
+                Seven named cottages, each with its own character: 300 sq ft, an extra-large king
+                bed, TV, Wi-Fi and an attached bathroom, a private lawn with a swing, and a hill
+                view from the balcony. Three are air-conditioned. For a simpler stay, two
+                first-floor rooms sit above reception.
               </p>
             </div>
           </div>
@@ -110,7 +193,7 @@ function VillageHome() {
             View All
           </Button>
         </div>
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className={SWIPE_ROW}>
           {cottages.map((cottage) => {
             const coverImageRef = cottage.images[0] ?? {
               base: 'village/village-exterior',
@@ -118,13 +201,13 @@ function VillageHome() {
             };
             const coverImage = resolveImage(coverImageRef);
             return (
-              <Card key={cottage.slug} className="group">
+              <Card key={cottage.slug} className={`group ${SWIPE_CARD}`}>
                 <Link to={`/cottages/${cottage.slug}`} className="block">
                   <Image
                     src={coverImage.fallbackSrc}
                     avifSrcSet={coverImage.avifSrcSet}
                     webpSrcSet={coverImage.webpSrcSet}
-                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 80vw"
                     lqip={coverImage.lqip}
                     alt={coverImage.alt}
                     width={coverImage.width}
@@ -138,6 +221,9 @@ function VillageHome() {
                     </p>
                     <h3 className="text-base font-bold">{cottage.name}</h3>
                     <p className="text-stone text-xs leading-relaxed">{cottage.tagline}</p>
+                    <div className="pt-2">
+                      <RoomPrice type={cottage.rateType ?? cottage.slug} price={cottage.price} />
+                    </div>
                   </div>
                 </Link>
               </Card>
@@ -201,6 +287,8 @@ function VillageHome() {
           </Button>
         </div>
       </Section>
+
+      <FoodSection unit="cottage" />
 
       <SightseeingTeaser />
 
@@ -277,9 +365,14 @@ function ResortHome() {
         heading={currentSite.name}
         subheading={currentSite.tagline}
         cta={
-          <Button to="/accommodation" variant="primary">
-            View Accommodation
-          </Button>
+          <>
+            <Button to="/book" variant="primary">
+              Request to Book
+            </Button>
+            <Link to="/accommodation" className={HERO_LINK}>
+              See the Rooms
+            </Link>
+          </>
         }
       />
 
@@ -291,6 +384,11 @@ function ResortHome() {
               <p>
                 {currentSite.name} is nestled in the Ajodhya Hills of {address.district},{' '}
                 {address.region} — {currentSite.tagline.toLowerCase()}
+              </p>
+              <p>
+                Five kinds of room, from our round bamboo-and-thatch cottage to six-bed rooms for
+                bigger groups, three of them with an AC option. Breakfast is included in every room
+                rate.
               </p>
             </div>
           </div>
@@ -308,7 +406,81 @@ function ResortHome() {
         </div>
       </Section>
 
+      <Section>
+        <div className="mb-10 flex items-end justify-between gap-4">
+          <h2 className="font-serif text-4xl font-medium">Our Rooms</h2>
+          <Button to="/accommodation" variant="ghost" className="shrink-0">
+            All rooms
+          </Button>
+        </div>
+        <div className={`${SWIPE_ROW} lg:grid-cols-5`}>
+          {resortAccommodation.map((room) => {
+            const cover = resolveImage(
+              room.images[0] ?? { base: 'resort/resort-hero-mist', alt: room.name },
+            );
+            return (
+              <Card key={room.slug} className={`group ${SWIPE_CARD}`}>
+                <Link to={`/book?room=${room.slug}`} className="block">
+                  <Image
+                    src={cover.fallbackSrc}
+                    avifSrcSet={cover.avifSrcSet}
+                    webpSrcSet={cover.webpSrcSet}
+                    sizes="(min-width: 1024px) 20vw, (min-width: 640px) 50vw, 80vw"
+                    lqip={cover.lqip}
+                    alt={cover.alt}
+                    width={cover.width}
+                    height={cover.height}
+                    className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="space-y-1 p-5">
+                    <h3 className="text-base font-bold">{room.name}</h3>
+                    <p className="text-stone text-xs">{formatOccupancy(room.occupancy)}</p>
+                    <div className="pt-2">
+                      <RoomPrice
+                        type={room.rateType ?? room.slug}
+                        price={room.price}
+                        acPrice={room.acPrice}
+                      />
+                    </div>
+                  </div>
+                </Link>
+              </Card>
+            );
+          })}
+        </div>
+      </Section>
+
+      <Section>
+        <h2 className="mb-6 font-serif text-4xl font-medium">Around the Resort</h2>
+        <PhotoStrip images={RESORT_CAMPUS} className="h-72 overflow-hidden rounded-2xl sm:h-96" />
+      </Section>
+
+      <FoodSection unit="room" />
+
       <SightseeingTeaser />
+
+      <Section>
+        <div className="border-forest/20 bg-forest/5 grid gap-8 rounded-2xl border p-10 md:grid-cols-[1fr_auto] md:items-center">
+          <div className="space-y-2 text-center md:text-left">
+            <p className="text-forest text-[10px] font-bold tracking-widest uppercase">
+              Our Properties
+            </p>
+            <h2 className="font-serif text-2xl font-medium">Also part of the Chamtaburu group</h2>
+            <p className="text-stone text-sm leading-relaxed">
+              {village.name}: seven named cottages, each with its own lawn and hill view, nearby in
+              Matha Forest.
+            </p>
+          </div>
+          <div className="flex justify-center md:justify-end">
+            <a
+              href={`https://${village.domain}`}
+              className="bg-forest hover:bg-forest-deep inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-bold tracking-[0.2em] text-white uppercase transition-colors"
+            >
+              Visit {village.name}
+            </a>
+          </div>
+        </div>
+      </Section>
 
       <Section className="text-center">
         <h2 className="mb-4 font-serif text-3xl font-medium">Plan Your Stay</h2>

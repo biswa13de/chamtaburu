@@ -10,7 +10,7 @@ import { Seo } from '../ui/Seo';
 import { cottages, village } from '../../content/village';
 import { currentSite } from '../../content/site';
 import { resolveImage } from '../../content/manifest';
-import { formatAdults, AMENITY_LABELS } from '../../content/format';
+import { formatOccupancy, AMENITY_LABELS } from '../../content/format';
 import { RoomPrice } from '../ui/RoomPrice';
 import { StayDates } from '../ui/StayDates';
 import { stayQuery, useStayDates } from '../../lib/stayDates';
@@ -115,16 +115,15 @@ export function CottageDetail() {
         <div className="mb-8 grid gap-4 sm:grid-cols-3">
           <Card className="p-6">
             <p className="text-stone text-[10px] font-bold tracking-widest uppercase">Occupancy</p>
-            <p className="mt-1 text-lg font-semibold">{formatAdults(cottage.occupancy.adults)}</p>
-            {cottage.occupancy.children !== undefined && (
-              <p className="text-stone text-xs">+ {cottage.occupancy.children} children</p>
-            )}
+            <p className="mt-1 text-lg font-semibold">{formatOccupancy(cottage.occupancy)}</p>
+            {cottage.occupancyNote && <p className="text-stone text-xs">{cottage.occupancyNote}</p>}
           </Card>
           <Card className="p-6">
             <p className="text-stone text-[10px] font-bold tracking-widest uppercase">Beds</p>
             <p className="mt-1 text-lg font-semibold">
               {cottage.beds === 'TBD' ? 'TBD' : cottage.beds}
             </p>
+            {cottage.size && <p className="text-stone text-xs">Room size {cottage.size}</p>}
           </Card>
           <Card className="p-6">
             <p className="text-stone text-[10px] font-bold tracking-widest uppercase">Amenities</p>

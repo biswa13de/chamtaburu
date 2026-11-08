@@ -6,6 +6,8 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 export interface NavLink {
   label: string;
   to: string;
+  /** A page outside the app (e.g. the food menu at /menu): a full page load. */
+  external?: boolean;
 }
 
 interface HeaderProps {
@@ -67,22 +69,25 @@ export function Header({ siteName, navLinks, cta }: HeaderProps) {
           {siteName}
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={`text-[11px] font-semibold tracking-widest transition-colors hover:text-forest ${
-                location.pathname === link.to ? 'border-b-2 border-forest pb-1 text-forest' : 'text-stone'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+        <nav aria-label="Primary" className="hidden items-center gap-6 lg:flex xl:gap-8">
+          {navLinks.map((link) => {
+            const cls = `text-[11px] font-semibold tracking-widest transition-colors hover:text-forest ${
+              location.pathname === link.to ? 'border-b-2 border-forest pb-1 text-forest' : 'text-stone'
+            }`;
+            return link.external ? (
+              <a key={link.to} href={link.to} className={cls}>
+                {link.label}
+              </a>
+            ) : (
+              <Link key={link.to} to={link.to} className={cls}>
+                {link.label}
+              </Link>
+            );
+          })}
           {cta && (
             <Link
               to={cta.to}
-              className="rounded-full bg-forest/10 px-4 py-2 text-[11px] font-bold tracking-widest text-forest transition-all hover:bg-forest hover:text-white"
+              className="rounded-full bg-forest px-5 py-2.5 text-[11px] font-bold tracking-widest text-white transition-all hover:bg-forest-deep"
             >
               {cta.label}
             </Link>
@@ -95,7 +100,7 @@ export function Header({ siteName, navLinks, cta }: HeaderProps) {
           aria-expanded={isOpen}
           aria-controls="mobile-nav"
           aria-label={isOpen ? 'Close menu' : 'Open menu'}
-          className="text-stone md:hidden"
+          className="text-stone lg:hidden"
         >
           {isOpen ? <X /> : <Menu />}
         </button>
@@ -110,18 +115,28 @@ export function Header({ siteName, navLinks, cta }: HeaderProps) {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={transition}
-            className="overflow-hidden border-t border-stone/10 bg-white md:hidden"
+            className="overflow-hidden border-t border-stone/10 bg-white lg:hidden"
           >
             <nav aria-label="Mobile" className="space-y-4 px-4 pb-6 pt-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="block text-[11px] font-semibold tracking-widest text-stone hover:text-forest"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) =>
+                link.external ? (
+                  <a
+                    key={link.to}
+                    href={link.to}
+                    className="block text-[11px] font-semibold tracking-widest text-stone hover:text-forest"
+                  >
+                    {link.label}
+                  </a>
+                ) : (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className="block text-[11px] font-semibold tracking-widest text-stone hover:text-forest"
+                  >
+                    {link.label}
+                  </Link>
+                ),
+              )}
               {cta && (
                 <Link
                   to={cta.to}

@@ -47,6 +47,13 @@ export const resort: SiteConfig = {
   // Village's coordinates are still unconfirmed, see village.ts.
   geo: { lat: 23.1339437, lng: 86.0721545 },
   mapsUrl: 'https://maps.app.goo.gl/xusbRPjFKgWUqywf9',
+  // Google's keyless embed for the pin above.
+  mapEmbedUrl: 'https://www.google.com/maps?q=23.1339437,86.0721545&z=15&output=embed',
+  // As in the Package Generator (public/package/rates.js); reception hours
+  // confirmed by the owner, 2026-11-08.
+  checkIn: '11:00 AM',
+  checkOut: '9:00 AM',
+  receptionHours: '7:30 AM – 11:30 PM',
   gstin: '19AAUFC4653K1ZR',
   // docs/06-open-questions.md Q9 — confirmed 2026-10-05.
   social: {

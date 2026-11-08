@@ -16,7 +16,10 @@ and it builds anticipation. Listing a cottage a guest cannot book generates comp
 
 **Needed by:** Phase 4. **Form:** which of the seven are ready now.
 
-### Q2 — Cottage prices, occupancy and bed configuration
+### Q2 — Cottage prices, occupancy and bed configuration — ANSWERED 2026-11-08
+Every cottage: 300 sq ft, an extra-large king bed, 2 adults + 1 child (up to 5 with extra mattresses); TV, Wi-Fi, hot water, attached bathroom, private lawn with a swing, hill view from the balcony; 02–04 AC. Prices come from the rate calendar (Cottage ₹5,000, AC Cottage ₹5,500 normal rates).
+
+_Original question:_
 Not in the vision doc, and the existing prices in the code are invented. Per cottage:
 
 | Field | Example |
@@ -45,13 +48,19 @@ All five are bookable now. Populated in `src/content/resort.ts`; photos processe
 
 ## Needed before launch
 
-### Q4 — Food and dining
+### Q4 — Food and dining — ANSWERED 2026-11-08
+The menu at /menu is current for both properties. Meals are served in the dining hall, or in the cottage / room on request. (Vegetarian and Jain catering not stated; the site only says what the menu shows: veg, egg and non-veg dishes.)
+
+_Original question:_
 What is actually served? Fixed menu or à la carte? Bengali, tribal, or general Indian?
 Is there a dining hall, or is food served at the cottage? Any signature dish worth
 naming? Vegetarian and Jain options? This is among the top three questions guests ask
 before booking, and there is currently nothing about it on the site.
 
-### Q5 — Cancellation and refund policy
+### Q5 — Cancellation and refund policy — ANSWERED 2026-11-08
+Full refund at least 25 days before check-in; within 25 days, 90% of the room tariff is charged; no-shows not refunded; refunds in 3–7 business days; 50% advance confirms a booking; government ID from all guests and visitors. On /legal (src/content/shared.ts), with drafted Privacy Policy and Terms the owner approved. Still open: pets, smoking, alcohol, quiet hours.
+
+_Original question:_
 Your actual terms. For example: *free cancellation up to 7 days before check-in; 50%
 refund 3–7 days; no refund within 72 hours; no-show forfeits the full amount.* I will
 write the formal language — I need the numbers. This must be real, not invented, because
@@ -60,7 +69,10 @@ guests will hold you to it.
 Also needed: check-in and check-out times, ID requirements, children policy, pets,
 smoking, alcohol.
 
-### Q6 — GPS coordinates for both properties
+### Q6 — GPS coordinates for both properties — ANSWERED 2026-11-08
+Village: https://maps.app.goo.gl/6k432JfLCnnUpjcR8 (23.1209367, 86.0800183) with the owner's embed; Resort answered 2026-10-05. Both Contact pages show the map.
+
+_Original question:_
 Open Google Maps, drop a pin on each property, and copy the latitude/longitude. Required
 for `LodgingBusiness` structured data, the embedded map, and the "Get Directions" link.
 Two pairs of numbers — Matha (Village) and Sankupi (Resort).
@@ -70,13 +82,19 @@ Confirmation of the Bengali script for each (e.g. Shal Shanti → শাল শ�
 attractive, and helps Bengali-language search. If you would rather keep the site
 Latin-only, that is also a valid answer.
 
-### Q8 — Directions from Kolkata and Purulia
+### Q8 — Directions from Kolkata and Purulia — ANSWERED 2026-11-08
+Driving: Kolkata 6–7 hrs, Durgapur about 4½ hrs, Ranchi about 3 hrs. Nearest stations Purulia and Barabhum, with pickup by car. On both Contact pages.
+
+_Original question:_
 The route guests actually drive, the drive time, the last reliable fuel stop, road
 condition in monsoon, and nearest railway station (Purulia Jn? Barabhum?) with distance.
 Also: is the final approach navigable by a low-clearance car, and is there parking?
 "How do I get there" is one of the most-visited pages on any rural property site.
 
-### Q9 — Social media accounts
+### Q9 — Social media accounts — ANSWERED 2026-11-08
+Village: facebook.com/chamtaburuecovillage, instagram.com/chamtaburu_ev, youtube.com/@ChamtaburuEcoVillage, Google review g.page/r/CQqkiqTaflPCEBE/review. Resort answered 2026-10-05.
+
+_Original question:_
 Facebook, Instagram, YouTube URLs. The footer icons currently link nowhere. If accounts
 do not exist yet, I will remove the icons rather than ship dead ones.
 

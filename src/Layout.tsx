@@ -16,6 +16,7 @@ const VILLAGE_NAV: NavLink[] = [
   { label: 'Experiences', to: '/experiences' },
   { label: 'Sightseeing', to: '/sightseeing' },
   { label: 'Gallery', to: '/gallery' },
+  { label: 'Menu', to: '/menu', external: true },
   { label: 'Contact', to: '/contact' },
 ];
 
@@ -23,18 +24,25 @@ const RESORT_NAV: NavLink[] = [
   { label: 'Home', to: '/' },
   { label: 'Accommodation', to: '/accommodation' },
   { label: 'Sightseeing', to: '/sightseeing' },
+  { label: 'Menu', to: '/menu', external: true },
   { label: 'Contact', to: '/contact' },
 ];
+
+// The header's highlighted button: request to book (src/components/pages/Book.tsx).
+const BOOK_CTA: NavLink = { label: 'Book', to: '/book' };
 
 const NAV_LINKS = currentSite.key === 'resort' ? RESORT_NAV : VILLAGE_NAV;
 
 // Scrolls to top on every route change — client-side navigations don't reset
-// scroll position by default with react-router.
+// scroll position by default with react-router — or, for a link to a
+// section (/legal#cancellation), to that section once it has rendered.
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    const target = hash ? document.getElementById(decodeURIComponent(hash.slice(1))) : null;
+    if (target) target.scrollIntoView();
+    else window.scrollTo(0, 0);
+  }, [pathname, hash]);
   return null;
 }
 
@@ -44,7 +52,7 @@ export default function Layout() {
       <ScrollToTop />
       <GoogleAnalytics />
       <AnalyticsRouteTracker />
-      <Header siteName={currentSite.name} navLinks={NAV_LINKS} />
+      <Header siteName={currentSite.name} navLinks={NAV_LINKS} cta={BOOK_CTA} />
       <main className="flex-grow">
         <Outlet />
       </main>
@@ -56,7 +64,7 @@ export default function Layout() {
           <main> which the footer follows. The bar itself is md:hidden, so
           this padding is removed at the same breakpoint. */}
       <div className="pb-[52px] md:pb-0">
-        <Footer navLinks={NAV_LINKS} legalName={groupInfo.legalName} social={currentSite.social} />
+        <Footer navLinks={NAV_LINKS} legalName={groupInfo.legalName} site={currentSite} />
       </div>
       <MobileContactBar />
     </div>

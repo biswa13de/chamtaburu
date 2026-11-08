@@ -15,7 +15,8 @@ export type AmenityKey =
   | 'parking'
   | 'private-lawn'
   | 'hill-view'
-  | 'swing';
+  | 'swing'
+  | 'tv';
 
 /**
  * `base` is a manifest key — `<site>/<descriptive-name>`, e.g.
@@ -73,7 +74,10 @@ export interface Cottage {
   // Q2) — represented as 'TBD' rather than invented numbers. See the `Price`
   // comment above for why 'TBD' rather than `null`.
   occupancy: { adults: number | 'TBD'; children?: number };
+  // More guests the room takes at extra cost, e.g. 'Up to 5 guests with extra mattresses'.
+  occupancyNote?: string;
   beds: string | 'TBD'; // '1 King Bed', or 'TBD' until confirmed
+  size?: string; // '300 sq ft'
   price: Price; // per night, INR, before GST
   acPrice?: Price; // the AC version's price, for rooms that have one
   // The room's row in the manager's rate calendar (src/lib/liveRates.ts),
@@ -135,6 +139,11 @@ export interface SiteConfig {
   // than defaulting to 0,0 (which would silently plot null island).
   geo?: { lat: number; lng: number };
   mapsUrl?: string;
+  // Google Maps embed (https://www.google.com/maps/embed?…) for the Contact page.
+  mapEmbedUrl?: string;
+  checkIn: string; // '12:00 PM'
+  checkOut: string; // '10:00 AM'
+  receptionHours: string; // '7:30 AM – 11:30 PM'
   gstin: string;
   // No confirmed social URLs exist yet (docs/06-open-questions.md Q9).
   // Omit keys rather than inventing URLs — Footer only renders icons for

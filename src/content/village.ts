@@ -13,10 +13,10 @@
  * priced as the rate calendar's 'cottage-ac' row; the others are 'cottage'.
  * All seven are built and bookable (2026-11).
  *
- * Occupancy and beds aren't confirmed for the website yet (docs/06-open-
- * questions.md Q2) and stay 'TBD'; prices come live from the rate calendar
- * (src/lib/liveRates.ts). See src/content/types.ts for why 'TBD' rather than
- * a fake number.
+ * Every cottage (owner, 2026-11-08): 300 sq ft, an extra-large king bed,
+ * 2 adults + 1 child (up to 5 with extra mattresses). Prices come live from
+ * the rate calendar (src/lib/liveRates.ts); `price` stays 'TBD' as the
+ * fallback, see src/content/types.ts.
  */
 
 import type { Cottage, Experience, ImageRef, Room, SiteConfig } from './types';
@@ -39,12 +39,25 @@ export const village: SiteConfig = {
     postalCode: '723152',
     country: 'IN',
   },
-  // Not yet known — docs/06-open-questions.md Q6. Do not invent coordinates.
-  geo: undefined,
-  mapsUrl: undefined,
+  // docs/06-open-questions.md Q6 — the owner's Google Maps pin (2026-11-08),
+  // https://maps.app.goo.gl/6k432JfLCnnUpjcR8, resolved to the place's
+  // lat/lng via the link's redirect target; the embed is the owner's own.
+  geo: { lat: 23.1209367, lng: 86.0800183 },
+  mapsUrl: 'https://maps.app.goo.gl/6k432JfLCnnUpjcR8',
+  mapEmbedUrl:
+    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3850.904717573934!2d86.07514738250914!3d23.12093662522827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f5c59cb1b9f92f%3A0xc2537edaa48aa40a!2sChamtaburu%20Eco%20Village!5e1!3m2!1sen!2sin!4v1794139693738!5m2!1sen!2sin',
+  // Confirmed by the owner, 2026-11-08 (also in the Package Generator, public/package/rates.js).
+  checkIn: '12:00 PM',
+  checkOut: '10:00 AM',
+  receptionHours: '7:30 AM – 11:30 PM',
   gstin: '19AAUFC4653K1ZR',
-  // No confirmed social URLs exist yet (docs/06-open-questions.md Q9).
-  social: {},
+  // docs/06-open-questions.md Q9 — confirmed by the owner, 2026-11-08.
+  social: {
+    facebook: 'https://www.facebook.com/chamtaburuecovillage',
+    instagram: 'https://www.instagram.com/chamtaburu_ev/',
+    youtube: 'https://www.youtube.com/@ChamtaburuEcoVillage',
+    googleReview: 'https://g.page/r/CQqkiqTaflPCEBE/review',
+  },
 };
 
 /**
@@ -114,8 +127,17 @@ const ADIVASI_AANGAN_EXTERIOR = photo(
   'Adivasi Aangan cottage with a garden swing among trees at Chamtaburu Eco Village, Ajodhya Hills',
 );
 
-// Every cottage has its own lawn and garden with a hill view and a swing.
-const VILLAGE_COTTAGE_AMENITIES: Cottage['amenities'] = ['private-lawn', 'hill-view', 'swing'];
+// Every cottage (owner, 2026-11-08): TV, Wi-Fi, hot water, attached bathroom,
+// its own lawn with a swing, and a hill view from the balcony. 02–04 add AC.
+const VILLAGE_COTTAGE_AMENITIES: Cottage['amenities'] = [
+  'tv',
+  'wifi',
+  'geyser',
+  'attached-bathroom',
+  'private-lawn',
+  'swing',
+  'hill-view',
+];
 
 export const cottages: Cottage[] = [
   {
@@ -136,8 +158,10 @@ export const cottages: Cottage[] = [
       'Warm lighting',
     ],
     photoPoint: 'A small wooden bench or chair near greenery with a Sal-inspired sign.',
-    occupancy: { adults: 'TBD' },
-    beds: 'TBD',
+    occupancy: { adults: 2, children: 1 },
+    occupancyNote: 'Up to 5 guests with extra mattresses',
+    beds: 'Extra-large king bed',
+    size: '300 sq ft',
     price: 'TBD',
     rateType: 'cottage',
     amenities: VILLAGE_COTTAGE_AMENITIES,
@@ -155,8 +179,10 @@ export const cottages: Cottage[] = [
     story:
       'The Karam tree holds an important place in the cultural traditions of many communities across eastern India.\n\nKaram Kunja celebrates the connection between nature, community and tradition — values that are at the heart of the Chamtaburu Eco Village experience.',
     interiorNotes: ['Natural bamboo', 'Tribal-inspired patterns', 'Karam tree artwork', 'Earth tones', 'Handcrafted décor'],
-    occupancy: { adults: 'TBD' },
-    beds: 'TBD',
+    occupancy: { adults: 2, children: 1 },
+    occupancyNote: 'Up to 5 guests with extra mattresses',
+    beds: 'Extra-large king bed',
+    size: '300 sq ft',
     price: 'TBD',
     rateType: 'cottage-ac',
     amenities: ['ac', ...VILLAGE_COTTAGE_AMENITIES],
@@ -181,8 +207,10 @@ export const cottages: Cottage[] = [
       'Simple village-inspired artwork',
     ],
     photoPoint: 'A rustic wooden chair with a small Mahua-inspired information board.',
-    occupancy: { adults: 'TBD' },
-    beds: 'TBD',
+    occupancy: { adults: 2, children: 1 },
+    occupancyNote: 'Up to 5 guests with extra mattresses',
+    beds: 'Extra-large king bed',
+    size: '300 sq ft',
     price: 'TBD',
     rateType: 'cottage-ac',
     amenities: ['ac', ...VILLAGE_COTTAGE_AMENITIES],
@@ -207,8 +235,10 @@ export const cottages: Cottage[] = [
       'Minimal decorative elements',
     ],
     photoPoint: 'Create a small Palash-themed garden corner outside the cottage.',
-    occupancy: { adults: 'TBD' },
-    beds: 'TBD',
+    occupancy: { adults: 2, children: 1 },
+    occupancyNote: 'Up to 5 guests with extra mattresses',
+    beds: 'Extra-large king bed',
+    size: '300 sq ft',
     price: 'TBD',
     rateType: 'cottage-ac',
     amenities: ['ac', ...VILLAGE_COTTAGE_AMENITIES],
@@ -226,8 +256,10 @@ export const cottages: Cottage[] = [
       'The hills of Purulia create a landscape that invites you to slow down.\n\nPahari Chaya is a place to escape the rush of everyday life, relax and simply enjoy the quiet presence of the hills.',
     interiorNotes: ['Grey and green tones', 'Mountain artwork', 'Natural wood', 'Minimal décor', 'Soft warm lighting'],
     photoPoint: 'A small outdoor seating area facing greenery.',
-    occupancy: { adults: 'TBD' },
-    beds: 'TBD',
+    occupancy: { adults: 2, children: 1 },
+    occupancyNote: 'Up to 5 guests with extra mattresses',
+    beds: 'Extra-large king bed',
+    size: '300 sq ft',
     price: 'TBD',
     rateType: 'cottage',
     amenities: VILLAGE_COTTAGE_AMENITIES,
@@ -245,8 +277,10 @@ export const cottages: Cottage[] = [
       'Water brings life, movement and freshness to the hills.\n\nJharna Neer draws inspiration from the streams and waterfalls of the region — a reminder to slow down, refresh and enjoy the journey.',
     interiorNotes: ['Blue-green accents', 'Natural textures', 'Water-inspired artwork', 'Bamboo accessories', 'Soft lighting'],
     photoPoint: 'A small water-themed garden installation or stone feature.',
-    occupancy: { adults: 'TBD' },
-    beds: 'TBD',
+    occupancy: { adults: 2, children: 1 },
+    occupancyNote: 'Up to 5 guests with extra mattresses',
+    beds: 'Extra-large king bed',
+    size: '300 sq ft',
     price: 'TBD',
     rateType: 'cottage',
     amenities: VILLAGE_COTTAGE_AMENITIES,
@@ -272,8 +306,10 @@ export const cottages: Cottage[] = [
       'Simple traditional motifs',
     ],
     photoPoint: 'Create a small traditional courtyard-style sitting area outside.',
-    occupancy: { adults: 'TBD' },
-    beds: 'TBD',
+    occupancy: { adults: 2, children: 1 },
+    occupancyNote: 'Up to 5 guests with extra mattresses',
+    beds: 'Extra-large king bed',
+    size: '300 sq ft',
     price: 'TBD',
     rateType: 'cottage',
     amenities: VILLAGE_COTTAGE_AMENITIES,
