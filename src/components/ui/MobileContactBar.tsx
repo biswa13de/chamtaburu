@@ -1,8 +1,9 @@
-import { Phone, MessageCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Phone, MessageCircle, CalendarCheck } from 'lucide-react';
 import { currentSite } from '../../content/site';
 
 /**
- * Fixed bottom call/WhatsApp bar — docs/02-architecture.md §8: "persistent
+ * Fixed bottom call/WhatsApp/book bar — docs/02-architecture.md §8: "persistent
  * click-to-call and click-to-WhatsApp buttons ... a fixed bottom bar on
  * mobile, where most visitors are." Mobile-only (`md:hidden`); desktop
  * visitors already have the header/contact page.
@@ -35,11 +36,18 @@ export function MobileContactBar() {
         href={whatsappHref}
         target="_blank"
         rel="noreferrer noopener"
-        className="flex flex-1 items-center justify-center gap-2 py-3.5 text-xs font-bold tracking-widest text-white uppercase"
+        className="flex flex-1 items-center justify-center gap-2 border-r border-white/15 py-3.5 text-xs font-bold tracking-widest text-white uppercase"
       >
         <MessageCircle size={16} aria-hidden="true" />
         WhatsApp
       </a>
+      <Link
+        to="/book"
+        className="flex flex-1 items-center justify-center gap-2 bg-white py-3.5 text-xs font-bold tracking-widest text-forest uppercase"
+      >
+        <CalendarCheck size={16} aria-hidden="true" />
+        Book
+      </Link>
     </div>
   );
 }

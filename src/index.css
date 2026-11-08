@@ -24,7 +24,7 @@
   --color-terracotta: #a8613c;
   --color-sand: #f7f4ee; /* Page background. */
   --color-ink: #1f211e; /* Body text. */
-  --color-stone: #6b6f68; /* Muted text, borders. */
+  --color-stone: #5d615a; /* Muted text, borders. Darkened 2026-11 from #6b6f68 so small text on tinted panels passes WCAG AA contrast. */
 
   /* Back-compat aliases while components migrate off the old prototype tokens. */
   --color-primary: var(--color-forest);

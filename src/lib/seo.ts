@@ -112,6 +112,23 @@ export function buildLodgingBusinessJsonLd(
     jsonLd.hasMap = site.mapsUrl;
   }
 
+  // schema.org wants 24-hour times: '12:00 PM' → '12:00', '9:00 AM' → '09:00'.
+  const time24 = (t: string): string | null => {
+    const m = /^(\d{1,2}):(\d{2})\s*([AP]M)$/i.exec(t.trim());
+    if (!m) return null;
+    const h = (Number(m[1]) % 12) + (m[3]!.toUpperCase() === 'PM' ? 12 : 0);
+    return `${String(h).padStart(2, '0')}:${m[2]}`;
+  };
+  const checkin = time24(site.checkIn);
+  const checkout = time24(site.checkOut);
+  if (checkin) jsonLd.checkinTime = checkin;
+  if (checkout) jsonLd.checkoutTime = checkout;
+
+  const profiles = [site.social.facebook, site.social.instagram, site.social.youtube].filter(
+    (u): u is string => Boolean(u),
+  );
+  if (profiles.length) jsonLd.sameAs = profiles;
+
   if (numericPrices.length > 0) {
     const min = Math.min(...numericPrices);
     const max = Math.max(...numericPrices);

@@ -10,7 +10,7 @@ import { StayDates } from '../ui/StayDates';
 import { stayQuery, useStayDates } from '../../lib/stayDates';
 import { village, cottages, rooms } from '../../content/village';
 import { resolveImage } from '../../content/manifest';
-import { formatAdults } from '../../content/format';
+import { formatOccupancy } from '../../content/format';
 
 const HERO_IMAGE = resolveImage({
   base: 'village/village-campus-cottage-swing',
@@ -41,6 +41,7 @@ export function Cottages() {
       </Section>
 
       <Section className="mt-8">
+        <h2 className="sr-only">The cottages</h2>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {cottages.map((cottage) => {
             // Build-time validation (src/content/validate.ts) guarantees every
@@ -82,13 +83,17 @@ export function Cottages() {
                   </Link>
                   <p className="text-stone text-xs leading-relaxed">{cottage.tagline}</p>
                   {!cottage.available && (
-                    <p className="text-stone/70 text-[10px] font-semibold tracking-widest uppercase">
+                    <p className="text-stone text-[10px] font-semibold tracking-widest uppercase">
                       Opening soon
                     </p>
                   )}
                   <div className="text-stone flex items-center justify-between pt-2 text-xs">
-                    <span>{formatAdults(cottage.occupancy.adults)}</span>
-                    <span>{cottage.beds === 'TBD' ? 'Beds TBD' : cottage.beds}</span>
+                    <span>{formatOccupancy(cottage.occupancy)}</span>
+                    <span>
+                      {[cottage.size, cottage.beds === 'TBD' ? '' : cottage.beds]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between gap-3 pt-4">
                     <RoomPrice type={cottage.rateType ?? cottage.slug} price={cottage.price} />
@@ -118,12 +123,7 @@ export function Cottages() {
               <div className="space-y-3 p-6">
                 <h3 className="text-lg font-bold">{room.name}</h3>
                 <p className="text-stone text-xs leading-relaxed">{room.description}</p>
-                <p className="text-stone pt-2 text-xs">
-                  {formatAdults(room.occupancy.adults)}
-                  {room.occupancy.children
-                    ? ` + ${room.occupancy.children} child${room.occupancy.children === 1 ? '' : 'ren'}`
-                    : ''}
-                </p>
+                <p className="text-stone pt-2 text-xs">{formatOccupancy(room.occupancy)}</p>
                 <div className="flex items-center justify-between gap-3 pt-4">
                   <RoomPrice type={room.slug} price={room.price} />
                   <Link

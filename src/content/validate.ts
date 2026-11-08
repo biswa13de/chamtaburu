@@ -97,6 +97,11 @@ export function validateCottages(cottages: Cottage[]): void {
     );
 
     assert(
+      cottage.size === undefined || (typeof cottage.size === 'string' && cottage.size.length > 0),
+      `${ctx}: size must be a non-empty string, or omitted`,
+    );
+
+    assert(
       cottage.extraBedPrice === undefined || cottage.extraBedPrice === 'TBD' || typeof cottage.extraBedPrice === 'number',
       `${ctx}: extraBedPrice must be a number, 'TBD', or omitted`,
     );
@@ -162,6 +167,13 @@ export function validateSiteConfig(site: SiteConfig): void {
 
   assert(/^\S+@\S+\.\S+$/.test(site.email), `${ctx}: email is not a valid address`);
   assert(!site.email.endsWith('.com'), `${ctx}: email must be on the .in domain, not .com (see docs/03-content-model.md corrections table)`);
+  for (const key of ['checkIn', 'checkOut', 'receptionHours'] as const) {
+    assert(typeof site[key] === 'string' && site[key].length > 0, `${ctx}: ${key} is required`);
+  }
+  assert(
+    site.mapEmbedUrl === undefined || site.mapEmbedUrl.startsWith('https://www.google.com/maps'),
+    `${ctx}: mapEmbedUrl must be a https://www.google.com/maps embed (the CSP only allows www.google.com frames)`,
+  );
 
   assert(site.address && typeof site.address.street === 'string' && site.address.street.length > 0, `${ctx}: address.street is required`);
   assert(typeof site.address.postalCode === 'string' && /^\d{6}$/.test(site.address.postalCode), `${ctx}: address.postalCode must be 6 digits`);

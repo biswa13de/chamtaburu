@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
-import { MapPin, Phone, Mail, Clock, Navigation } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Navigation, Car, Train } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
 import { Card } from '../ui/Card';
@@ -9,11 +10,9 @@ import { currentSite } from '../../content/site';
 import { resolveImage } from '../../content/manifest';
 import { isDate } from '../../lib/liveRates';
 
-// Real embedded map / drive times need a Maps API key and confirmed geo
-// coordinates, neither of which exist yet (docs/06-open-questions.md Q6,
-// Q8) — see src/content/village.ts's `geo: undefined`. Rather than invent
-// coordinates or drive times, this page links out to a Google Maps search
-// by address, which needs no API key and no coordinates.
+// The map is Google's embed of each property's own pin (`mapEmbedUrl` in
+// src/content/village.ts / resort.ts), which needs no API key; the CSP
+// allows www.google.com frames. Drive times are the owner's (2026-11-08).
 //
 // Each site uses its own photo: Village photos must never appear on
 // resort.chamtaburu.in and vice versa.
@@ -28,6 +27,12 @@ const HERO_IMAGE = resolveImage(
         alt: 'Main building, lawns and red-roofed cottages under a blue sky at Chamtaburu Eco Village, Ajodhya Hills',
       },
 );
+
+const DRIVE_TIMES: [string, string][] = [
+  ['Ranchi', 'about 3 hrs'],
+  ['Durgapur', 'about 4½ hrs'],
+  ['Kolkata', '6–7 hrs'],
+];
 
 export function Contact() {
   const { address } = currentSite;
@@ -125,27 +130,71 @@ export function Contact() {
               <Clock className="text-forest shrink-0" size={20} aria-hidden="true" />
               <div>
                 <h2 className="text-stone mb-1 text-[10px] font-bold tracking-widest uppercase">
-                  Front Desk Hours
+                  Reception &amp; Timings
                 </h2>
-                <p className="text-stone text-sm">Hours to be confirmed</p>
+                <p className="text-stone text-sm">Reception: {currentSite.receptionHours}</p>
+                <p className="text-stone text-sm">
+                  Check-in: {currentSite.checkIn} · Check-out: {currentSite.checkOut}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* No Maps API key / confirmed geo coordinates exist yet — an
-              honest placeholder plus a directions link, not a fake embed. */}
-          <div className="flex h-[400px] flex-col items-center justify-center gap-4 rounded-2xl bg-white shadow-sm">
-            <p className="text-stone text-sm">Map coming soon</p>
-            <a
-              href={mapsSearchUrl}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="bg-forest/10 text-forest hover:bg-forest inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-bold tracking-[0.2em] uppercase transition-colors hover:text-white"
-            >
-              <Navigation size={14} aria-hidden="true" />
-              Open in Google Maps
-            </a>
-          </div>
+          {currentSite.mapEmbedUrl ? (
+            <iframe
+              src={currentSite.mapEmbedUrl}
+              title={`Map showing ${currentSite.name}`}
+              className="h-[400px] w-full rounded-2xl border-0 bg-white shadow-sm"
+              loading="lazy"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            />
+          ) : (
+            <div className="flex h-[400px] flex-col items-center justify-center gap-4 rounded-2xl bg-white shadow-sm">
+              <a
+                href={mapsSearchUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="bg-forest/10 text-forest hover:bg-forest inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-xs font-bold tracking-[0.2em] uppercase transition-colors hover:text-white"
+              >
+                <Navigation size={14} aria-hidden="true" />
+                Open in Google Maps
+              </a>
+            </div>
+          )}
+        </div>
+      </Section>
+
+      <Section className="mt-16">
+        <h2 className="mb-6 font-serif text-3xl font-medium">Getting Here</h2>
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="p-6">
+            <p className="text-ink mb-3 flex items-center gap-2 text-sm font-semibold">
+              <Car size={18} className="text-forest" aria-hidden="true" /> By road
+            </p>
+            <ul className="text-stone space-y-1.5 text-sm">
+              {DRIVE_TIMES.map(([from, time]) => (
+                <li key={from} className="flex justify-between gap-4">
+                  <span>From {from}</span>
+                  <span className="text-ink font-semibold">{time}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="text-stone mt-3 text-xs">Approximate driving times.</p>
+          </Card>
+          <Card className="p-6">
+            <p className="text-ink mb-3 flex items-center gap-2 text-sm font-semibold">
+              <Train size={18} className="text-forest" aria-hidden="true" /> By train
+            </p>
+            <p className="text-stone text-sm leading-relaxed">
+              The nearest stations are Purulia and Barabhum. We can pick you up and drop you back by
+              car: tick it when you{' '}
+              <Link to="/book" className="text-forest font-semibold">
+                request to book
+              </Link>
+              .
+            </p>
+          </Card>
         </div>
       </Section>
     </div>

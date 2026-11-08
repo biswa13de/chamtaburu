@@ -58,9 +58,13 @@ export function Image({
     if (img?.complete && img.naturalWidth > 0) setLoaded(true);
   }, []);
 
+  // An eager image (a page's main photo) shows the moment it arrives, without
+  // waiting for the page's script to fade it in: it is what the guest looks
+  // at first, and what speed checks time. Lazy ones fade in over their LQIP.
+  const fade = lqip && loading === 'lazy';
   const imgStyle: CSSProperties = {
     ...style,
-    ...(lqip && { transition: 'opacity 300ms ease', opacity: loaded ? 1 : 0 }),
+    ...(fade && { transition: 'opacity 300ms ease', opacity: loaded ? 1 : 0 }),
   };
 
   const picture = (
@@ -76,6 +80,7 @@ export function Image({
         width={width}
         height={height}
         loading={loading}
+        fetchPriority={loading === 'eager' ? 'high' : undefined}
         decoding="async"
         onLoad={() => setLoaded(true)}
         className={className}

@@ -28,7 +28,7 @@ export function PhotoStrip({
         ref={strip}
         className="flex h-full snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {images.map((ref, i) => {
+        {images.map((ref) => {
           const image = resolveImage(ref);
           return (
             <Image
@@ -41,7 +41,7 @@ export function PhotoStrip({
               alt={image.alt}
               width={image.width}
               height={image.height}
-              loading={i === 0 ? 'eager' : 'lazy'}
+              loading="lazy"
               className="h-full w-full shrink-0 snap-center object-cover"
             />
           );
@@ -49,7 +49,7 @@ export function PhotoStrip({
       </div>
       {images.length > 1 && (
         <>
-          <span className="bg-ink/60 pointer-events-none absolute right-3 bottom-3 rounded-full px-3 py-1 text-[10px] font-semibold tracking-widest text-white uppercase">
+          <span className="bg-ink/80 pointer-events-none absolute right-3 bottom-3 rounded-full px-3 py-1 text-[10px] font-semibold tracking-widest text-white uppercase">
             {images.length} photos · swipe
           </span>
           <button
