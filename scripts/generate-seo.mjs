@@ -51,6 +51,7 @@ function routesForSite(site, { cottages }) {
       { path: '/experiences', changefreq: 'monthly', priority: '0.7' },
       { path: '/sightseeing', changefreq: 'monthly', priority: '0.8' },
       { path: '/gallery', changefreq: 'monthly', priority: '0.6' },
+      { path: '/book', changefreq: 'monthly', priority: '0.7' },
       { path: '/contact', changefreq: 'monthly', priority: '0.6' },
       { path: '/legal', changefreq: 'yearly', priority: '0.3' },
     ];
@@ -59,6 +60,7 @@ function routesForSite(site, { cottages }) {
     { path: '/', changefreq: 'weekly', priority: '1.0' },
     { path: '/accommodation', changefreq: 'weekly', priority: '0.9' },
     { path: '/sightseeing', changefreq: 'monthly', priority: '0.8' },
+    { path: '/book', changefreq: 'monthly', priority: '0.7' },
     { path: '/contact', changefreq: 'monthly', priority: '0.6' },
     { path: '/legal', changefreq: 'yearly', priority: '0.3' },
   ];

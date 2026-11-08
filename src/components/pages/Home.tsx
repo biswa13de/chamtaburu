@@ -245,12 +245,17 @@ function VillageHome() {
       <Section className="text-center">
         <h2 className="mb-4 font-serif text-3xl font-medium">Plan Your Stay</h2>
         <p className="text-stone mx-auto mb-8 max-w-xl text-sm leading-relaxed">
-          Have a question about a cottage or want to check availability? Reach out and we&rsquo;ll
-          help you plan your visit.
+          Pick your cottage and dates, see the price and send a booking request. We&rsquo;ll confirm
+          availability on WhatsApp. Questions first? Get in touch.
         </p>
-        <Button to="/contact" variant="primary">
-          Enquire Now
-        </Button>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Button to="/book" variant="primary">
+            Request to Book
+          </Button>
+          <Button to="/contact" variant="secondary">
+            Enquire
+          </Button>
+        </div>
       </Section>
     </div>
   );
@@ -308,12 +313,17 @@ function ResortHome() {
       <Section className="text-center">
         <h2 className="mb-4 font-serif text-3xl font-medium">Plan Your Stay</h2>
         <p className="text-stone mx-auto mb-8 max-w-xl text-sm leading-relaxed">
-          Have a question or want to check availability? Reach out and we&rsquo;ll help you plan
-          your visit.
+          Pick your room and dates, see the price and send a booking request. We&rsquo;ll confirm
+          availability on WhatsApp. Questions first? Get in touch.
         </p>
-        <Button to="/contact" variant="primary">
-          Enquire Now
-        </Button>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Button to="/book" variant="primary">
+            Request to Book
+          </Button>
+          <Button to="/contact" variant="secondary">
+            Enquire
+          </Button>
+        </div>
       </Section>
     </div>
   );

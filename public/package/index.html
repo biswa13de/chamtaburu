@@ -91,6 +91,13 @@ ul.recent .acts{display:flex;gap:6px}
   ul.recent li .muted{grid-column:1/-1;grid-row:2}
   ul.recent li .acts{grid-column:1/-1;grid-row:3}
 }
+ul.reqs li{grid-template-columns:minmax(0,1fr) auto}
+ul.reqs .who{grid-column:1/-1;font-weight:600}
+ul.reqs .who a{font-weight:400;margin-left:6px}
+ul.reqs .what{grid-column:1/-1;color:var(--muted);font-size:.86rem}
+ul.reqs .note{grid-column:1/-1;font-size:.86rem;font-style:italic}
+ul.reqs .st-new{color:var(--palash);font-weight:600}
+#reqSum.has{color:var(--palash);font-weight:600}
 .editing{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--forest);color:var(--paper);padding:8px 16px;border-radius:999px;font-size:.9rem;z-index:6}
 @media (max-width:520px){
@@ -152,6 +159,18 @@ ul.recent .acts{display:flex;gap:6px}
 
     <p class="banner editing" id="editing" hidden><span>Editing <strong id="editingRef"></strong>. Saving updates the same link the guest has.</span>
       <button class="btn small" type="button" id="editNew">Start a new package</button></p>
+
+    <details class="card fold" id="reqCard">
+      <summary><h2>Booking requests</h2><span class="foldSum" id="reqSum">Loading…</span></summary>
+      <div class="foldBody">
+        <div class="pkgTools">
+          <select id="reqFilter" aria-label="Show requests"><option value="open">Waiting for a package</option><option value="all">All</option></select>
+          <button class="btn small" type="button" id="reqRefresh">Refresh</button>
+        </div>
+        <p class="hint" id="reqHint" style="margin:0 0 8px"></p>
+        <ul class="recent reqs" id="reqList"></ul>
+      </div>
+    </details>
 
     <form id="form" autocomplete="off">
       <div class="card">

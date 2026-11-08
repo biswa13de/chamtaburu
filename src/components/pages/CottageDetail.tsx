@@ -163,7 +163,7 @@ export function CottageDetail() {
         </Section>
       )}
 
-      {/* 7. Dates, price + Enquire CTA */}
+      {/* 7. Dates, price + Request to book */}
       <Section className="mt-16">
         <StayDates note="Prices are per room per night, before GST." />
         <Card className="mt-4 flex flex-col items-center gap-4 p-10 text-center sm:flex-row sm:justify-between sm:text-left">
@@ -172,10 +172,10 @@ export function CottageDetail() {
             <RoomPrice type={cottage.rateType ?? cottage.slug} price={cottage.price} large />
           </div>
           <Button
-            to={`/contact${stayQuery(checkIn, checkOut, { cottage: cottage.slug })}`}
+            to={`/book${stayQuery(checkIn, checkOut, { room: cottage.slug })}`}
             variant="primary"
           >
-            Enquire About {cottage.name}
+            Request to Book {cottage.name}
           </Button>
         </Card>
       </Section>

@@ -30,6 +30,7 @@
   let addons = {};
   let custom = []; // the manager's own items: [{ n: name, q: quantity, p: price each }]
   let edits = {}; // a manager's own price per line, by line key (P.calculate)
+  let fromReq = null; // the booking request this package answers, until it's saved
 
   /* ---------- Sign-in ---------- */
   let A = null; // auth.js, once loaded
@@ -178,6 +179,7 @@
     }
     update();
     loadPackages();
+    loadRequests();
   }
 
   function setProperty(key) {
@@ -495,7 +497,7 @@
     const f = {};
     FIELDS.forEach((id) => (f[id] = $(id).value));
     f.gstIncl = $("gstIncl").value === "1";
-    return { propKey, rooms, addons, custom, edits, f, editing: saved && { code: saved.code, ref: saved.ref, url: saved.url } };
+    return { propKey, rooms, addons, custom, edits, fromReq, f, editing: saved && { code: saved.code, ref: saved.ref, url: saved.url } };
   }
   function restore(d) {
     setProperty(d.propKey);
@@ -508,6 +510,7 @@
     }));
     custom = d.custom || [];
     edits = d.edits || {};
+    fromReq = d.fromReq || null;
     $("addonsCard").open = Object.keys(addons).length > 0 || custom.length > 0;
     FIELDS.forEach((id) => { if (d.f[id] != null) $(id).value = d.f[id]; });
     $("gstIncl").value = d.f.gstIncl ? "1" : "";
@@ -540,6 +543,7 @@
     $("gstIncl").value = "";
     $("done").hidden = true;
     saved = null;
+    fromReq = null;
     showEditing();
     setProperty(propKey);
     update();
@@ -603,6 +607,11 @@
     } else {
       const code = await P.saveQuote(propKey, (c) => ({ ...data, id: `${prop.prefix}-${c}` }), form, await token(), manager.id);
       saved = { code, key, data, ref: `${prop.prefix}-${code}`, url: viewUrl(code) };
+      if (fromReq) {
+        const req = fromReq;
+        fromReq = null;
+        P.setRequestStatus(req, "quoted", await token(), manager.id, code).then(loadRequests).catch((e) => console.error(e));
+      }
     }
     showEditing();
     store.set(DRAFT_KEY, snapshotForm());
@@ -830,6 +839,95 @@
       toast("Couldn't change the status. Try again.");
     }
     renderPackages();
+  });
+
+  /* ---------- Booking requests from the website (/book) ---------- */
+  const REQ_STATUS = { new: "New", quoted: "Package sent", booked: "Booked", declined: "Declined" };
+  let requests = [];
+
+  async function loadRequests() {
+    $("reqHint").textContent = "Loading…";
+    try {
+      requests = (await P.listRequests(await token())).filter((x) => manager.props.includes(x.p));
+      renderRequests();
+    } catch (e) {
+      console.error(e);
+      $("reqSum").textContent = "";
+      $("reqHint").textContent = "Couldn't load requests. Check the internet and tap Refresh.";
+    }
+  }
+
+  function renderRequests() {
+    const open = $("reqFilter").value === "open";
+    const waiting = requests.filter((x) => x.status === "new");
+    const list = open ? waiting : requests;
+    $("reqSum").textContent = waiting.length ? `${waiting.length} waiting` : "None waiting";
+    $("reqSum").classList.toggle("has", waiting.length > 0);
+    if (waiting.length && !$("reqCard").dataset.seen) { $("reqCard").open = true; $("reqCard").dataset.seen = "1"; }
+    $("reqHint").textContent = list.length
+      ? "Check availability (Booking.com too), then Make package: it fills in the form."
+      : open ? "No requests waiting." : "No requests yet.";
+    $("reqList").innerHTML = list.map((x) => {
+      const opts = Object.entries(REQ_STATUS).map(([k, v]) => `<option value="${k}"${k === x.status ? " selected" : ""}>${v}</option>`).join("");
+      const both = Object.keys(C.properties).filter((k) => manager.props.includes(k)).length > 1;
+      const nights = P.nightsBetween(x.ci, x.co);
+      const what = [
+        (both ? C.properties[x.p].name.replace("Chamtaburu ", "") + " · " : "") + x.roomName + (x.ac ? " (AC)" : ""),
+        `${P.fmtDate(x.ci)} → ${P.fmtDate(x.co)} · ${P.plural(nights, "night")}`,
+        P.plural(x.a, "adult") + (x.k ? ", " + P.kids(x.k) : ""),
+        x.est ? "shown " + P.inr(x.est) : "",
+      ].filter(Boolean).join(" · ");
+      return `<li data-code="${P.esc(x.code)}">
+        <span class="who">${P.esc(x.name)} <a href="https://wa.me/${P.esc(x.phone)}" target="_blank" rel="noopener">${P.esc(P.prettyPhone(x.phone))}</a></span>
+        <span class="what">${P.esc(what)} · ${P.esc(x.code)}${x.quote ? " · package " + P.esc(x.quote) : ""}</span>
+        ${x.note ? `<span class="note">“${P.esc(x.note)}”</span>` : ""}
+        <select class="st-${P.esc(x.status)}" data-k="status" aria-label="Status of request ${P.esc(x.code)}">${opts}</select>
+        <span class="acts"><button class="btn small primary" type="button" data-make="${P.esc(x.code)}">Make package</button></span>
+      </li>`;
+    }).join("");
+  }
+
+  // Starts a new package from a request: property, guest, dates and room filled in.
+  function makeFromRequest(code) {
+    const x = requests.find((r) => r.code === code);
+    if (!x) return;
+    if (!manager.props.includes(x.p)) return toast("You can't make packages for this property.");
+    newPackage();
+    if (x.p !== propKey) setProperty(x.p);
+    $("gName").value = x.name;
+    $("gPhone").value = P.prettyPhone(x.phone);
+    $("ci").value = x.ci;
+    $("co").value = x.co;
+    $("co").min = P.addDays(x.ci, 1);
+    $("meal").value = "room"; // what the website priced; change it for meals
+    const room = prop.rooms.find((r) => r.id === x.room) || prop.rooms[0];
+    rooms = [{ ...newRoom(room), a: x.a || room.adults, k: x.k || 0, ac: !!(x.ac && room.ac) }];
+    fromReq = x.code;
+    syncEvents();
+    renderRooms();
+    update();
+    window.scrollTo(0, 0);
+    toast(`Package started for ${x.name}. Sending it marks the request.`);
+  }
+
+  $("reqFilter").addEventListener("change", renderRequests);
+  $("reqRefresh").addEventListener("click", loadRequests);
+  $("reqList").addEventListener("click", (e) => { if (e.target.dataset.make) makeFromRequest(e.target.dataset.make); });
+  $("reqList").addEventListener("change", async (e) => {
+    if (e.target.dataset.k !== "status") return;
+    const code = e.target.closest("li").dataset.code;
+    const x = requests.find((r) => r.code === code);
+    const status = e.target.value;
+    e.target.disabled = true;
+    try {
+      await P.setRequestStatus(code, status, await token(), manager.id);
+      Object.assign(x, { status, statusBy: manager.id });
+      toast(`Request ${code}: ${REQ_STATUS[status].toLowerCase()}.`);
+    } catch (err) {
+      console.error(err);
+      toast("Couldn't change the status. Try again.");
+    }
+    renderRequests();
   });
 
   /* ---------- Start: resume a sign-in, or ask for the number ---------- */

@@ -9,6 +9,7 @@ import { GalleryPage } from './components/pages/GalleryPage';
 import { Accommodation } from './components/pages/Accommodation';
 import { Contact } from './components/pages/Contact';
 import { Sightseeing } from './components/pages/Sightseeing';
+import { Book } from './components/pages/Book';
 import { Legal } from './components/pages/Legal';
 import { NotFound } from './components/pages/NotFound';
 import { cottages } from './content/village';
@@ -43,6 +44,7 @@ const VILLAGE_ROUTES: RouteRecord[] = [
       { path: 'experiences', element: <Experiences /> },
       { path: 'sightseeing', element: <Sightseeing /> },
       { path: 'gallery', element: <GalleryPage /> },
+      { path: 'book', element: <Book /> },
       { path: 'contact', element: <Contact /> },
       { path: 'legal', element: <Legal /> },
       { path: '404', element: <NotFound /> },
@@ -59,6 +61,7 @@ const RESORT_ROUTES: RouteRecord[] = [
       { index: true, element: <Home /> },
       { path: 'accommodation', element: <Accommodation /> },
       { path: 'sightseeing', element: <Sightseeing /> },
+      { path: 'book', element: <Book /> },
       { path: 'contact', element: <Contact /> },
       { path: 'legal', element: <Legal /> },
       { path: '404', element: <NotFound /> },

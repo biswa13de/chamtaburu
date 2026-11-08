@@ -86,11 +86,11 @@ export function Accommodation() {
                         acPrice={room.acPrice}
                       />
                       <Button
-                        to={`/contact${stayQuery(checkIn, checkOut, { cottage: room.name })}`}
+                        to={`/book${stayQuery(checkIn, checkOut, { room: room.slug })}`}
                         variant="secondary"
                         className="shrink-0 px-5 py-2 text-[10px]"
                       >
-                        Enquire
+                        Request to book
                       </Button>
                     </div>
                   </div>
