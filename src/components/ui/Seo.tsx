@@ -17,7 +17,7 @@ import { absoluteUrl, buildTitle, siteOrigin, type PageMeta } from '../../lib/se
  */
 const OG_IMAGE_BASE: Record<'village' | 'resort', string> = {
   village: 'village/village-campus-aerial',
-  resort: 'resort/resort-hero-mist',
+  resort: 'resort/resort-campus-umbrellas',
 };
 
 function defaultOgImage() {

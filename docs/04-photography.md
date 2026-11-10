@@ -52,6 +52,16 @@ One folder per cottage, numbered as on the property (`1-Shal Shanti`, `2-KARAM K
 | `village-shal-shanti-night`, `village-karam-kunja-hill-view`, `village-palash-kunja-side` | the folder's second photo | That cottage's gallery |
 | `village-floor-t1-*`, `village-floor-t2-*`, `village-reception-building` | `1st_floor_room/` | The first-floor room cards on `/cottages` (swipe through) |
 
+### `photos/eco_resort/campus_image/` — 8 images (added 2026-11-10)
+
+Sunny-day Resort grounds, 12 MP, capped at 960 px via `DENSE_BASES`. `resort-campus-ext-vw-7.jpeg` (a portrait shot of the path) is not used: 320+ kB even at 960 px, and the landscape photo strip would crop most of it.
+
+| File | Base | Used on |
+|---|---|---|
+| `resort-campus-ext-vw-1.jpeg` | `resort-campus-umbrellas` | Resort home hero, default OG image, package/menu link previews |
+| `resort-campus-ext-vw-8.jpeg` | `resort-campus-mural-cottage` | Resort home "Our Story" |
+| `-2`, `-3`, `-4`, `-5`, `-6` | `resort-campus-huts`, `-lawn`, `-cottage-row`, `-verandas`, `-thatched-row` | Resort home "Around the Resort" strip |
+
 ### `photos/eco_resort/` — 8 images
 
 | File | Size | Subject | Verdict |

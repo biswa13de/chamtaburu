@@ -146,14 +146,14 @@ To try the room pages locally without Firestore, build with `VITE_RATES_URL=/tes
 
 ### Booking requests (2026-11-08)
 
-Guests can **request to book** on the website: `/book` on both sites, linked as **Request to book** from room cards, cottage pages and the home page. They pick a room and dates, see the live price (and sold-out dates) from the rate calendar, add guests, name, WhatsApp number, any **extras** (car pickup / drop, sightseeing tours, all meals, bonfire, room decoration; `src/content/extras.ts`, ids matching the add-ons in `rates.js`) and a note, and send. **Nothing is paid on the website**: rooms are also sold on Booking.com and by phone, so a manager checks availability first.
+Guests can **request to book** on the website: `/book` on both sites, linked as **Request to book** from room cards, cottage pages and the home page. They pick one or more rooms (several room types, each with how many: a named Village cottage is one, a first-floor type up to 2, a Resort type up to 5) and dates, see the live price (and sold-out dates) from the rate calendar, add guests, name, WhatsApp number, any **extras** (car pickup / drop, sightseeing tours, all meals, bonfire, room decoration; `src/content/extras.ts`, ids matching the add-ons in `rates.js`) and a note, and send. **Nothing is paid on the website**: rooms are also sold on Booking.com and by phone, so a manager checks availability first.
 
 Each request is saved to Firestore `bookingRequests/<code>` (anyone can create one in exactly the expected shape, as status `new`; only managers can read them, since they hold the guest's number). A copy is emailed through Formspree, and the guest can also message it on WhatsApp. If saving fails, the guest is offered WhatsApp instead.
 
 In the Package Generator, **Booking requests** (above the form) lists them, opening by itself when one is waiting:
 
 1. Check availability, including Booking.com.
-2. **Make package** fills in property, guest, number, dates, room, AC and guests, ticks the extras as add-ons (cars sized for the group: up to 4 people a 5-seater, up to 8 a 9-seater; check it), and picks the all-meals package if they asked for meals, otherwise Room only as the website priced it.
+2. **Make package** fills in property, guest, number, dates, a row per room type with how many and AC, and the guests (shared out over the rooms; check them), ticks the extras as add-ons (cars sized for the group: up to 4 people a 5-seater, up to 8 a 9-seater; check it), and picks the all-meals package if they asked for meals, otherwise Room only as the website priced it.
 3. Send the package as usual. Sending marks the request **Package sent** with the package's code. Otherwise set **Booked** or **Declined** in its status box.
 
 The guest then pays the advance from the package page (**Pay online** for the Village).

@@ -28,12 +28,12 @@ const STORY_IMAGE = resolveImage({
 // Resort-specific hero/story images — distinct from the Village's, which
 // must never appear on resort.chamtaburu.in.
 const RESORT_HERO_IMAGE = resolveImage({
-  base: 'resort/resort-room-bamboo-cottage',
-  alt: 'Thatched-roof bamboo cottages with colourful painted steps and hills behind at Chamtaburu Eco Resort, Ajodhya Hills',
+  base: 'resort/resort-campus-umbrellas',
+  alt: 'Garden tables under colourful umbrellas, thatched huts and cottages below a rocky hill at Chamtaburu Eco Resort, Ajodhya Hills',
 });
 const RESORT_STORY_IMAGE = resolveImage({
-  base: 'resort/resort-cottages-mural',
-  alt: 'Row of mural-painted cottages in morning mist at Chamtaburu Eco Resort, Ajodhya Hills, Purulia',
+  base: 'resort/resort-campus-mural-cottage',
+  alt: 'Cottage with a large wall mural and red steps below a rocky hill at Chamtaburu Eco Resort, Ajodhya Hills',
 });
 
 // A row of cards that swipes sideways on a phone and becomes a grid from
@@ -49,8 +49,24 @@ const HERO_LINK =
 // Resort campus photos for "Around the resort" — Resort-only images.
 const RESORT_CAMPUS: ImageRef[] = [
   {
-    base: 'resort/resort-thatched-huts',
-    alt: 'Two thatched bamboo huts framed by hedge and hills at Chamtaburu Eco Resort, Ajodhya Hills',
+    base: 'resort/resort-campus-huts',
+    alt: 'Thatched bamboo huts with painted steps among flowering shrubs, a hill behind, at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    base: 'resort/resort-campus-lawn',
+    alt: 'Lawn with a garden table and umbrella in front of the cottages at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    base: 'resort/resort-campus-cottage-row',
+    alt: 'Row of cottages with painted verandas behind trimmed hedges at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    base: 'resort/resort-campus-verandas',
+    alt: 'Cottages with mural-painted walls and verandas along a hedged garden at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    base: 'resort/resort-campus-thatched-row',
+    alt: 'Thatched-roof cottages with painted walls and a hedged garden at Chamtaburu Eco Resort, Ajodhya Hills',
   },
   {
     base: 'resort/resort-cottages-mural',
@@ -67,10 +83,6 @@ const RESORT_CAMPUS: ImageRef[] = [
   {
     base: 'resort/resort-night-gate',
     alt: 'Night view of the garden, hedges and decorative gate at Chamtaburu Eco Resort, Ajodhya Hills',
-  },
-  {
-    base: 'resort/resort-hero-mist',
-    alt: 'Chamtaburu Eco Resort cottages in monsoon mist with lush green hills behind, Purulia',
   },
 ];
 

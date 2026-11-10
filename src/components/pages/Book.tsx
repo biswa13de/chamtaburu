@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { CheckCircle2, MessageCircle } from 'lucide-react';
+import { CheckCircle2, MessageCircle, Plus, X } from 'lucide-react';
 import { Hero } from '../ui/Hero';
 import { Section } from '../ui/Section';
 import { Card } from '../ui/Card';
@@ -82,6 +82,9 @@ const labelClass = 'mb-1.5 block text-[10px] font-bold tracking-widest text-ston
 const inputClass =
   'w-full rounded-lg border border-stone/20 bg-white px-4 py-2.5 text-sm text-ink focus:border-forest focus:ring-2 focus:ring-forest/20 focus:outline-none';
 const errorClass = 'mt-1 text-xs text-palash';
+// The "× 2" box beside a room: inputClass without its full width.
+const QTY_CLASS =
+  'w-[4.5rem] shrink-0 rounded-lg border border-stone/20 bg-white px-2 py-2.5 text-sm text-ink focus:border-forest focus:ring-2 focus:ring-forest/20 focus:outline-none';
 
 const FIELD_IDS = {
   dates: 'stay-in',
@@ -90,6 +93,12 @@ const FIELD_IDS = {
   name: 'book-name',
   phone: 'book-phone',
 } as const;
+
+interface Line {
+  room: string; // a bookable's slug, '' until picked
+  ac: boolean;
+  qty: number;
+}
 
 type Errors = Partial<Record<'room' | 'dates' | 'adults' | 'name' | 'phone', string>>;
 
@@ -107,8 +116,8 @@ export function Book() {
   const { checkIn, checkOut, mounted } = useStayDates();
   const rates = useLiveRates();
 
-  const [room, setRoom] = useState('');
-  const [ac, setAc] = useState(false);
+  // The rooms asked for: one line per room type, with how many.
+  const [lines, setLines] = useState<Line[]>([{ room: '', ac: false, qty: 1 }]);
   const [adults, setAdults] = useState('2');
   const [children, setChildren] = useState('0');
   const [name, setName] = useState('');
@@ -126,8 +135,8 @@ export function Book() {
   useEffect(() => {
     if (!mounted) return;
     const wanted = params.get('room');
-    if (wanted && bookables.some((b) => b.slug === wanted)) setRoom(wanted);
-    if (params.get('ac') === '1') setAc(true);
+    if (wanted && bookables.some((b) => b.slug === wanted))
+      setLines([{ room: wanted, ac: params.get('ac') === '1', qty: 1 }]);
     // Only on arrival; the select takes over from there.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted]);
@@ -137,18 +146,45 @@ export function Book() {
     if (state === 'sent') window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [state]);
 
-  const unit = bookables.find((b) => b.slug === room);
-  const quote = unit && checkIn && checkOut ? quoteFor(unit, ac, checkIn, checkOut, rates) : null;
-  const soldOut = !!quote && quote.soldOutDates.length > 0;
   const groups = [...new Set(bookables.map((b) => b.group))];
+  // Each line with its room and price for the stay (price × how many).
+  const priced = lines.map((l) => {
+    const unit = bookables.find((b) => b.slug === l.room);
+    const quote =
+      unit && checkIn && checkOut ? quoteFor(unit, l.ac, checkIn, checkOut, rates) : null;
+    const useAc = !!unit && l.ac && unit.acPrice !== undefined;
+    return {
+      ...l,
+      unit,
+      useAc,
+      quote,
+      total: quote && quote.total != null ? quote.total * l.qty : null,
+    };
+  });
+  const chosen = priced.filter((l): l is typeof l & { unit: Bookable } => !!l.unit);
+  const nights = checkIn && checkOut ? nightsBetween(checkIn, checkOut) : 0;
+  const soldOutLines = chosen.filter((l) => l.quote && l.quote.soldOutDates.length > 0);
+  const soldOut = soldOutLines.length > 0;
+  const grandTotal =
+    chosen.length && chosen.every((l) => l.total != null)
+      ? chosen.reduce((sum, l) => sum + (l.total ?? 0), 0)
+      : null;
+  const roomCount = chosen.reduce((n, l) => n + l.qty, 0);
+  const lineLabel = (l: (typeof chosen)[number]) =>
+    `${l.qty > 1 ? `${l.qty} × ` : ''}${l.unit.name}${l.useAc ? ' (AC)' : ''}`;
+
+  function setLine(i: number, patch: Partial<Line>) {
+    setLines((prev) => prev.map((l, j) => (j === i ? { ...l, ...patch } : l)));
+  }
 
   function validate(): { errors: Errors; phone: string | null } {
     const next: Errors = {};
-    if (!unit) next.room = 'Pick a room.';
+    if (!chosen.length) next.room = 'Pick a room.';
+    else if (chosen.length < lines.length) next.room = 'Pick a room on each line, or remove it.';
     if (!checkIn || !checkOut) next.dates = 'Pick your check-in and check-out dates.';
     else if (checkIn < todayIso()) next.dates = 'Pick dates from today onwards.';
     else if (soldOut)
-      next.dates = 'Some of these dates are sold out. Try other dates or another room.';
+      next.dates = `${soldOutLines.map((l) => l.unit.name).join(', ')}: sold out on some of these dates. Try other dates or another room.`;
     const a = Number(adults);
     const k = Number(children || 0);
     if (!(Number.isInteger(a) && a >= 1 && a <= 30)) next.adults = 'Between 1 and 30 adults.';
@@ -160,20 +196,22 @@ export function Book() {
   }
 
   function message(ref: string, normalizedPhone: string): string {
-    if (!unit || !checkIn || !checkOut || !quote) return '';
+    if (!chosen.length || !checkIn || !checkOut) return '';
     const k = Number(children) || 0;
     return [
       `Hi ${currentSite.name}! I'd like to book${ref ? ` (request ${ref})` : ''}.`,
       '',
-      `Room: ${unit.name}${ac && unit.acPrice !== undefined ? ' (AC)' : ''}`,
+      chosen.length === 1 && chosen[0]!.qty === 1
+        ? `Room: ${lineLabel(chosen[0]!)}`
+        : `Rooms: ${chosen.map(lineLabel).join(', ')}`,
       `Check-in: ${longDate(checkIn)}`,
-      `Check-out: ${longDate(checkOut)} (${quote.nights} night${quote.nights === 1 ? '' : 's'})`,
+      `Check-out: ${longDate(checkOut)} (${nights} night${nights === 1 ? '' : 's'})`,
       `Guests: ${adults} adult${adults === '1' ? '' : 's'}${k ? `, ${k} child${k === 1 ? '' : 'ren'}` : ''}`,
       `Name: ${name.trim()}`,
       `Phone: ${normalizedPhone}`,
       ...(extras.length ? [`Also: ${extras.map(extraLabel).join(', ')}`] : []),
       ...(note.trim() ? [`Note: ${note.trim()}`] : []),
-      ...(quote.total != null ? [`Price shown: ${inr(quote.total)} (${PRICE_NOTE})`] : []),
+      ...(grandTotal != null ? [`Price shown: ${inr(grandTotal)} (${PRICE_NOTE})`] : []),
     ].join('\n');
   }
 
@@ -182,20 +220,20 @@ export function Book() {
     const { errors: next, phone: normalizedPhone } = validate();
     setErrors(next);
     // Take the guest to the first thing to fix: on a phone it may be off screen.
-    const first = (['dates', 'room', 'adults', 'name', 'phone'] as const).find((k) => next[k]);
-    if (first) {
+    const problem = (['dates', 'room', 'adults', 'name', 'phone'] as const).find((k) => next[k]);
+    if (problem) {
       // After React has drawn the messages, so the dates' one exists to scroll to.
       setTimeout(() => {
-        const el = document.getElementById(FIELD_IDS[first]);
+        const el = document.getElementById(FIELD_IDS[problem]);
         // The dates' message sits under the whole date card: show that.
-        const target = first === 'dates' ? document.getElementById('book-dates-error') : el;
+        const target = problem === 'dates' ? document.getElementById('book-dates-error') : el;
         // Focus first: focusing after would cancel the smooth scroll.
         el?.focus({ preventScroll: true });
         (target ?? el)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 0);
     }
-    if (Object.keys(next).length || !normalizedPhone || !unit || !checkIn || !checkOut || !quote)
-      return;
+    const first = chosen[0];
+    if (Object.keys(next).length || !normalizedPhone || !first || !checkIn || !checkOut) return;
     if (website) {
       setState('sent'); // a bot: look done, save nothing
       return;
@@ -204,9 +242,15 @@ export function Book() {
     let ref = '';
     try {
       ref = await saveBookingRequest({
-        room: unit.slug,
-        roomName: unit.name,
-        ac: ac && unit.acPrice !== undefined,
+        room: first.unit.slug,
+        roomName: first.unit.name,
+        ac: first.useAc,
+        items: chosen.map((l) => ({
+          room: l.unit.slug,
+          name: l.unit.name,
+          qty: l.qty,
+          ac: l.useAc,
+        })),
         checkIn,
         checkOut,
         adults: Math.round(Number(adults)),
@@ -215,7 +259,7 @@ export function Book() {
         phone: normalizedPhone.replace(/\D/g, ''),
         note: note.trim(),
         extras,
-        estimate: quote.total ?? 0,
+        estimate: grandTotal ?? 0,
       });
     } catch {
       // Not saved: the WhatsApp message below is then the request.
@@ -303,56 +347,117 @@ export function Book() {
           <Section className="mt-8">
             <div className="grid items-start gap-8 lg:grid-cols-[1fr_380px]">
               <Card className="space-y-6 p-6 sm:p-8">
-                <div>
-                  <label htmlFor="book-room" className={labelClass}>
-                    Room
-                  </label>
-                  <select
-                    id="book-room"
-                    className={inputClass}
-                    value={room}
-                    onChange={(e) => {
-                      setRoom(e.target.value);
-                      setAc(false);
-                    }}
-                    aria-invalid={Boolean(errors.room)}
-                  >
-                    <option value="">Pick a room</option>
-                    {groups.map((g) => (
-                      <optgroup key={g} label={g}>
-                        {bookables
-                          .filter((b) => b.group === g)
-                          .map((b) => (
-                            <option key={b.slug} value={b.slug}>
-                              {b.name}
-                              {b.ac ? ' · AC' : ''}
-                            </option>
-                          ))}
-                      </optgroup>
-                    ))}
-                  </select>
+                <fieldset>
+                  <legend className={labelClass}>Rooms</legend>
+                  <div className="space-y-3">
+                    {priced.map((l, i) => {
+                      const taken = new Set(lines.filter((_, j) => j !== i).map((x) => x.room));
+                      return (
+                        <div
+                          key={i}
+                          className="border-stone/20 space-y-3 rounded-lg border p-3 sm:p-4"
+                        >
+                          <div className="flex items-start gap-2">
+                            <select
+                              id={i === 0 ? 'book-room' : undefined}
+                              aria-label={`Room ${i + 1}`}
+                              className={`${inputClass} min-w-0 flex-1`}
+                              value={l.room}
+                              onChange={(e) =>
+                                setLine(i, { room: e.target.value, ac: false, qty: 1 })
+                              }
+                              aria-invalid={Boolean(errors.room) && !l.unit}
+                            >
+                              <option value="">Pick a room</option>
+                              {groups.map((g) => (
+                                <optgroup key={g} label={g}>
+                                  {bookables
+                                    .filter((b) => b.group === g)
+                                    .map((b) => (
+                                      <option
+                                        key={b.slug}
+                                        value={b.slug}
+                                        disabled={taken.has(b.slug)}
+                                      >
+                                        {b.name}
+                                        {b.ac ? ' · AC' : ''}
+                                      </option>
+                                    ))}
+                                </optgroup>
+                              ))}
+                            </select>
+                            {l.unit && l.unit.maxQty > 1 && (
+                              <select
+                                aria-label={`How many ${l.unit.name}`}
+                                className={QTY_CLASS}
+                                value={l.qty}
+                                onChange={(e) => setLine(i, { qty: Number(e.target.value) })}
+                              >
+                                {Array.from({ length: l.unit.maxQty }, (_, n) => n + 1).map((n) => (
+                                  <option key={n} value={n}>
+                                    × {n}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                            {lines.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => setLines((prev) => prev.filter((_, j) => j !== i))}
+                                aria-label={`Remove room ${i + 1}`}
+                                className="text-stone hover:text-palash shrink-0 p-2.5"
+                              >
+                                <X size={18} aria-hidden="true" />
+                              </button>
+                            )}
+                          </div>
+                          {l.unit?.acPrice !== undefined && (
+                            <label className="text-ink flex items-center gap-3 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={l.ac}
+                                onChange={(e) => setLine(i, { ac: e.target.checked })}
+                                className="accent-forest h-4 w-4"
+                              />
+                              AC room
+                            </label>
+                          )}
+                          {l.unit && l.quote && (
+                            <p
+                              className={`text-xs ${l.quote.soldOutDates.length ? 'text-palash font-semibold' : 'text-stone'}`}
+                            >
+                              {l.quote.soldOutDates.length
+                                ? `Sold out on ${l.quote.soldOutDates.map(longDate).join(', ')}`
+                                : l.total != null
+                                  ? `${inr(l.total)} for ${l.qty > 1 ? `${l.qty} rooms, ` : ''}${nights} night${nights === 1 ? '' : 's'}`
+                                  : 'Price on request'}
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                   {errors.room && (
                     <p className={errorClass} role="alert">
                       {errors.room}
                     </p>
                   )}
-                  {unit?.acPrice !== undefined && (
-                    <label className="text-ink mt-3 flex items-center gap-3 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={ac}
-                        onChange={(e) => setAc(e.target.checked)}
-                        className="accent-forest h-4 w-4"
-                      />
-                      AC room
-                    </label>
+                  {lines.length < 8 && (
+                    <button
+                      type="button"
+                      onClick={() => setLines((prev) => [...prev, { room: '', ac: false, qty: 1 }])}
+                      className="text-forest hover:text-forest-deep mt-3 inline-flex items-center gap-1.5 text-sm font-semibold"
+                    >
+                      <Plus size={16} aria-hidden="true" />
+                      Add another room
+                    </button>
                   )}
-                </div>
+                </fieldset>
 
                 <div className="grid gap-6 sm:grid-cols-2">
                   <div>
                     <label htmlFor="book-adults" className={labelClass}>
-                      Adults
+                      Adults (all rooms)
                     </label>
                     <input
                       id="book-adults"
@@ -373,7 +478,7 @@ export function Book() {
                   </div>
                   <div>
                     <label htmlFor="book-children" className={labelClass}>
-                      Children
+                      Children (all rooms)
                     </label>
                     <input
                       id="book-children"
@@ -514,23 +619,31 @@ export function Book() {
 
               <Card className="space-y-4 p-6 sm:p-8 lg:sticky lg:top-24">
                 <h2 className="font-serif text-2xl font-medium">Your stay</h2>
-                {unit && quote && checkIn && checkOut ? (
+                {chosen.length && checkIn && checkOut ? (
                   <>
-                    <p className="text-ink text-sm font-semibold">
-                      {unit.name}
-                      {ac && unit.acPrice !== undefined ? ' (AC)' : ''}
-                    </p>
+                    <ul className="text-ink space-y-1 text-sm font-semibold">
+                      {chosen.map((l) => (
+                        <li key={l.room} className="flex justify-between gap-3">
+                          <span>{lineLabel(l)}</span>
+                          {l.total != null && !soldOut && (
+                            <span className="text-stone font-normal">{inr(l.total)}</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
                     <p className="text-stone text-sm">
-                      {longDate(checkIn)} – {longDate(checkOut)} · {quote.nights} night
-                      {quote.nights === 1 ? '' : 's'}
+                      {longDate(checkIn)} – {longDate(checkOut)} · {nights} night
+                      {nights === 1 ? '' : 's'}
+                      {roomCount > 1 ? ` · ${roomCount} rooms` : ''}
                     </p>
                     {soldOut ? (
                       <p className="text-palash text-sm font-semibold">
-                        Sold out on {quote.soldOutDates.map(longDate).join(', ')}.
+                        {soldOutLines.map((l) => l.unit.name).join(', ')} sold out on some of these
+                        dates.
                       </p>
-                    ) : quote.total != null ? (
+                    ) : grandTotal != null ? (
                       <div>
-                        <p className="text-ink text-2xl font-bold">{inr(quote.total)}</p>
+                        <p className="text-ink text-2xl font-bold">{inr(grandTotal)}</p>
                         <p className="text-stone text-xs">{PRICE_NOTE}</p>
                       </div>
                     ) : (
