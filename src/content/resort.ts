@@ -41,14 +41,14 @@ export const resort: SiteConfig = {
     postalCode: '723152',
     country: 'IN',
   },
-  // docs/06-open-questions.md Q6 — confirmed 2026-10-05 from the owner's
-  // Google Maps pin (https://maps.app.goo.gl/xusbRPjFKgWUqywf9), resolved to
-  // the place's lat/lng via the link's redirect target. Resort-only — the
-  // Village's coordinates are still unconfirmed, see village.ts.
+  // docs/06-open-questions.md Q6 — the owner's Google Maps pin (link and
+  // embed updated 2026-11-10: https://maps.app.goo.gl/pZwpBUrdUXPHZaev8,
+  // which resolves to the same place as before). Resort-only.
   geo: { lat: 23.1339437, lng: 86.0721545 },
-  mapsUrl: 'https://maps.app.goo.gl/xusbRPjFKgWUqywf9',
-  // Google's keyless embed for the pin above.
-  mapEmbedUrl: 'https://www.google.com/maps?q=23.1339437,86.0721545&z=15&output=embed',
+  mapsUrl: 'https://maps.app.goo.gl/pZwpBUrdUXPHZaev8',
+  // The owner's own embed: shows the listing's name and rating card.
+  mapEmbedUrl:
+    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3850.531355713187!2d86.06957957551701!3d23.13394367909567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39f5c52433ed521b%3A0x310776e3e7eb1a4!2sChamtaburu%20Eco%20Resort!5e1!3m2!1sen!2sin!4v1794305233098!5m2!1sen!2sin',
   // As in the Package Generator (public/package/rates.js); reception hours
   // confirmed by the owner, 2026-11-08.
   checkIn: '11:00 AM',
