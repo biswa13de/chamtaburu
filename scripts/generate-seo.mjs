@@ -103,7 +103,7 @@ async function brandPackageView(outDir, site, origin, name) {
       throw new Error(`package/${page}: no Village og:image to swap for the Resort's`);
     }
     const html = source
-      .replace(villageImage, `${origin}/img/resort/resort-hero-mist-960.jpg`)
+      .replace(villageImage, `${origin}/img/resort/resort-campus-umbrellas-960.jpg`)
       .replaceAll('Chamtaburu Eco Village', name);
     await writeFile(file, html, 'utf8');
   }

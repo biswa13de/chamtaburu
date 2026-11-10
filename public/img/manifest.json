@@ -896,5 +896,103 @@
       960
     ],
     "fallback": "/img/village/village-floor-t2-bathroom-960.jpg"
+  },
+  "resort/resort-campus-umbrellas": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAME/8QAIBAAAgIBAwUAAAAAAAAAAAAAAQIAAwQFERITFCEiQf/EABUBAQEAAAAAAAAAAAAAAAAAAAED/8QAHBEAAgICAwAAAAAAAAAAAAAAAAECAxFBExQy/9oADAMBAAIRAxEAPwBh5rGkApxI+SjagQduMxU41j+ytK9vdSvKwgiQd0s+hVWdGg6kV8dMmJNVFihgxEQ7MlseBH//2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-campus-umbrellas-960.jpg"
+  },
+  "resort/resort-campus-huts": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwAAAwEAAAAAAAAAAAAAAAAAAAIEBf/EAB4QAAEFAAMBAQAAAAAAAAAAAAEAAgMEESExURIi/8QAFgEBAQEAAAAAAAAAAAAAAAAAAgED/8QAGxEAAgIDAQAAAAAAAAAAAAAAAAESEwIhUUH/2gAMAwEAAhEDEQA/AKJbpEmMaPkdlOLQzdbniy5AxoMbid7T14WySgaSB6sLc29sMFwtfbhLtceULMsV4RM79uHKFLmvRwXT/9k=",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-campus-huts-960.jpg"
+  },
+  "resort/resort-campus-lawn": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAgMAAAAAAAAAAAAAAAAAAAUBAgT/xAAeEAABBAIDAQAAAAAAAAAAAAABAAIDEQQSBTFRYf/EABUBAQEAAAAAAAAAAAAAAAAAAAIB/8QAFhEBAQEAAAAAAAAAAAAAAAAAABIT/9oADAMBAAIRAxEAPwCmHyp2DZ2Gj2fE1jz8YgnaqSCFzZQbGv1S+AE3HK7YepaDm0T5rJpXPDqCEtfA8ONkWhShl//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-campus-lawn-960.jpg"
+  },
+  "resort/resort-campus-cottage-row": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAUGAQT/xAAgEAACAgICAgMAAAAAAAAAAAABAgADBBEFQRIhIjFh/8QAFgEBAQEAAAAAAAAAAAAAAAAAAwAB/8QAGxEBAAICAwAAAAAAAAAAAAAAAQACAxESIVH/2gAMAwEAAhEDEQA/ANHIWpYF8N6jOrMqcgd9xbngU/In1+TgWxrDupyrEwaZrB3JoDKR+Rxq2KtYAR1CS2SMhLiGRGP3vcI/NmaPJ//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-campus-cottage-row-960.jpg"
+  },
+  "resort/resort-campus-verandas": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAGAAAAwEBAAAAAAAAAAAAAAAAAAQGAgX/xAAiEAACAQMCBwAAAAAAAAAAAAABAgADBCEREgUTIjFBUWH/xAAWAQEBAQAAAAAAAAAAAAAAAAADAAH/xAAcEQACAgIDAAAAAAAAAAAAAAAAARETAgQiUWH/2gAMAwEAAhEDEQA/ANvxNxUA5ZHyPUr2mVG7UN5Hqc+qGZ+vRc4Iil01a13FmGjYBg47DmGVaRRm6ppggmEnUu7hkU7h2hEt9M49H//Z",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-campus-verandas-960.jpg"
+  },
+  "resort/resort-campus-thatched-row": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFwABAQEBAAAAAAAAAAAAAAAABAACA//EAB8QAAICAgEFAAAAAAAAAAAAAAECABEDBEETITFRYf/EABcBAAMBAAAAAAAAAAAAAAAAAAABAgP/xAAZEQACAwEAAAAAAAAAAAAAAAAAEgETUQP/2gAMAwEAAhEDEQA/AH6e5kxhR4WH3XZ3YhquERspS+B9h22AWprBBmVmgppggPfHZ9ynN8XVYuMpAPFSjt56Ssn/2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-campus-thatched-row-960.jpg"
+  },
+  "resort/resort-campus-mural-cottage": {
+    "width": 4160,
+    "height": 3120,
+    "lqip": "data:image/jpeg;base64,/9j/2wBDABQODxIPDRQSEBIXFRQYHjIhHhwcHj0sLiQySUBMS0dARkVQWnNiUFVtVkVGZIhlbXd7gYKBTmCNl4x9lnN+gXz/2wBDARUXFx4aHjshITt8U0ZTfHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHx8fHz/wAARCAAPABQDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAME/8QAIRAAAQQABgMAAAAAAAAAAAAAAQACAxEEBRIhMVETQVL/xAAWAQEBAQAAAAAAAAAAAAAAAAADAAH/xAAbEQACAgMBAAAAAAAAAAAAAAAAAQQxAgMREv/aAAwDAQACEQMRAD8AvJj4xWkHftTdjzr0tZZPFLLHA4APk3v0tETvFMZWtFgcIHIybslpQGYv+SKRTkYJXl52J6RC5D7Zvg//2Q==",
+    "avifWidths": [
+      480,
+      960
+    ],
+    "webpWidths": [
+      480,
+      960
+    ],
+    "fallback": "/img/resort/resort-campus-mural-cottage-960.jpg"
   }
 }

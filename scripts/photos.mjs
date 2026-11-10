@@ -103,6 +103,14 @@ const DENSE_BASES = new Set([
   'village-floor-t2-bed-2',
   'village-floor-t2-room',
   'village-floor-t2-bathroom',
+  // 2026-11 Resort campus photos.
+  'resort-campus-umbrellas',
+  'resort-campus-huts',
+  'resort-campus-lawn',
+  'resort-campus-cottage-row',
+  'resort-campus-verandas',
+  'resort-campus-thatched-row',
+  'resort-campus-mural-cottage',
 ]);
 
 /**
@@ -410,6 +418,51 @@ const MAPPING = [
     file: 'IMG_7330.jpg',
     base: 'resort-thatched-huts-alt',
     alt: 'Thatched bamboo huts with hedge and hills at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  // 2026-11 campus photos, photos/eco_resort/campus_image/ (12 MP, capped at 960 px).
+  {
+    site: 'resort',
+    file: 'campus_image/resort-campus-ext-vw-1.jpeg',
+    base: 'resort-campus-umbrellas',
+    alt: 'Garden tables under colourful umbrellas, thatched huts and cottages below a rocky hill at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    site: 'resort',
+    file: 'campus_image/resort-campus-ext-vw-2.jpeg',
+    base: 'resort-campus-huts',
+    alt: 'Thatched bamboo huts with painted steps among flowering shrubs, a hill behind, at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    site: 'resort',
+    file: 'campus_image/resort-campus-ext-vw-3.jpeg',
+    base: 'resort-campus-lawn',
+    alt: 'Lawn with a garden table and umbrella in front of the cottages at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    site: 'resort',
+    file: 'campus_image/resort-campus-ext-vw-4.jpeg',
+    base: 'resort-campus-cottage-row',
+    alt: 'Row of cottages with painted verandas behind trimmed hedges at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    site: 'resort',
+    file: 'campus_image/resort-campus-ext-vw-5.jpeg',
+    base: 'resort-campus-verandas',
+    alt: 'Cottages with mural-painted walls and verandas along a hedged garden at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  {
+    site: 'resort',
+    file: 'campus_image/resort-campus-ext-vw-6.jpeg',
+    base: 'resort-campus-thatched-row',
+    alt: 'Thatched-roof cottages with painted walls and a hedged garden at Chamtaburu Eco Resort, Ajodhya Hills',
+  },
+  // resort-campus-ext-vw-7.jpeg (a portrait path shot) is left out: 320+ kB even at
+  // 960 px, and the landscape photo strip would crop most of it.
+  {
+    site: 'resort',
+    file: 'campus_image/resort-campus-ext-vw-8.jpeg',
+    base: 'resort-campus-mural-cottage',
+    alt: 'Cottage with a large wall mural and red steps below a rocky hill at Chamtaburu Eco Resort, Ajodhya Hills',
   },
   {
     site: 'resort',

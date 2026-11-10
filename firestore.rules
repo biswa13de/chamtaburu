@@ -123,7 +123,7 @@ service cloud.firestore {
       allow get, list: if isManager();
       allow delete: if false;
       allow create: if code.matches('^[2-9A-HJKMNP-Z]{6}$')
-        && request.resource.data.keys().hasOnly(['p', 'room', 'roomName', 'ac', 'ci', 'co', 'a', 'k', 'name', 'phone', 'note', 'est', 'extras', 'status', 'created'])
+        && request.resource.data.keys().hasOnly(['p', 'room', 'roomName', 'ac', 'ci', 'co', 'a', 'k', 'name', 'phone', 'note', 'est', 'extras', 'items', 'status', 'created'])
         && request.resource.data.keys().hasAll(['p', 'room', 'roomName', 'ac', 'ci', 'co', 'a', 'k', 'name', 'phone', 'status', 'created'])
         && request.resource.data.p in ['village', 'resort']
         && request.resource.data.room is string && request.resource.data.room.matches('^[a-z0-9-]{1,40}$')
@@ -142,6 +142,10 @@ service cloud.firestore {
         && (!('extras' in request.resource.data) || (request.resource.data.extras is list
           && request.resource.data.extras.size() <= 12
           && request.resource.data.extras.hasOnly(['pickup-purulia', 'pickup-barabhum', 'drop-purulia', 'drop-barabhum', 'day1', 'day2', 'day3', 'meals', 'bonfire', 'decor'])))
+        // Every room type asked for, as { room, name, q, ac } (managers read it defensively).
+        && (!('items' in request.resource.data) || (request.resource.data.items is list
+          && request.resource.data.items.size() >= 1
+          && request.resource.data.items.size() <= 8))
         && request.resource.data.status == 'new'
         && request.resource.data.created == request.time;
       allow update: if isManager()

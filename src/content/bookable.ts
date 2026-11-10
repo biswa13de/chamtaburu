@@ -18,6 +18,8 @@ export interface Bookable {
   /** Set when the room also comes as an AC version (Resort rooms). */
   acPrice?: Price;
   ac: boolean; // the room itself is air-conditioned (Village cottages 02–04)
+  /** How many of this a guest can ask for in one request. */
+  maxQty: number;
 }
 
 export const bookables: Bookable[] =
@@ -30,6 +32,8 @@ export const bookables: Bookable[] =
         price: r.price,
         acPrice: r.acPrice,
         ac: false,
+        // Room counts per type aren't in the content; a manager confirms.
+        maxQty: 5,
       }))
     : [
         ...cottages.map((c) => ({
@@ -39,6 +43,7 @@ export const bookables: Bookable[] =
           type: c.rateType ?? c.slug,
           price: c.price,
           ac: c.amenities.includes('ac'),
+          maxQty: 1, // each cottage is one named cottage
         })),
         ...rooms.map((r) => ({
           slug: r.slug,
@@ -47,5 +52,6 @@ export const bookables: Bookable[] =
           type: r.slug,
           price: r.price,
           ac: false,
+          maxQty: 2, // T1 is rooms 108 / 111, T2 rooms 109 / 110
         })),
       ];

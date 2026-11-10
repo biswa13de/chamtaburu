@@ -503,6 +503,11 @@
         name: str(f, "name"), phone: str(f, "phone"), note: str(f, "note"), est: int(f, "est"),
         status: str(f, "status") || "new", quote: str(f, "quote"), statusBy: str(f, "statusBy"),
         extras: ((f.extras && f.extras.arrayValue && f.extras.arrayValue.values) || []).map((v) => v.stringValue),
+        // Every room type asked for; requests from before this have only `room`.
+        items: ((f.items && f.items.arrayValue && f.items.arrayValue.values) || []).map((v) => {
+          const m = (v.mapValue && v.mapValue.fields) || {};
+          return { room: str(m, "room"), name: str(m, "name"), q: Math.max(1, Math.min(20, int(m, "q") || 1)), ac: !!(m.ac && m.ac.booleanValue) };
+        }).filter((it) => it.room),
         created: (f.created && f.created.timestampValue) || "",
       };
     });

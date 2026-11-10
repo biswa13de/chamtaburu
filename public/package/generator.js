@@ -876,8 +876,9 @@
       const opts = Object.entries(REQ_STATUS).map(([k, v]) => `<option value="${k}"${k === x.status ? " selected" : ""}>${v}</option>`).join("");
       const both = Object.keys(C.properties).filter((k) => manager.props.includes(k)).length > 1;
       const nights = P.nightsBetween(x.ci, x.co);
+      const roomsText = reqItems(x).map((it) => (it.q > 1 ? it.q + " × " : "") + it.name + (it.ac ? " (AC)" : "")).join(", ");
       const what = [
-        (both ? C.properties[x.p].name.replace("Chamtaburu ", "") + " · " : "") + x.roomName + (x.ac ? " (AC)" : ""),
+        (both ? C.properties[x.p].name.replace("Chamtaburu ", "") + " · " : "") + roomsText,
         `${P.fmtDate(x.ci)} → ${P.fmtDate(x.co)} · ${P.plural(nights, "night")}`,
         P.plural(x.a, "adult") + (x.k ? ", " + P.kids(x.k) : ""),
         x.est ? "shown " + P.inr(x.est) : "",
@@ -893,7 +894,10 @@
     }).join("");
   }
 
-  // Starts a new package from a request: property, guest, dates and room filled in.
+  // The rooms a request asks for; older requests have just one.
+  const reqItems = (x) => (x.items && x.items.length ? x.items : [{ room: x.room, name: x.roomName, q: 1, ac: x.ac }]);
+
+  // Starts a new package from a request: property, guest, dates and rooms filled in.
   function makeFromRequest(code) {
     const x = requests.find((r) => r.code === code);
     if (!x) return;
@@ -907,8 +911,19 @@
     $("co").min = P.addDays(x.ci, 1);
     // Room only, as the website priced it, unless they asked for all meals.
     $("meal").value = x.extras.includes("meals") ? "pkg" : "room";
-    const room = prop.rooms.find((r) => r.id === x.room) || prop.rooms[0];
-    rooms = [{ ...newRoom(room), a: x.a || room.adults, k: x.k || 0, ac: !!(x.ac && room.ac) }];
+    // A row per room type. The guests are for the whole booking: share the
+    // adults out over the rooms, as evenly as each room allows, and put the
+    // children with the first. The manager checks it against the request.
+    const items = reqItems(x).map((it) => ({ it, room: prop.rooms.find((r) => r.id === it.room) })).filter((y) => y.room);
+    if (!items.length) items.push({ it: { q: 1, ac: false }, room: prop.rooms[0] });
+    let adultsLeft = x.a || 1;
+    let roomsLeft = items.reduce((n, y) => n + y.it.q, 0);
+    rooms = items.map(({ it, room }, i) => {
+      const per = Math.max(1, Math.min(room.max || room.adults, Math.ceil(adultsLeft / roomsLeft)));
+      adultsLeft = Math.max(0, adultsLeft - per * it.q);
+      roomsLeft -= it.q;
+      return { ...newRoom(room), q: it.q, a: per, k: i === 0 ? x.k || 0 : 0, ac: !!(it.ac && room.ac) };
+    });
     // The extras they ticked, as add-ons: cars sized for the group.
     const list = P.addonsFor(prop);
     x.extras.forEach((id) => {
@@ -923,7 +938,8 @@
     update();
     window.scrollTo(0, 0);
     const cars = x.extras.some((id) => (list.find((y) => y.id === id) || {}).unit === "car");
-    toast(`Package started for ${x.name}.${cars ? " Check the car size." : ""} Sending it marks the request.`);
+    const several = rooms.length > 1 || rooms[0].q > 1;
+    toast(`Package started for ${x.name}.${several ? " Check the guests per room." : ""}${cars ? " Check the car size." : ""} Sending it marks the request.`);
   }
 
   $("reqFilter").addEventListener("change", renderRequests);
