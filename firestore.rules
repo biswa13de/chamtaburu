@@ -44,6 +44,110 @@ service cloud.firestore {
           || get(/databases/$(database)/documents/managers/$(managerId())).data.get('uid', '') == request.auth.uid);
     }
 
+    // An admin is a manager whose document has role "admin" (set in the Firebase
+    // console): they also approve travel partners and set the B2B discounts.
+    function isAdmin() {
+      return isManager()
+        && get(/databases/$(database)/documents/managers/$(managerId())).data.get('role', '') == 'admin';
+    }
+
+    // The manager may save property `p`: their document lists it in `props`,
+    // or lists none.
+    function managesProperty(p) {
+      let props = get(/databases/$(database)/documents/managers/$(managerId())).data.get('props', null);
+      return props == null || p in props;
+    }
+
+    // A travel partner's account (public/partners): email and password, the
+    // email verified. Never a manager's password account, whose made-up address
+    // can't be verified anyway.
+    function verifiedPartnerEmail() {
+      return request.auth != null
+        && request.auth.token.get('email_verified', false) == true
+        && !request.auth.token.get('email', '').matches('.*@managers[.]chamtaburu[.]in$');
+    }
+    function approvedPartner(p) {
+      return verifiedPartnerEmail()
+        && exists(/databases/$(database)/documents/partners/$(request.auth.uid))
+        && get(/databases/$(database)/documents/partners/$(request.auth.uid)).data.status == 'approved'
+        && p in get(/databases/$(database)/documents/partners/$(request.auth.uid)).data.get('props', ['village', 'resort']);
+    }
+
+    // Travel partners, one document per partner account, its ID the account's
+    // UID (public/package/b2b-core.js). The partner signs up with their business
+    // details as "pending" and can correct them while pending; an admin approves
+    // or suspends them and sets which properties' B2B rates they see. Managers
+    // read the list; a partner reads only their own; nobody deletes one.
+    match /partners/{uid} {
+      allow get: if (request.auth != null && request.auth.uid == uid) || isManager();
+      allow list: if isManager();
+      allow delete: if false;
+      allow create: if request.auth != null && request.auth.uid == uid
+        && verifiedPartnerEmail()
+        && request.resource.data.keys().hasOnly(['agency', 'contact', 'phone', 'city', 'gstin', 'web', 'member', 'email', 'terms', 'status', 'created'])
+        && partnerProfileOk(request.resource.data)
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.terms is string && request.resource.data.terms.size() <= 20
+        && request.resource.data.status == 'pending'
+        && request.resource.data.created == request.time;
+      allow update: if (isAdmin() && partnerStatusChange())
+        || (request.auth != null && request.auth.uid == uid && verifiedPartnerEmail()
+          && (partnerSeen() || (resource.data.status == 'pending' && partnerProfileEdit())));
+
+      function partnerProfileOk(d) {
+        return d.agency is string && d.agency.size() >= 2 && d.agency.size() <= 100
+          && d.contact is string && d.contact.size() >= 2 && d.contact.size() <= 80
+          && d.phone is string && d.phone.matches('^91[6-9][0-9]{9}$')
+          && d.city is string && d.city.size() >= 2 && d.city.size() <= 60
+          && (!('gstin' in d) || (d.gstin is string && d.gstin.matches('^[0-9]{2}[A-Z0-9]{13}$')))
+          && (!('web' in d) || (d.web is string && d.web.size() <= 200))
+          && (!('member' in d) || (d.member is string && d.member.size() <= 60));
+      }
+      function partnerProfileEdit() {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['agency', 'contact', 'phone', 'city', 'gstin', 'web', 'member'])
+          && partnerProfileOk(request.resource.data);
+      }
+      function partnerSeen() {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lastSeenAt'])
+          && request.resource.data.lastSeenAt == request.time;
+      }
+      function partnerStatusChange() {
+        return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'props', 'statusBy', 'statusAt'])
+          && request.resource.data.status in ['pending', 'approved', 'suspended']
+          && request.resource.data.props is list
+          && request.resource.data.props.size() >= 1
+          && request.resource.data.props.hasOnly(['village', 'resort'])
+          && request.resource.data.statusBy == managerId()
+          && request.resource.data.statusAt == request.time;
+      }
+    }
+
+    // B2B (net) rates, one document per property (public/package/b2b-core.js):
+    // discounts off the public rate calendar. Only managers and approved
+    // partners for that property can read it; the website never does. An
+    // admin creates it and sets the discounts (`plan`); managers mark peak,
+    // custom and closed dates (`days`) for the properties they manage.
+    match /b2bRates/{property} {
+      allow get: if property in ['village', 'resort'] && (isManager() || approvedPartner(property));
+      allow list, delete: if false;
+      allow create: if isAdmin() && property in ['village', 'resort'] && b2bShape();
+      allow update: if isManager()
+        && property in ['village', 'resort']
+        && (isAdmin() || (managesProperty(property)
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['plan'])))
+        && b2bShape();
+
+      function b2bShape() {
+        return request.resource.data.keys().hasOnly(['plan', 'days', 'updatedBy', 'updatedAt'])
+          && request.resource.data.plan is string
+          && request.resource.data.plan.size() < 5000
+          && request.resource.data.days is map
+          && request.resource.data.days.size() <= 1000
+          && request.resource.data.updatedBy == managerId()
+          && request.resource.data.updatedAt == request.time;
+      }
+    }
+
     match /quotes/{code} {
       allow get: if true;
       allow list: if isManager();
@@ -108,11 +212,6 @@ service cloud.firestore {
         && request.resource.data.days.size() <= 1000
         && request.resource.data.updatedBy == managerId()
         && request.resource.data.updatedAt == request.time;
-
-      function managesProperty(p) {
-        let props = get(/databases/$(database)/documents/managers/$(managerId())).data.get('props', null);
-        return props == null || p in props;
-      }
     }
 
     // Booking requests from the website's /book page (src/lib/bookingRequest.ts).

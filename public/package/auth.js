@@ -1,6 +1,7 @@
 /*
  * Manager sign-in for /package: Firebase phone auth (a code by SMS), or the
- * mobile number and a password.
+ * mobile number and a password. Also the travel partners' email sign-in for
+ * /partners (below), so both share one Firebase set-up.
  *
  * Firebase only does passwords for email accounts, so a password manager's
  * account is an address made from their number (emailFor), never emailed and
@@ -19,6 +20,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
 import {
   getAuth, onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber, signInWithEmailAndPassword, signOut,
+  createUserWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, reload,
 } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
 
 // From the Firebase console: Project settings → General → Your apps → Web app.
@@ -90,3 +92,27 @@ export function idOf(user) {
 export const token = () => auth.currentUser.getIdToken();
 
 export const logout = () => signOut(auth);
+
+/*
+ * Travel partners (public/partners): a real email address and a password,
+ * which they create themselves. Their rates only show once the email is
+ * verified and an admin has approved them (firestore.rules). Their links come
+ * back to /partners.
+ */
+const back = () => ({ url: location.origin + "/partners" });
+
+export async function signUpPartner(email, password) {
+  const cred = await createUserWithEmailAndPassword(auth, email, password);
+  await sendEmailVerification(cred.user, back());
+}
+export const signInPartner = (email, password) => signInWithEmailAndPassword(auth, email, password);
+export const resendVerification = () => sendEmailVerification(auth.currentUser, back());
+export const resetPassword = (email) => sendPasswordResetEmail(auth, email, back());
+
+// After the partner taps the link in their email: the account, and a fresh
+// token that says it is verified (firestore.rules reads it from the token).
+export async function refreshUser() {
+  await reload(auth.currentUser);
+  await auth.currentUser.getIdToken(true);
+  return auth.currentUser;
+}

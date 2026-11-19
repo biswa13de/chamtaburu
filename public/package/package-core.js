@@ -400,7 +400,7 @@
    * git or in a public file: one document per manager in `managers`, its ID the
    * sign-in number ("+919876543210"), with `name`, optional `phone` (contact on
    * the package; defaults to the property's), optional `props` (defaults to
-   * both) and, for password sign-in, `uid` (their Firebase account's UID). Added in the Firebase console. firestore.rules lets anyone fetch one
+   * both), optional `role` ("admin") and, for password sign-in, `uid` (their Firebase account's UID). Added in the Firebase console. firestore.rules lets anyone fetch one
    * by its exact number — so the generator can check before sending an SMS —
    * but never list them.
    */
@@ -411,7 +411,8 @@
     const f = (await res.json()).fields || {};
     const str = (k) => (f[k] && f[k].stringValue) || "";
     const props = f.props && f.props.arrayValue ? (f.props.arrayValue.values || []).map((v) => v.stringValue) : null;
-    return { name: str("name") || "Manager", phone: str("phone").replace(/\D/g, ""), props, uid: str("uid") };
+    // `role` "admin": also approves travel partners and sets the B2B discounts.
+    return { name: str("name") || "Manager", phone: str("phone").replace(/\D/g, ""), props, uid: str("uid"), admin: str("role") === "admin" };
   }
 
   // The number a package shows the guest: the manager's own if it is an approved
@@ -598,5 +599,5 @@
   }
   const legendHtml = () => `<ul class="legend" aria-label="Legend">${Object.entries(DISH_TYPES).map(([k, v]) => `<li class="${k}"><span class="dot"></span>${v}</li>`).join("")}</ul>`;
 
-  window.PKG = { listRequests, setRequestStatus, carQty, typeOf, loadCalendar, calRoom, calPackage, saveCalendar, nightlyRate, esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
+  window.PKG = { API, DB, str, packageTable, listRequests, setRequestStatus, carQty, typeOf, loadCalendar, calRoom, calPackage, saveCalendar, nightlyRate, esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
 })();

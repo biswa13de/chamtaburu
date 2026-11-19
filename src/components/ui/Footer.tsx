@@ -90,6 +90,11 @@ export function Footer({ navLinks, legalName, site }: FooterProps) {
           <Link to="/legal" className={linkClass}>
             POLICIES
           </Link>
+          {/* public/partners: a plain page outside the app, so a full page
+              load. One portal for both properties, on the main domain. */}
+          <a href="https://chamtaburu.in/partners" className={linkClass}>
+            TRAVEL PARTNERS
+          </a>
         </nav>
 
         {hasSocial && (
