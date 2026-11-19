@@ -111,8 +111,10 @@ export const resetPassword = (email) => sendPasswordResetEmail(auth, email, back
 
 // After the partner taps the link in their email: the account, and a fresh
 // token that says it is verified (firestore.rules reads it from the token).
+// The token is only renewed once the account is verified, so the portal can
+// check every few seconds without hitting Firebase's limits.
 export async function refreshUser() {
   await reload(auth.currentUser);
-  await auth.currentUser.getIdToken(true);
+  if (auth.currentUser.emailVerified) await auth.currentUser.getIdToken(true);
   return auth.currentUser;
 }
