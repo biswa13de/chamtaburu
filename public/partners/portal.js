@@ -108,8 +108,10 @@
     if (authMode === "up" && pw !== $("pw2").value) return (err.textContent = "The two passwords don't match.");
     $("authBtn").disabled = true;
     try {
-      if (authMode === "up") await A.signUpPartner(email, pw);
-      else await A.signInPartner(email, pw);
+      if (authMode === "up") {
+        await A.signUpPartner(email, pw);
+        holdSend(RESEND_GAP); // the first email just went
+      } else await A.signInPartner(email, pw);
     } catch (x) {
       console.error(x);
       err.textContent = authMsg(x);
@@ -136,24 +138,85 @@
   });
 
   /* ---------- Verify email ---------- */
-  $("vDone").addEventListener("click", async () => {
-    $("vErr").textContent = "";
+  // Firebase refuses confirmation emails sent too close together, so:
+  // "Send again" waits 60 s after any send (10 min after Firebase says no),
+  // remembered across reloads; both buttons lock while busy; and the page
+  // checks by itself (every 10 s, and on coming back to the tab), so there
+  // is nothing to keep pressing.
+  const RESEND_GAP = 60e3;
+  const BLOCKED_GAP = 10 * 60e3;
+  const sentKey = () => "partnerVerifySent:" + ((user && user.email) || $("email").value.trim()).toLowerCase();
+  function nextSendAt() {
+    try { return Number(localStorage.getItem(sentKey())) || 0; } catch { return 0; }
+  }
+  function holdSend(ms) {
+    try { localStorage.setItem(sentKey(), String(Date.now() + ms)); } catch { /* private mode */ }
+    tickResend();
+  }
+  let resendTimer = 0;
+  let resending = false;
+  function tickResend() {
+    clearTimeout(resendTimer);
+    const left = Math.ceil((nextSendAt() - Date.now()) / 1000);
+    const btn = $("vResend");
+    btn.disabled = resending || left > 0;
+    btn.textContent = resending ? "Sending…" : left > 0 ? `Send again in ${left > 90 ? Math.ceil(left / 60) + " min" : left + "s"}` : "Send again";
+    if (left > 0 && !$("sVerify").hidden) resendTimer = setTimeout(tickResend, 1000);
+  }
+
+  let checking = false;
+  async function checkVerified(byHand) {
+    if (checking || !user || user.emailVerified) return;
+    checking = true;
+    if (byHand) { $("vDone").disabled = true; $("vDone").textContent = "Checking…"; $("vErr").textContent = ""; }
     try {
       user = await A.refreshUser();
-      if (!user.emailVerified) return ($("vErr").textContent = "Not confirmed yet. Tap the link in the email first.");
-      route();
+      if (user.emailVerified) { stopWatch(); return route(); }
+      if (byHand) $("vErr").textContent = "Not confirmed yet. Tap the link in the email first, then come back here.";
     } catch (x) {
       console.error(x);
-      $("vErr").textContent = authMsg(x);
+      if (byHand) $("vErr").textContent = authMsg(x);
+    } finally {
+      checking = false;
+      $("vDone").disabled = false;
+      $("vDone").textContent = "I've confirmed it";
     }
-  });
+  }
+  let watchTimer = 0;
+  const onBack = () => { if (!document.hidden) checkVerified(false); };
+  function startWatch() {
+    stopWatch();
+    watchTimer = setInterval(() => { if (!document.hidden) checkVerified(false); }, 10e3);
+    document.addEventListener("visibilitychange", onBack);
+    window.addEventListener("focus", onBack);
+  }
+  function stopWatch() {
+    clearInterval(watchTimer);
+    document.removeEventListener("visibilitychange", onBack);
+    window.removeEventListener("focus", onBack);
+  }
+
+  $("vDone").addEventListener("click", () => checkVerified(true));
   $("vResend").addEventListener("click", async () => {
+    if (resending || nextSendAt() > Date.now()) return;
+    resending = true;
+    $("vErr").textContent = "";
+    tickResend();
     try {
       await A.resendVerification();
       toast("Sent. Check your inbox and spam.");
+      holdSend(RESEND_GAP);
     } catch (x) {
       console.error(x);
-      $("vErr").textContent = authMsg(x);
+      if (x && x.code === "auth/too-many-requests") {
+        $("vErr").textContent = "We've already sent you a few emails. Use the link in the latest one. If none arrived, check spam or try again in 10 minutes.";
+        holdSend(BLOCKED_GAP);
+      } else {
+        $("vErr").textContent = authMsg(x);
+      }
+    } finally {
+      resending = false;
+      tickResend();
     }
   });
 
@@ -220,8 +283,11 @@
     }
     if (!user.emailVerified) {
       $("vEmail").textContent = user.email;
-      return show("sVerify");
+      show("sVerify");
+      tickResend();
+      return startWatch();
     }
+    stopWatch();
     if (partner === undefined || partner === null) {
       try { partner = await B.loadPartner(user.uid, await A.token()); }
       catch (x) { console.error(x); return fatal("Couldn't reach the server. Check your connection and reload."); }
