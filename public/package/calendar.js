@@ -102,7 +102,22 @@
     $("lock").hidden = false;
     $("lockMsg").textContent = msg;
     $("lockAct").hidden = !showLink;
+    $("lockOutAct").hidden = true;
   }
+  // Signed in, but not as a manager: most often a travel partner's account
+  // from /partners, which shares this site's sign-in. Offer to sign out.
+  function notManager(user) {
+    const partner = user.email && !/@managers\.chamtaburu\.in$/i.test(user.email);
+    lock(partner
+      ? `You're signed in as ${user.email}, a travel partner account. Sign out, then sign in on the Package Generator with your manager number.`
+      : "This number isn't on the manager list.", false);
+    $("lockOutAct").hidden = false;
+  }
+  $("lockOutBtn").addEventListener("click", async () => {
+    $("lockOutBtn").disabled = true;
+    try { await A.logout(); } catch (e) { console.error(e); location.reload(); }
+    $("lockOutBtn").disabled = false;
+  });
   $("signInLink").href = (local ? "/package/index.html" : "/package");
   $("genLink").href = (local ? "/package/index.html" : "/package");
   const b2bHref = () => (local ? "/package/b2b.html" : "/package/b2b") + (propKey ? "?p=" + propKey : "");
@@ -526,7 +541,7 @@
       catch (e) { console.error(e); return lock("Couldn't reach the server. Check your connection and reload.", false); }
       // A password account only counts if the manager's document names it.
       if (m && !user.phoneNumber && m.uid !== user.uid) m = null;
-      if (!m) return lock("This number isn't on the manager list.", false);
+      if (!m) return notManager(user);
       m.id = id;
       start(m);
     });

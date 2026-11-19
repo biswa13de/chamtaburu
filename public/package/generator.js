@@ -992,9 +992,13 @@
       // A password account only counts if the manager's document names it.
       if (m && !user.phoneNumber && m.uid !== user.uid) m = null;
       if (!m) {
-        // Signed in on this phone, but since removed from the manager list.
+        // Signed in on this phone, but since removed from the manager list,
+        // or a travel partner's account from /partners (same site sign-in).
         A.logout();
-        lockOut("This number isn't on the manager list.");
+        const partner = user.email && !/@managers\.chamtaburu\.in$/i.test(user.email);
+        lockOut(partner
+          ? `${user.email} is a travel partner account, so it's been signed out here. Sign in with your manager number.`
+          : "This number isn't on the manager list.");
         return;
       }
       m.id = id;
