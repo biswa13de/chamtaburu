@@ -204,6 +204,8 @@
     const menuHost = /(^|\.)chamtaburu\.in$/.test(location.hostname) ? `https://${prop.domain}` : "";
     $("menuLink").href = `${menuHost}/package/menu${local ? ".html" : ""}?p=${key}`;
     $("calLink").href = `/package/calendar${local ? ".html" : ""}?p=${key}`;
+    $("b2bLink").href = `/package/b2b${local ? ".html" : ""}?p=${key}`;
+    $("partnersLink").href = `/package/partners${local ? ".html" : ""}`;
     syncEvents();
     renderRooms();
     renderAddons();

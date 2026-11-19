@@ -114,6 +114,7 @@ function buildRobots(origin) {
 Allow: /
 Disallow: /404
 Disallow: /package
+Disallow: /partners
 Disallow: /p/
 
 Sitemap: ${origin}/sitemap.xml

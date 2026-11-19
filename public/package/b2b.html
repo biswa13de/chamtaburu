@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>B2B Rates · Chamtaburu</title>
+<link rel="stylesheet" href="/package/package.css?v=2">
+<link rel="stylesheet" href="/package/cal.css?v=1">
+<!-- Same sign-in as the Package Generator: versions must match auth.js. -->
+<link rel="modulepreload" href="/package/auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js">
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+</head>
+<body>
+
+<section class="lock" id="lock">
+  <div class="card">
+    <p class="muted" style="margin:0">Chamtaburu</p>
+    <h1>B2B Rates</h1>
+    <p class="muted" id="lockMsg" style="margin:0">Checking sign-in…</p>
+    <p id="lockAct" hidden style="margin:16px 0 0"><a class="btn primary" id="signInLink" href="/package">Sign in on the Package Generator</a></p>
+  </div>
+</section>
+
+<div id="app" hidden>
+  <div class="wrap">
+    <div class="top">
+      <h1>B2B Rates</h1>
+      <div class="who"><span id="who"></span><br><a id="genLink" href="/package">← Package Generator</a> · <a id="partnersLink" href="/package/partners">Partners</a></div>
+    </div>
+    <nav class="plans" aria-label="Rate plan"><a id="pubLink" href="/package/calendar">Public rates</a><a aria-current="page">B2B rates</a></nav>
+
+    <p class="banner" id="notLive" hidden></p>
+
+    <div class="card">
+      <label class="f">Property<select id="prop"></select></label>
+      <p class="hint" id="summary"></p>
+      <p class="hint" id="updated"></p>
+    </div>
+
+    <div class="tabs two" role="tablist">
+      <button type="button" role="tab" data-view="cal" aria-selected="true">Calendar</button>
+      <button type="button" role="tab" data-view="plan" aria-selected="false">Discounts</button>
+    </div>
+
+    <p class="hint warn" id="loadErr" hidden></p>
+
+    <section id="calView">
+      <div class="chips" id="chips" role="group" aria-label="Show net rate for"></div>
+      <p class="typeNote" id="typeNote"></p>
+      <div class="card">
+        <div class="monthNav">
+          <button class="btn" type="button" id="prevMonth" aria-label="Previous month">‹</button>
+          <h2 id="monthName" aria-live="polite"></h2>
+          <button class="btn" type="button" id="nextMonth" aria-label="Next month">›</button>
+        </div>
+        <div class="quick">
+          <span>Select:</span>
+          <button class="btn" type="button" data-pick="weekend">Fri &amp; Sat</button>
+          <button class="btn" type="button" data-pick="weekday">Sun – Thu</button>
+          <button class="btn" type="button" data-pick="month">Whole month</button>
+          <button class="btn" type="button" data-pick="none">Clear</button>
+          <label><input type="checkbox" id="rangeMode"> Tap first &amp; last date</label>
+        </div>
+        <div class="cal" id="grid"></div>
+        <ul class="legend" id="legend"></ul>
+      </div>
+      <p class="hint" id="calHint"></p>
+    </section>
+
+    <section id="planView" hidden>
+      <div class="card">
+        <h2>Discounts off the public rate</h2>
+        <p class="hint" style="margin:0 0 8px">Partners pay the public rate on that date less this discount, rounded to ₹10. When you change a public rate, the B2B rate follows.</p>
+        <p class="hint warn" id="planLocked" hidden>Only an admin can change these. You can mark peak, custom and closed dates in the calendar.</p>
+        <div class="pctRow"><div class="nm">Normal dates<small>Every date you haven't marked</small></div><input id="pDisc" type="number" inputmode="numeric" min="0" max="90" aria-label="Normal discount, %"></div>
+        <div class="pctRow"><div class="nm">Peak dates<small>Dates marked Peak in the calendar</small></div><input id="pPeak" type="number" inputmode="numeric" min="0" max="90" aria-label="Peak discount, %"></div>
+        <h3 class="tierH">Room only, by room type</h3>
+        <p class="hint" style="margin:0 0 4px">Leave empty to use the normal discount.</p>
+        <div id="pRooms"></div>
+        <h3 class="tierH">Packages, by tier</h3>
+        <div id="pPkg"></div>
+        <div class="acts" style="margin-top:14px;display:flex;gap:8px">
+          <button class="btn primary" type="button" id="savePlan">Save discounts</button>
+          <button class="btn" type="button" id="undoPlan">Undo changes</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="wrap">
+    <div class="head"><b id="selCount"></b><span id="selRange"></span></div>
+    <div class="modes" role="radiogroup" aria-label="B2B rate on these dates">
+      <label><input type="radio" name="mode" value="normal"> <span id="mNormal">Normal</span></label>
+      <label><input type="radio" name="mode" value="peak"> <span id="mPeak">Peak</span></label>
+      <label><input type="radio" name="mode" value="custom"> Custom discount <input id="mDisc" type="number" inputmode="numeric" min="0" max="90" placeholder="%" aria-label="Custom discount, %"></label>
+      <label><input type="radio" name="mode" value="closed"> Closed: not sold to partners</label>
+    </div>
+    <p class="hint" id="sHint"></p>
+    <div class="acts">
+      <button class="btn primary" type="button" id="sSave">Save</button>
+      <button class="btn" type="button" id="sCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script src="/package/rates.js?v=2"></script>
+<script src="/package/package-core.js?v=2"></script>
+<script src="/package/b2b-core.js?v=1"></script>
+<script src="/package/b2b.js?v=1"></script>
+</body>
+</html>

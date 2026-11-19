@@ -79,6 +79,7 @@ Managers are **not** in the repo, so their phone numbers never reach git or any 
 - `phone` (string, optional): contact number shown to the guest, e.g. `919242748100`. It must be a property's number or listed in `contacts` in `rates.js`, otherwise the property's number is shown. Leave it out to use the property's. _2026-11-01:_ for now, Village packages show **Call Booking Manager 1** (the Resort's number) and **Call Booking Manager 2** (the Village's) in place of the manager's Call button, and both numbers in the WhatsApp message (`bookingManagers: ["resort", "village"]` on the Village in `rates.js`).
 - `props` (array, optional): `village`, `resort` or both. Leave it out for both.
 - `uid` (string, only for password sign-in): the UID of the manager's password account (below).
+- `role` (string, optional): `admin` for the owner. An admin also approves travel partners and sets the B2B discounts, for both properties whatever `props` says.
 
 Adding or removing a manager takes effect straight away: no code change, no deploy. Anyone can check whether one exact number is a manager (the page does this before sending an SMS), but nobody can list them.
 
@@ -91,7 +92,7 @@ For managers whose SMS codes don't arrive or get rate-limited. They type their m
 3. Copy that user's **User UID** from the list into the manager's Firestore document as `uid` (string).
 4. Give the manager the password. They can still use SMS too.
 
-To change a password: delete the user, add it again with the new password, and update `uid`. To stop someone: delete the user (or the manager document). If Authentication → Settings → **User actions** is offered, untick "Enable create (sign-up)". The rules already ignore accounts that don't match `uid`, so this is extra safety.
+To change a password: delete the user, add it again with the new password, and update `uid`. To stop someone: delete the user (or the manager document). Leave Authentication → Settings → **User actions** → "Enable create (sign-up)" **ticked**: travel partners create their own accounts at `/partners` (below). Creating a `@managers.chamtaburu.in` address yourself still doesn't make you a manager: the rules only accept the account whose UID the manager document names.
 
 ### Phone sign-in setup (one-time, Firebase console, project `chamtaburu-webapp`)
 
@@ -120,7 +121,7 @@ To change a password: delete the user, add it again with the new password, and u
 - Only signed-in managers can change a quote (its status, or its contents with Edit, recording who), and nobody can delete one. Only signed-in managers can list quotes; anyone else needs the code. Codes are 6 characters from 31 (887 million combinations), so guessing one is impractical.
 - Only signed-in manager numbers can create quotes. The guest page only shows UPI details and contact numbers from `rates.js`, so even a bad quote can't redirect payment.
 - Old long `#q=` links sent before v2 still open.
-- Scripts in `public/package` and `public/menu` are served `no-cache`, so an edit to `rates.js` reaches every phone on its next visit. (Before 2026-10-26 they were cached for a year; the `?v=2` on the script tags got phones holding those old copies onto the new files.)
+- Scripts in `public/package`, `public/menu` and `public/partners` are served `no-cache`, so an edit to `rates.js` reaches every phone on its next visit. (Before 2026-10-26 they were cached for a year; the `?v=2` on the script tags got phones holding those old copies onto the new files.)
 - The Packages list shows the latest 60. Any older quote still opens at `/p/<code>` from its Ref.
 
 ### Rate calendar (2026-11-07)
@@ -157,6 +158,38 @@ In the Package Generator, **Booking requests** (above the form) lists them, open
 3. Send the package as usual. Sending marks the request **Package sent** with the package's code. Otherwise set **Booked** or **Declined** in its status box.
 
 The guest then pays the advance from the package page (**Pay online** for the Village).
+
+### Travel partners and B2B rates (2026-11-19)
+
+Travel agents and tour operators get **net rates** (they add their own markup) once an admin has approved them. Phase 1: sign-up, approval, the B2B rate calendar and the partners' rate view. Partners ask to book on WhatsApp.
+
+**How the B2B rate works.** It is a discount off the public rate calendar, not a second set of rates, so it follows every public rate change and can never be above the website price. Each property has:
+
+- a **normal discount** (starts at **20%**) and a **peak discount** (starts at **10%**);
+- optionally its own discount per room type or package tier;
+- per date: **Peak**, a **custom discount**, or **Closed** (partners see "On request" and message you).
+
+Sold out comes from the public calendar: there is one inventory. Net rates are rounded to ₹10. Before the first save, the Celebration Package dates (20 Dec – 1 Jan) start out marked peak.
+
+**Pages:**
+
+- **`/partners`** (on both domains; the websites' footer links to `chamtaburu.in/partners`): partners create an account with email and password and confirm their email. They then send their agency details (name, contact, WhatsApp mobile, city, and optionally GSTIN, website and association) and accept the B2B terms (`partners` in `rates.js`: net rates before GST, rate parity, on request, **50% advance and the balance before check-in, no credit**). Until approved they see "we're checking" and a WhatsApp button. Once approved they see each property's calendar of net rates (Room only and packages) next to the public rate. Tapping a date shows every room, and an **Ask to book on WhatsApp** button.
+- **`/package/partners`** (managers; linked from the generator): the partners who signed up, waiting ones first, with their details and when they last opened their rates. **Admins** tick Village / Resort and **Approve**, change which properties, **Suspend** or **Decline**. Check the agency first (a call, the GSTIN or website).
+- **`/package/b2b`** (managers; the **Public rates | B2B rates** switch on the rate calendar): select dates, then Normal / Peak / Custom % / Closed. The **Discounts** tab is editable by admins only. The first save, an admin's, switches B2B rates on for that property. Until then partners see "not ready yet".
+
+**Who can do what** (`firestore.rules`): partners read only their own `partners/{uid}` document, and can edit their details only while waiting. Only an admin changes a partner's status or properties. `b2bRates/{property}` can be read only by managers and by approved partners for that property, never by the website. Managers mark dates for the properties in their `props`, and only admins change the discounts. An account needs a confirmed email to count as a partner, and a `@managers.chamtaburu.in` address never counts. Nobody can delete partners or B2B rates from the web.
+
+**One-time set-up, after merging:**
+
+1. `firebase deploy --only firestore:rules`.
+2. Firestore → `managers` → the owner's document → add `role` (string) = `admin`.
+3. Authentication → Settings → User actions: "Enable create (sign-up)" must be ticked (see Password sign-in above).
+4. Optional: Authentication → Templates → set the sender name on the verification and password-reset emails (for example "Chamtaburu").
+5. As the admin, open `/package/b2b`, check the discounts for each property, and **Save discounts**.
+
+To try the pages locally without Firebase: `/partners/index.html?demo` (an approved partner; `?demo=pending`, `?demo=new`, `?demo=verify` for the other screens), `/package/b2b.html?demo` (as admin; add `&manager` for a manager), `/package/partners.html?demo`.
+
+**Later phases:** booking requests from partners tagged with their account and listed in the generator; B2B mode in the Package Generator; a production report per partner (requests, bookings, room nights) and partner demand by date on the B2B calendar; partner tiers and contract rates.
 
 ### Celebration Package rates (20 Dec 2026 – 1 Jan 2027, Package (Non-AC), per adult per night, all meals)
 

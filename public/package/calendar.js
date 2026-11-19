@@ -105,6 +105,7 @@
   }
   $("signInLink").href = (local ? "/package/index.html" : "/package");
   $("genLink").href = (local ? "/package/index.html" : "/package");
+  const b2bHref = () => (local ? "/package/b2b.html" : "/package/b2b") + (propKey ? "?p=" + propKey : "");
 
   function start(m) {
     manager = m;
@@ -125,6 +126,7 @@
     propKey = key;
     prop = C.properties[key];
     $("prop").value = key;
+    $("b2bLink").href = b2bHref();
     type = typesOf(prop)[0].id;
     tier = tiersOf(prop)[0];
     month = today.slice(0, 7);

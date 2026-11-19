@@ -42,6 +42,22 @@ window.PACKAGE_CONFIG = {
     message: "🎭 Included: evening Chhau & Santhali dance programme",
   }],
 
+  // Travel partners (/partners): the B2B terms they accept when they sign up,
+  // and see beside their rates. Change `termsVersion` (any short text, e.g.
+  // "2027-04") whenever the terms change: each partner's document records the
+  // version they accepted.
+  partners: {
+    termsVersion: "2026-11",
+    terms: [
+      "Rates shown are net rates for travel partners, per night, before GST. GST is extra at the applicable rate.",
+      "You set your own selling price. Don't advertise or publish a price below the rate on our website, and don't share these net rates with guests or publicly.",
+      "Every booking is on request: we confirm availability before you take payment from your guest.",
+      "50% advance to confirm the booking, and the balance before check-in. No credit.",
+      "Our cancellation and stay policies apply, as on the Policies page of our website.",
+      "We may pause an account that doesn't follow these terms.",
+    ],
+  },
+
   // The package menu, shown on the guest's page for package plans (all meals
   // included) and as its own page to share, /package/menu. Read live, so a
   // change reaches packages already sent. Each item is [dish, details, type],
