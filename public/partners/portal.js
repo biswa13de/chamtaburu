@@ -94,7 +94,8 @@
     "auth/operation-not-allowed": "Sign-up is switched off just now. Please message us on WhatsApp.",
     "auth/admin-restricted-operation": "Sign-up is switched off just now. Please message us on WhatsApp.",
   };
-  const authMsg = (e) => AUTH_ERRORS[e && e.code] || "Something went wrong. Try again.";
+  // Unknown errors show Firebase's code, so a partner's screenshot says what broke.
+  const authMsg = (e) => AUTH_ERRORS[e && e.code] || `Something went wrong (${(e && e.code) || "no connection?"}). Try again, or message us on WhatsApp.`;
 
   $("authForm").addEventListener("submit", async (e) => {
     e.preventDefault();

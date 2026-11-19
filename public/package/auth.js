@@ -101,13 +101,27 @@ export const logout = () => signOut(auth);
  */
 const back = () => ({ url: location.origin + "/partners" });
 
+// Firebase refuses the return link when this site isn't in Authentication →
+// Settings → Authorized domains. The email still matters more than the link
+// back, so then it goes without one (the partner returns to /partners).
+const LINK_REFUSED = ["auth/unauthorized-continue-uri", "auth/invalid-continue-uri", "auth/missing-continue-uri"];
+async function withLinkBack(send) {
+  try {
+    await send(back());
+  } catch (e) {
+    if (!LINK_REFUSED.includes(e && e.code)) throw e;
+    console.warn("Return link refused; add this domain to Firebase Auth's Authorized domains.", e.code);
+    await send(undefined);
+  }
+}
+
 export async function signUpPartner(email, password) {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
-  await sendEmailVerification(cred.user, back());
+  await withLinkBack((s) => sendEmailVerification(cred.user, s));
 }
 export const signInPartner = (email, password) => signInWithEmailAndPassword(auth, email, password);
-export const resendVerification = () => sendEmailVerification(auth.currentUser, back());
-export const resetPassword = (email) => sendPasswordResetEmail(auth, email, back());
+export const resendVerification = () => withLinkBack((s) => sendEmailVerification(auth.currentUser, s));
+export const resetPassword = (email) => withLinkBack((s) => sendPasswordResetEmail(auth, email, s));
 
 // After the partner taps the link in their email: the account, and a fresh
 // token that says it is verified (firestore.rules reads it from the token).
