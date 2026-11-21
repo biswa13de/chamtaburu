@@ -12,6 +12,7 @@ import { bookables, type Bookable } from '../../content/bookable';
 import { resolveImage } from '../../content/manifest';
 import {
   fewLeftLabel,
+  minStay,
   nightsBetween,
   stayRate,
   todayIso,
@@ -173,6 +174,11 @@ export function Book() {
   const nights = checkIn && checkOut ? nightsBetween(checkIn, checkOut) : 0;
   const soldOutLines = chosen.filter((l) => l.quote && l.quote.soldOutDates.length > 0);
   const soldOut = soldOutLines.length > 0;
+  // The rate calendar's minimum stay for these dates, when the stay is shorter.
+  const short = rates && checkIn && checkOut ? minStay(rates, checkIn, checkOut) : null;
+  const shortText = short
+    ? `Stays that include ${longDate(short.date)} are at least ${short.need} nights. Pick a later check-out.`
+    : '';
   // More rooms of a type asked for than are left (lines of the same type add up).
   const askedByType = new Map<string, number>();
   chosen.forEach((l) => askedByType.set(l.unit.type, (askedByType.get(l.unit.type) ?? 0) + l.qty));
@@ -202,6 +208,7 @@ export function Book() {
     else if (checkIn < todayIso()) next.dates = 'Pick dates from today onwards.';
     else if (soldOut)
       next.dates = `${soldOutLines.map((l) => l.unit.name).join(', ')}: sold out on some of these dates. Try other dates or another room.`;
+    else if (short) next.dates = shortText;
     else if (!next.room && tooMany?.quote?.fewestLeft != null)
       next.room = `${fewLeftLabel(tooMany.unit.type, tooMany.quote.fewestLeft) ?? `Only ${tooMany.quote.fewestLeft} left`} on these dates. Ask for fewer, or try other dates.`;
     const a = Number(adults);
@@ -356,10 +363,12 @@ export function Book() {
         <form onSubmit={handleSubmit} noValidate>
           <Section className="mt-16">
             <StayDates note={`Prices are per room per night. ${PRICE_NOTE}`} />
-            {errors.dates && (
+            {errors.dates ? (
               <p id="book-dates-error" className={`${errorClass} mt-2`} role="alert">
                 {errors.dates}
               </p>
+            ) : (
+              short && <p className={`${errorClass} mt-2 font-semibold`}>{shortText}</p>
             )}
           </Section>
 

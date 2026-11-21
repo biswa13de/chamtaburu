@@ -517,6 +517,7 @@
     const msg = `Hello, this is ${partner.contact} from ${partner.agency} (travel partner). B2B booking enquiry for ${prop.name}: ${ask}, check-in ${P.fmtDate(d)}. Nights: , rooms: , adults: , children: .`;
     box.innerHTML = `<h2>${new Date(d + "T00:00:00Z").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })}</h2>
       ${day.closed ? `<p class="banner" style="margin:0 0 10px">This date is on request for partners. Message us for availability and a rate.</p>` : ""}
+      ${P.minNightsOn(prop.calendar, d) ? `<p class="banner" style="margin:0 0 10px">Minimum stay ${P.minNightsOn(prop.calendar, d)} nights for stays that include this night.</p>` : ""}
       ${body}
       <div class="row"><a class="btn wa" href="${P.esc(waLink(propKey, msg))}" target="_blank" rel="noopener">Ask to book on WhatsApp</a></div>
       <p class="hint">We confirm availability first. 50% advance to confirm, the balance before check-in.</p>`;
