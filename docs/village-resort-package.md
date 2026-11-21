@@ -54,17 +54,17 @@ guest on WhatsApp in one tap.
 
 ## Build status — v2: short links (2026-10-26)
 
-| Piece                                                    | What it is                                                                                               |
-| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `/package` → `public/package/index.html`, `generator.js` | Manager page: SMS sign-in, form, live price, Copy / Preview / Send on WhatsApp                           |
-| `public/package/auth.js`                                 | Firebase phone sign-in (SDK from gstatic, invisible reCAPTCHA)                                           |
-| `/p/<code>` → `view.html`, `view.js`                     | Guest page the WhatsApp link opens: breakdown, inclusions, pay + confirm buttons                         |
-| `/package/menu` → `menu.html`, `menu.js`                 | The package menu to share: Share, Copy menu as text (for WhatsApp), Save as PDF (one A4 page)            |
-| `/package/calendar` → `calendar.html`, `calendar.js`     | The rate calendar: room rates, package rates and sold-out dates by date (see "Rate calendar" below)      |
-| `public/package/rates.js`                                | **The one file to edit** for prices — rates, meals, add-ons, GST, advance, UPI, approved contact numbers |
-| Firestore `managers` collection                          | Who may sign in (Firebase console, not in the repo)                                                      |
-| `public/package/package-core.js`                         | Shared price maths + saving / loading quotes                                                             |
-| `firestore.rules`                                        | Who may do what with saved quotes (read one by code; managers create; no more)                           |
+| Piece                                                    | What it is                                                                                                               |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `/package` → `public/package/index.html`, `generator.js` | Manager page: SMS sign-in, form, live price, Copy / Preview / Send on WhatsApp                                           |
+| `public/package/auth.js`                                 | Firebase phone sign-in (SDK from gstatic, invisible reCAPTCHA)                                                           |
+| `/p/<code>` → `view.html`, `view.js`                     | Guest page the WhatsApp link opens: breakdown, inclusions, pay + confirm buttons                                         |
+| `/package/menu` → `menu.html`, `menu.js`                 | The package menu to share: Share, Copy menu as text (for WhatsApp), Save as PDF (one A4 page)                            |
+| `/package/calendar` → `calendar.html`, `calendar.js`     | The rate calendar: room rates, availability (rooms left, sold out) and package rates by date (see "Rate calendar" below) |
+| `public/package/rates.js`                                | **The one file to edit** for prices — rates, meals, add-ons, GST, advance, UPI, approved contact numbers                 |
+| Firestore `managers` collection                          | Who may sign in (Firebase console, not in the repo)                                                                      |
+| `public/package/package-core.js`                         | Shared price maths + saving / loading quotes                                                                             |
+| `firestore.rules`                                        | Who may do what with saved quotes (read one by code; managers create; no more)                                           |
 
 Also: `/package` and `/p/` are `Disallow`ed in `robots.txt` and both pages are `noindex`. The guest page has a WhatsApp preview card (property photo + "Your stay package").
 
@@ -126,15 +126,16 @@ To change a password: delete the user, add it again with the new password, and u
 
 ### Rate calendar (2026-11-07)
 
-Managers change room rates, package rates and sold-out dates at **`/package/calendar`** (also linked under Property in the generator). Same sign-in as the generator: a manager signed in there is signed in here.
+Managers change room rates, availability and package rates at **`/package/calendar`** (also linked under Property in the generator). Same sign-in as the generator: a manager signed in there is signed in here.
 
-- **Room rates**: one row per room type. The Village has three: **Cottage** (one rate for all seven), **First-floor room T1** (108 / 111, "First-floor Triple Room" on the website) and **T2** (109 / 110, "First-floor Double Room"). The Resort has its five rooms, with an AC rate where the room has AC. Tap dates (or **Fri & Sat**, **Sun – Thu**, **Whole month**, or tap first and last date), type the rate, tick **Sold out** if needed, **Save**. **Back to normal rate** undoes a date.
+- **Room rates**: one row per room type. The Village has three: **Cottage** (one rate for all seven), **First-floor room T1** (108 / 111, "First-floor Triple Room" on the website) and **T2** (109 / 110, "First-floor Double Room"). The Resort has its five rooms, with an AC rate where the room has AC. Tap dates (or **Fri & Sat**, **Sun – Thu**, **Whole month**, or tap first and last date), type the rate, **Save**. **Back to normal rate** undoes a date (it leaves availability alone).
+- **Availability** (2026-11-21): per room type, how many rooms are left to sell each night. Each date shows "3 left of 4", or **Sold out**. Tap dates, then use − / + and **Save**, or tap **Sold out** (0 left) to save at once. **All rooms open** undoes a date. Rates and availability are saved separately, so changing one never resets the other. How many rooms each type has is set under **Normal rates** (**Rooms**): the Village starts at Cottage 4, AC Cottage 3, T1 2, T2 2; the Resort's counts aren't recorded, so they start empty. Until a type has a count, Availability can only mark its dates sold out or open.
 - **Package rates**: per package tier (Village: cottages, first-floor rooms; Resort: Bamboo Cottage, other rooms), price per adult by how many adults share, Non-AC and AC, with an optional name shown on the package ("Celebration Package").
-- **Normal rates**: what every date uses unless changed in the calendar.
+- **Normal rates**: what every date uses unless changed in the calendar, and how many rooms each type has.
 
 Where it shows, as soon as it's saved (no deploy):
 
-- **Website**: `/cottages`, `/cottages/<slug>` (Village) and `/accommodation` (Resort) have a check-in / check-out picker. Each room shows the price for those dates (or tonight's rate per night), "Sold out" on dates marked so, and the AC price where there is one. Enquire carries the room and dates into the enquiry form.
+- **Website**: `/cottages`, `/cottages/<slug>` (Village) and `/accommodation` (Resort) have a check-in / check-out picker. Each room shows the price for those dates (or tonight's rate per night), "Sold out" on dates with 0 rooms left, "Only 2 left" when 3 or fewer rooms of the type are left (the Village says "non-AC cottages" / "AC cottages", since the calendar counts by type, not by named cottage), and the AC price where there is one. Enquire carries the room and dates into the enquiry form.
 - **Package Generator**: Room only and package prices per night come from the calendar, and a sold-out night shows a warning.
 
 How it's stored: Firestore `rates/village` and `rates/resort` (shape in `package-core.js`, "Rate calendar"). Anyone can read them; `firestore.rules` lets a manager save only the properties in their `props` (all when it has none). Dates more than a week past are dropped on save.

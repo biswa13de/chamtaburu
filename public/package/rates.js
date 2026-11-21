@@ -136,12 +136,13 @@ window.PACKAGE_CONFIG = {
         { id: "floor-t2", name: "First-floor room T2 (109 / 110)", tier: "room", rate: 2000, adults: 2, children: 1, max: 2 },
       ],
       // The rate calendar's rows: one rate for the four non-AC cottages, one for
-      // the three AC ones.
+      // the three AC ones. `units`: how many rooms of the type there are, the
+      // calendar's starting value for Availability (changed under Normal rates).
       rateTypes: [
-        { id: "cottage", name: "Cottage", note: "Shal Shanti, Pahari Chaya, Jharna Neer, Adivasi Aangan" },
-        { id: "cottage-ac", name: "AC Cottage", note: "Karam Kunja, Mahua Ghar, Palash Kunja" },
-        { id: "floor-t1", name: "First-floor room T1", note: "Rooms 108 / 111 · “First-floor Triple Room” on the website" },
-        { id: "floor-t2", name: "First-floor room T2", note: "Rooms 109 / 110 · “First-floor Double Room” on the website" },
+        { id: "cottage", name: "Cottage", units: 4, note: "Shal Shanti, Pahari Chaya, Jharna Neer, Adivasi Aangan" },
+        { id: "cottage-ac", name: "AC Cottage", units: 3, note: "Karam Kunja, Mahua Ghar, Palash Kunja" },
+        { id: "floor-t1", name: "First-floor room T1", units: 2, note: "Rooms 108 / 111 · “First-floor Triple Room” on the website" },
+        { id: "floor-t2", name: "First-floor room T2", units: 2, note: "Rooms 109 / 110 · “First-floor Double Room” on the website" },
       ],
       tierNames: { cottage: "Cottages", room: "First-floor rooms" },
       // Package plans: a price per adult per night with all meals included, by
@@ -204,6 +205,8 @@ window.PACKAGE_CONFIG = {
         { id: "four-bedded", name: "Four Bedded", tier: "room", rate: 2100, ac: 2500, adults: 4, children: 0, max: 4 },
         { id: "six-bedded", name: "Six Bedded", tier: "room", rate: 2700, ac: 3300, adults: 6, children: 1, max: 6 },
       ],
+      // No `units`: how many rooms of each type isn't recorded yet. A manager
+      // sets it under Normal rates in the rate calendar.
       rateTypes: [
         { id: "bamboo-cottage", name: "Bamboo Cottage" },
         { id: "double-bedded", name: "Double Bedded" },

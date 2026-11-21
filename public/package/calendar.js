@@ -1,8 +1,9 @@
 /*
  * /package/calendar — the manager's rate calendar.
  *
- * Room rates (per room type), package rates (per package tier) and sold-out
- * dates, saved to Firestore `rates/{property}` (see "Rate calendar" in
+ * Room rates (per room type), availability (rooms left to sell per room type,
+ * 0 = sold out), package rates (per package tier), saved to Firestore
+ * `rates/{property}` (see "Rate calendar" in
  * package-core.js for the document's shape). The website's room pages and the
  * Package Generator read that document, so a saved change shows there at once.
  *
@@ -26,8 +27,8 @@
   let prop = null;
   let cal = null; // { base, days }: the saved calendar, or the rates.js starting values
   let live = false; // the calendar document exists
-  let view = "rooms"; // rooms | pkg | base
-  let type = ""; // room type shown under Room rates
+  let view = "rooms"; // rooms | avail | pkg | base
+  let type = ""; // room type shown under Room rates and Availability
   let tier = ""; // package tier shown under Package rates
   let month = ""; // "YYYY-MM"
   let sel = new Set(); // selected dates
@@ -44,6 +45,15 @@
   const roomOfType = (t) => prop.rooms.find((r) => P.typeOf(r) === t);
   const hasAc = (t) => prop.rooms.some((r) => P.typeOf(r) === t && r.ac);
   const tierName = (t) => (prop.tierNames && prop.tierNames[t]) || t;
+  const byType = (v) => v === "rooms" || v === "avail"; // views with room-type chips
+  // How many rooms of a type there are: the saved number, else rates.js.
+  // null = not set yet (Availability can then only mark sold out or open).
+  function unitsOf(t) {
+    const b = (cal && cal.base.rooms[t]) || {};
+    if (Number.isInteger(b.units)) return b.units;
+    const meta = typesOf(prop).find((x) => x.id === t) || {};
+    return Number.isInteger(meta.units) ? meta.units : null;
+  }
 
   // Package table sizes for a tier: 2 up to the most adults its rooms take,
   // plus any size a saved table already has.
@@ -64,7 +74,7 @@
     const base = { rooms: {}, pkg: {} };
     typesOf(p).forEach((t) => {
       const r = p.rooms.find((x) => P.typeOf(x) === t.id);
-      base.rooms[t.id] = { rate: r ? r.rate : null, ac: r && r.ac ? r.ac : null };
+      base.rooms[t.id] = { rate: r ? r.rate : null, ac: r && r.ac ? r.ac : null, units: Number.isInteger(t.units) ? t.units : null };
     });
     const pk = p.packages || {};
     tiersOf(p).forEach((t) => (base.pkg[t] = { nonac: (pk.nonac || {})[t] || null, ac: (pk.ac || {})[t] || null }));
@@ -187,14 +197,17 @@
   }
 
   function renderChips() {
-    const list = view === "rooms"
+    const list = byType(view)
       ? typesOf(prop).map((t) => ({ id: t.id, name: t.name, note: t.note }))
       : tiersOf(prop).map((t) => ({ id: t, name: tierName(t) }));
-    const cur = view === "rooms" ? type : tier;
+    const cur = byType(view) ? type : tier;
     $("chips").innerHTML = list.map((x) => `<button type="button" data-id="${P.esc(x.id)}" aria-pressed="${x.id === cur}">${P.esc(x.name)}</button>`).join("");
     const curItem = list.find((x) => x.id === cur) || {};
     const rooms = view === "pkg" ? prop.rooms.filter((r) => r.tier === tier).map((r) => r.name) : [];
-    $("typeNote").textContent = view === "rooms"
+    const u = unitsOf(type);
+    $("typeNote").textContent = view === "avail"
+      ? [curItem.note, u != null ? `${P.plural(u, "room")} of this type. Each date shows how many are left to sell.` : "How many rooms of this type isn't set yet: add it under Normal rates to count rooms left. Until then you can mark dates sold out."].filter(Boolean).join(" · ")
+      : view === "rooms"
       ? [curItem.note, "Rates per room per night." + (hasAc(type) ? " Bottom number: AC." : "")].filter(Boolean).join(" · ")
       : `Price per adult per night, all meals. Calendar shows Non-AC, ${Math.min(...sizesOf(tier))} adults sharing.` + (rooms.length > 1 ? ` For: ${rooms.join(", ")}.` : "");
   }
@@ -202,7 +215,7 @@
   $("chips").addEventListener("click", (e) => {
     const b = e.target.closest("button[data-id]");
     if (!b) return;
-    if (view === "rooms") type = b.dataset.id;
+    if (byType(view)) type = b.dataset.id;
     else tier = b.dataset.id;
     render();
   });
@@ -225,6 +238,16 @@
 
   // What a cell shows for one date in the current view.
   function cellFor(d) {
+    if (view === "avail") {
+      const c = P.calRoom(cal, type, d);
+      const u = unitsOf(type);
+      if (c.soldOut) return { v: "0 left", sold: true, changed: false, label: "sold out" };
+      if (c.left != null) {
+        const left = u != null ? Math.min(c.left, u) : c.left;
+        return { v: `${left} left`, v2: u != null ? `of ${u}` : "", limited: true, label: `${left}${u != null ? " of " + u : ""} rooms left` };
+      }
+      return { v: u != null ? `${u} left` : "Open", v2: u != null ? `of ${u}` : "", open: true, label: u != null ? `all ${u} rooms open` : "open" };
+    }
     if (view === "rooms") {
       const c = P.calRoom(cal, type, d);
       const ac = hasAc(type) ? c.ac : null;
@@ -253,7 +276,7 @@
     const cells = monthDates(month).map((d) => {
       const past = d < today;
       const c = cellFor(d);
-      const cls = ["day", c.changed && "changed", c.sold && "sold", sel.has(d) && "sel", d === today && "today"].filter(Boolean).join(" ");
+      const cls = ["day", c.changed && "changed", c.limited && "limited", c.open && "open", c.sold && "sold", sel.has(d) && "sel", d === today && "today"].filter(Boolean).join(" ");
       const full = P.fmtDate(d) + ": " + c.label;
       return `<button type="button" class="${cls}" data-d="${d}"${past ? " disabled" : ""} aria-pressed="${sel.has(d)}" aria-label="${P.esc(full)}">
         <span class="dn">${Number(d.slice(8))}</span>
@@ -263,11 +286,13 @@
     }).join("");
     $("grid").innerHTML = head + blanks + cells;
     $("legend").innerHTML = [
-      `<li><i class="l-changed"></i>Changed from normal</li>`,
-      view === "rooms" ? `<li><i class="l-sold"></i>Sold out</li>` : "",
+      view === "avail" ? `<li><i class="l-limited"></i>Fewer rooms left</li>` : `<li><i class="l-changed"></i>Changed from normal</li>`,
+      byType(view) ? `<li><i class="l-sold"></i>Sold out</li>` : "",
       `<li><i class="l-sel"></i>Selected</li>`,
     ].join("");
-    $("calHint").textContent = sel.size ? "" : "Tap the dates you want to change, then set the rate below.";
+    $("calHint").textContent = sel.size ? "" : view === "avail"
+      ? "Tap the dates you want to change, then set how many rooms are left, or Sold out."
+      : "Tap the dates you want to change, then set the rate below.";
   }
 
   $("prevMonth").addEventListener("click", () => { month = shiftMonth(month, -1); renderGrid(); });
@@ -325,19 +350,36 @@
     $("selCount").textContent = P.plural(dates.length, "date") + " selected";
     $("selRange").textContent = dates.length === 1 ? P.fmtDate(dates[0]) : `${P.fmtDate(dates[0])} – ${P.fmtDate(dates[dates.length - 1])}`;
     $("sheetRooms").hidden = view !== "rooms";
+    $("sheetAvail").hidden = view !== "avail";
     $("sheetPkg").hidden = view !== "pkg";
+    $("sSave").hidden = false;
     const first = dates[0];
     let mixed = false;
+    if (view === "avail") {
+      const name = (typesOf(prop).find((t) => t.id === type) || {}).name;
+      const u = unitsOf(type);
+      const leftOn = (d) => { const c = P.calRoom(cal, type, d); return c.soldOut ? 0 : c.left != null ? c.left : u; };
+      const v = leftOn(first);
+      mixed = dates.some((d) => leftOn(d) !== v);
+      $("aStepRow").hidden = u == null;
+      $("sSave").hidden = u == null;
+      $("aLeft").max = u ?? "";
+      $("aLeft").value = v ?? "";
+      $("aOf").textContent = u != null ? `of ${u}` : "";
+      $("sReset").textContent = "All rooms open";
+      $("sHint").textContent = (mixed ? `These dates differ; shown is ${P.fmtDate(first)}. Saving gives them all the number above. ` : "")
+        + (u != null ? `${name}: rooms you can still sell each night. 0 is sold out; the website shows “Sold out”.` : `${name}: set how many rooms of this type under Normal rates to count rooms left.`);
+      return;
+    }
     if (view === "rooms") {
       const name = (typesOf(prop).find((t) => t.id === type) || {}).name;
       const c = P.calRoom(cal, type, first);
-      mixed = dates.some((d) => !same(P.calRoom(cal, type, d), c));
       $("sRate").value = c.rate ?? "";
       $("sAcLbl").hidden = !hasAc(type);
       $("sAc").value = hasAc(type) ? c.ac ?? "" : "";
-      $("sSold").checked = c.soldOut;
+      mixed = dates.some((d) => { const x = P.calRoom(cal, type, d); return x.rate !== c.rate || x.ac !== c.ac; });
       $("sReset").textContent = "Back to normal rate";
-      $("sHint").textContent = (mixed ? `These dates have different rates; shown are ${P.fmtDate(first)}'s. Saving gives them all the rates above. ` : "") + `${name}: leave a box empty for the normal rate.`;
+      $("sHint").textContent = (mixed ? `These dates have different rates; shown are ${P.fmtDate(first)}'s. Saving gives them all the rates above. ` : "") + `${name}: leave a box empty for the normal rate. Sold out and rooms left: the Availability tab.`;
     } else {
       const c = P.calPackage(cal, tier, first);
       mixed = dates.some((d) => !same(P.calPackage(cal, tier, d), c));
@@ -353,17 +395,34 @@
 
   $("sCancel").addEventListener("click", () => { sel.clear(); rangeStart = null; render(); });
 
-  // A date's changes with this view's entry replaced by `entry` (null removes it).
-  function withEntry(d, entry) {
+  /*
+   * A date's changes after this view's edit. A room type's entry holds both
+   * its rates and its availability, so `change` is a patch of just this
+   * view's fields (null removes one) and the other view's are kept. A
+   * package tier's entry is replaced whole (`change` null removes it).
+   */
+  function withEntry(d, change) {
     const day = clone(cal.days[d] || {});
-    const key = view === "rooms" ? "rooms" : "pkg";
-    const id = view === "rooms" ? type : tier;
+    const key = byType(view) ? "rooms" : "pkg";
+    const id = byType(view) ? type : tier;
     const group = day[key] || {};
+    let entry = change;
+    if (key === "rooms") {
+      entry = { ...(group[id] || {}) };
+      Object.entries(change).forEach(([k, v]) => { if (v == null) delete entry[k]; else entry[k] = v; });
+      if (!Object.keys(entry).length) entry = null;
+    }
     if (entry) group[id] = entry;
     else delete group[id];
     if (Object.keys(group).length) day[key] = group;
     else delete day[key];
     return Object.keys(day).length ? day : null;
+  }
+
+  // Availability patch for `left` rooms (null: all open).
+  function availPatch(left) {
+    if (left == null || left === unitsOf(type)) return { left: null, soldOut: null };
+    return { left, soldOut: left === 0 ? true : null };
   }
 
   function readTable(kind) {
@@ -385,11 +444,14 @@
       const ac = hasAc(type) ? intOrNull($("sAc").value) : null;
       if (Number.isNaN(rate) || Number.isNaN(ac)) return "Rates must be whole rupees, more than 0.";
       if (rate == null && b.rate == null) return "Type a rate: this room has no normal rate yet.";
-      const e = {};
-      if (rate != null && rate !== b.rate) e.rate = rate;
-      if (ac != null && ac !== b.ac) e.ac = ac;
-      if ($("sSold").checked) e.soldOut = true;
-      return Object.keys(e).length ? e : null;
+      return { rate: rate != null && rate !== b.rate ? rate : null, ac: ac != null && ac !== b.ac ? ac : null };
+    }
+    if (view === "avail") {
+      const u = unitsOf(type);
+      const s = String($("aLeft").value).trim();
+      const n = Number(s);
+      if (s === "" || !Number.isInteger(n) || n < 0 || (u != null && n > u)) return `Type how many rooms are left: 0 to ${u}.`;
+      return availPatch(n);
     }
     const nonac = readTable("nonac");
     const ac = readTable("ac");
@@ -409,7 +471,16 @@
     if (typeof e === "string") return toast(e);
     saveDays(sorted(), e);
   });
-  $("sReset").addEventListener("click", () => saveDays(sorted(), null));
+  $("sReset").addEventListener("click", () => saveDays(sorted(), view === "rooms" ? { rate: null, ac: null } : view === "avail" ? availPatch(null) : null));
+  $("aSold").addEventListener("click", () => saveDays(sorted(), availPatch(0)));
+  const step = (n) => {
+    const u = unitsOf(type);
+    const cur = Number($("aLeft").value);
+    const next = (Number.isInteger(cur) ? cur : u ?? 0) + n;
+    $("aLeft").value = Math.max(0, u != null ? Math.min(u, next) : next);
+  };
+  $("aMinus").addEventListener("click", () => step(-1));
+  $("aPlus").addEventListener("click", () => step(1));
 
   async function saveDays(dates, entry) {
     const days = {};
@@ -476,6 +547,7 @@
         <div class="nm">${P.esc(t.name)}${t.note ? `<small>${P.esc(t.note)}</small>` : ""}</div>
         <label class="f">Rate (₹)<input type="number" inputmode="numeric" min="1" data-room="${P.esc(t.id)}" data-kind="rate" value="${r.rate ?? ""}"></label>
         ${hasAc(t.id) ? `<label class="f">AC rate (₹)<input type="number" inputmode="numeric" min="1" data-room="${P.esc(t.id)}" data-kind="ac" value="${r.ac ?? ""}"></label>` : "<span></span>"}
+        <label class="f">Rooms<input type="number" inputmode="numeric" min="1" max="99" data-room="${P.esc(t.id)}" data-kind="units" value="${unitsOf(t.id) ?? ""}" aria-label="${P.esc(t.name)}: how many rooms"></label>
       </div>`;
     }).join("");
     $("basePkg").innerHTML = tiersOf(prop).map((t) => {
@@ -497,7 +569,8 @@
     let bad = false;
     typesOf(prop).forEach((t) => {
       const get = (k) => { const el = document.querySelector(`#baseRooms input[data-room="${t.id}"][data-kind=${k}]`); const v = el ? intOrNull(el.value) : null; if (Number.isNaN(v)) bad = true; return Number.isNaN(v) ? null : v; };
-      base.rooms[t.id] = { rate: get("rate"), ac: hasAc(t.id) ? get("ac") : null };
+      base.rooms[t.id] = { rate: get("rate"), ac: hasAc(t.id) ? get("ac") : null, units: get("units") };
+      if (base.rooms[t.id].units != null && base.rooms[t.id].units > 99) bad = true;
     });
     tiersOf(prop).forEach((t) => {
       const table = (k) => {

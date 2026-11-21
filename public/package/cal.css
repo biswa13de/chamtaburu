@@ -102,3 +102,18 @@ body.selecting .toast{bottom:auto;top:16px}
 .pctRow .nm{font-size:.92rem}
 .pctRow .nm small{display:block;color:var(--muted);font-size:.78rem}
 .pctRow input{text-align:right}
+
+/* Rate calendar: four tabs, and the Availability panel */
+.tabs.four{grid-template-columns:repeat(4,1fr)}
+@media (max-width:420px){.tabs.four button{font-size:.78rem;padding:8px 2px}}
+.day.limited{border-color:var(--forest);background:color-mix(in srgb,var(--forest) 9%,var(--bg))}
+.day.open .v{color:var(--muted);font-weight:500}
+.legend .l-limited{border-color:var(--forest);background:color-mix(in srgb,var(--forest) 18%,var(--bg))}
+.stepRow{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.stepRow .lbl{font-size:.95rem;font-weight:600}
+.stepRow .of{color:var(--muted);font-size:.95rem}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper .btn{min-width:44px;font-size:1.2rem;line-height:1;padding:8px 0}
+.stepper input{width:64px;text-align:center;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.btn.sold{border-color:var(--warn);color:var(--warn);font-weight:600}
+.baseRow{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr) minmax(0,.7fr)}

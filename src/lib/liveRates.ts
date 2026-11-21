@@ -8,7 +8,9 @@
  *
  * Document shape (see "Rate calendar" in public/package/package-core.js):
  *   base: JSON { rooms: { <type>: { rate, ac } }, … }  the normal rates
- *   days: map "YYYY-MM-DD" → JSON { rooms: { <type>: { rate?, ac?, soldOut? } }, … }
+ *   days: map "YYYY-MM-DD" → JSON { rooms: { <type>: { rate?, ac?, left?, soldOut? } }, … }
+ * `left` is how many rooms of the type are still to sell that night; 0 is
+ * sold out (the calendar also sets `soldOut` then).
  * A room's type is its content `rateType`, else its slug.
  *
  * Pages are prerendered, so the first paint shows the content files' price;
@@ -28,6 +30,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 interface RoomEntry {
   rate?: number | null;
   ac?: number | null;
+  left?: number;
   soldOut?: boolean;
 }
 
@@ -117,6 +120,8 @@ export interface NightRate {
   rate: number | null;
   ac: number | null;
   soldOut: boolean;
+  /** Rooms of this type still to sell that night; null when not limited. */
+  left: number | null;
 }
 
 export function nightRate(rates: LiveRates, type: string, date: string): NightRate {
@@ -125,7 +130,8 @@ export function nightRate(rates: LiveRates, type: string, date: string): NightRa
   return {
     rate: day.rate ?? base.rate ?? null,
     ac: day.ac ?? base.ac ?? null,
-    soldOut: !!day.soldOut,
+    soldOut: !!day.soldOut || day.left === 0,
+    left: day.soldOut ? 0 : Number.isInteger(day.left) ? (day.left as number) : null,
   };
 }
 
@@ -137,7 +143,12 @@ export interface StayRate {
   /** True when every night costs the same. */
   flat: boolean;
   soldOutDates: string[];
+  /** The fewest rooms left on any night of the stay; null when not limited. */
+  fewestLeft: number | null;
 }
+
+/** "Only 2 left" shows when this many rooms of a type, or fewer, are left. */
+export const FEW_LEFT = 3;
 
 export function stayRate(
   rates: LiveRates,
@@ -150,13 +161,30 @@ export function stayRate(
   let acTotal: number | null = 0;
   const seen = new Set<number | null>();
   const soldOutDates: string[] = [];
+  let fewestLeft: number | null = null;
   for (let i = 0; i < nights; i++) {
     const date = addDays(checkIn, i);
     const n = nightRate(rates, type, date);
     seen.add(n.rate);
     if (n.soldOut) soldOutDates.push(date);
+    if (n.left != null) fewestLeft = fewestLeft == null ? n.left : Math.min(fewestLeft, n.left);
     total = total != null && n.rate != null ? total + n.rate : null;
     acTotal = acTotal != null && n.ac != null ? acTotal + n.ac : null;
   }
-  return { nights, total, acTotal, flat: seen.size <= 1, soldOutDates };
+  return { nights, total, acTotal, flat: seen.size <= 1, soldOutDates, fewestLeft };
+}
+
+/**
+ * "Only 2 left" for `left` rooms of a type, or null when there are more than
+ * FEW_LEFT (or no limit). The Village's cottage types cover several named
+ * cottages, so it says which kind is running out.
+ */
+export function fewLeftLabel(type: string, left: number | null): string | null {
+  if (left == null || left <= 0 || left > FEW_LEFT) return null;
+  const kind: Record<string, [string, string]> = {
+    cottage: ['non-AC cottage', 'non-AC cottages'],
+    'cottage-ac': ['AC cottage', 'AC cottages'],
+  };
+  const [one, many] = kind[type] ?? ['room', 'rooms'];
+  return `Only ${left} ${left === 1 ? one : many} left`;
 }
