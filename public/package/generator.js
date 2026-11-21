@@ -206,6 +206,7 @@
     $("calLink").href = `/package/calendar${local ? ".html" : ""}?p=${key}`;
     $("b2bLink").href = `/package/b2b${local ? ".html" : ""}?p=${key}`;
     $("partnersLink").href = `/package/partners${local ? ".html" : ""}`;
+    $("todayLink").href = `/package/today${local ? ".html" : ""}?p=${key}`;
     syncEvents();
     renderRooms();
     renderAddons();
@@ -606,6 +607,9 @@
     if (saved) {
       await P.updateQuote(saved.code, { ...data, id: saved.ref }, form, await token(), manager.id);
       Object.assign(saved, { key, data });
+      // A confirmed package's new dates or rooms move what it holds.
+      const x = packages.find((p) => p.code === saved.code);
+      if (x && x.status === "confirmed") syncRooms(saved.code, propKey, true, form).then((note) => note && toast(note));
     } else {
       const code = await P.saveQuote(propKey, (c) => ({ ...data, id: `${prop.prefix}-${c}` }), form, await token(), manager.id);
       saved = { code, key, data, ref: `${prop.prefix}-${code}`, url: viewUrl(code) };
@@ -689,12 +693,13 @@
   }
 
   let toastTimer;
-  function toast(text) {
+  // `long`: a message to read, shown for longer.
+  function toast(text, long) {
     const t = $("toast");
     t.textContent = text;
     t.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => (t.hidden = true), 2600);
+    toastTimer = setTimeout(() => (t.hidden = true), long || text.length > 80 ? 7000 : 2600);
   }
 
   let busy = false;
@@ -750,6 +755,31 @@
 
   /* ---------- Packages: every manager's quotes, with status ---------- */
   const STATUS = { sent: "Sent", confirmed: "Confirmed", cancelled: "Cancelled" };
+
+  /*
+   * Rooms left follow confirmed packages: confirming holds the package's
+   * rooms on its nights in the rate calendar, any other status releases
+   * them, and editing a confirmed package moves them (P.syncHolds). Returns
+   * a note for the manager, or "" when all went quietly.
+   */
+  async function syncRooms(code, key, confirmed, form) {
+    const p = C.properties[key];
+    if (!p) return "";
+    try {
+      if (confirmed && form === undefined) form = await P.loadForm(code, await token());
+      if (confirmed && !form) return "Rooms left not changed: this package was made before editing existed. Set it in the rate calendar's Availability.";
+      const r = await P.syncHolds(key, code, confirmed ? P.holdsFromForm(p, form) : {}, await token(), manager.id);
+      if (r.none || !r.over.length) return "";
+      const typeName = (t) => ((p.rateTypes || []).find((x) => x.id === t) || {}).name || t;
+      const first = r.over[0];
+      return `Overbooked: ${typeName(first.type)} on ${P.fmtDate(first.date)}` + (r.over.length > 1 ? ` and ${P.plural(r.over.length - 1, "more night")}` : "") + ". Check the rate calendar's Availability.";
+    } catch (e) {
+      console.error(e);
+      return e.status === 403
+        ? "Rooms left not changed: you can't change this property's rate calendar."
+        : "Rooms left weren't updated. Check the internet, then set the status again.";
+    }
+  }
   const names = {}; // manager phone → name, for "confirmed by"
   let packages = [];
 
@@ -831,11 +861,13 @@
     const code = e.target.closest("li").dataset.code;
     const x = packages.find((p) => p.code === code);
     const status = e.target.value;
+    const was = x.status;
     e.target.disabled = true;
     try {
       await P.setStatus(code, status, await token(), manager.id);
       Object.assign(x, { status, statusBy: manager.id, statusByName: manager.name });
-      toast(`${x.q.id || code} marked ${STATUS[status].toLowerCase()}.`);
+      const note = was === "confirmed" || status === "confirmed" ? await syncRooms(code, x.q.p, status === "confirmed") : "";
+      toast(`${x.q.id || code} marked ${STATUS[status].toLowerCase()}.` + (note ? " " + note : ""), !!note);
     } catch (err) {
       console.error(err);
       toast("Couldn't change the status. Try again.");
