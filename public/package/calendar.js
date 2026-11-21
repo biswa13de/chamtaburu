@@ -48,12 +48,8 @@
   const byType = (v) => v === "rooms" || v === "avail"; // views with room-type chips
   // How many rooms of a type there are: the saved number, else rates.js.
   // null = not set yet (Availability can then only mark sold out or open).
-  function unitsOf(t) {
-    const b = (cal && cal.base.rooms[t]) || {};
-    if (Number.isInteger(b.units)) return b.units;
-    const meta = typesOf(prop).find((x) => x.id === t) || {};
-    return Number.isInteger(meta.units) ? meta.units : null;
-  }
+  const unitsOf = (t) => P.unitsFor(prop, cal, t);
+  const availOn = (d) => P.availOn(prop, cal, type, d);
 
   // Package table sizes for a tier: 2 up to the most adults its rooms take,
   // plus any size a saved table already has.
@@ -239,14 +235,13 @@
   // What a cell shows for one date in the current view.
   function cellFor(d) {
     if (view === "avail") {
-      const c = P.calRoom(cal, type, d);
-      const u = unitsOf(type);
-      if (c.soldOut) return { v: "0 left", sold: true, changed: false, label: "sold out" };
-      if (c.left != null) {
-        const left = u != null ? Math.min(c.left, u) : c.left;
-        return { v: `${left} left`, v2: u != null ? `of ${u}` : "", limited: true, label: `${left}${u != null ? " of " + u : ""} rooms left` };
-      }
-      return { v: u != null ? `${u} left` : "Open", v2: u != null ? `of ${u}` : "", open: true, label: u != null ? `all ${u} rooms open` : "open" };
+      const a = availOn(d);
+      const booked = a.held ? `, ${a.held} held by confirmed packages` : "";
+      if (a.over) return { v: "0 left", sold: true, so: `Over by ${a.over}`, label: `overbooked by ${a.over}${booked}` };
+      if (a.soldOut) return { v: "0 left", sold: true, label: "sold out" + booked };
+      if (a.units == null) return { v: "Open", v2: a.held ? `${a.held} booked` : "", open: true, label: "open" + booked };
+      if (a.left < a.units) return { v: `${a.left} left`, v2: `of ${a.units}`, limited: true, label: `${a.left} of ${a.units} rooms left${booked}` };
+      return { v: `${a.units} left`, v2: `of ${a.units}`, open: true, label: `all ${a.units} rooms open` };
     }
     if (view === "rooms") {
       const c = P.calRoom(cal, type, d);
@@ -281,7 +276,7 @@
       return `<button type="button" class="${cls}" data-d="${d}"${past ? " disabled" : ""} aria-pressed="${sel.has(d)}" aria-label="${P.esc(full)}">
         <span class="dn">${Number(d.slice(8))}</span>
         <span class="v">${c.v}</span>
-        ${c.sold ? `<span class="so">Sold out</span>` : c.v2 ? `<span class="v2">${P.esc(c.v2)}</span>` : ""}
+        ${c.sold ? `<span class="so">${P.esc(c.so || "Sold out")}</span>` : c.v2 ? `<span class="v2">${P.esc(c.v2)}</span>` : ""}
       </button>`;
     }).join("");
     $("grid").innerHTML = head + blanks + cells;
@@ -358,17 +353,18 @@
     if (view === "avail") {
       const name = (typesOf(prop).find((t) => t.id === type) || {}).name;
       const u = unitsOf(type);
-      const leftOn = (d) => { const c = P.calRoom(cal, type, d); return c.soldOut ? 0 : c.left != null ? c.left : u; };
-      const v = leftOn(first);
-      mixed = dates.some((d) => leftOn(d) !== v);
+      const v = availOn(first).left;
+      mixed = dates.some((d) => availOn(d).left !== v);
+      const held = Math.max(...dates.map((d) => availOn(d).held));
       $("aStepRow").hidden = u == null;
       $("sSave").hidden = u == null;
-      $("aLeft").max = u ?? "";
+      $("aLeft").max = u != null ? maxLeft(dates) : "";
       $("aLeft").value = v ?? "";
       $("aOf").textContent = u != null ? `of ${u}` : "";
       $("sReset").textContent = "All rooms open";
       $("sHint").textContent = (mixed ? `These dates differ; shown is ${P.fmtDate(first)}. Saving gives them all the number above. ` : "")
-        + (u != null ? `${name}: rooms you can still sell each night. 0 is sold out; the website shows “Sold out”.` : `${name}: set how many rooms of this type under Normal rates to count rooms left.`);
+        + (held ? `Confirmed packages hold ${P.plural(held, "room")} on ${dates.length > 1 ? "some of these dates" : "this date"}; they count themselves. ` : "")
+        + (u != null ? `${name}: rooms you can still sell each night, after bookings made elsewhere (Booking.com, phone). 0 is sold out.` : `${name}: set how many rooms of this type under Normal rates to count rooms left.`);
       return;
     }
     if (view === "rooms") {
@@ -396,10 +392,11 @@
   $("sCancel").addEventListener("click", () => { sel.clear(); rangeStart = null; render(); });
 
   /*
-   * A date's changes after this view's edit. A room type's entry holds both
-   * its rates and its availability, so `change` is a patch of just this
-   * view's fields (null removes one) and the other view's are kept. A
-   * package tier's entry is replaced whole (`change` null removes it).
+   * A date's changes after this view's edit. A room type's entry holds its
+   * rates, its availability and the confirmed packages' holds, so `change`
+   * is a patch of just this view's fields (null removes one), the rest are
+   * kept, and rooms left is worked out again (P.settleRoom). A package
+   * tier's entry is replaced whole (`change` null removes it).
    */
   function withEntry(d, change) {
     const day = clone(cal.days[d] || {});
@@ -410,7 +407,7 @@
     if (key === "rooms") {
       entry = { ...(group[id] || {}) };
       Object.entries(change).forEach(([k, v]) => { if (v == null) delete entry[k]; else entry[k] = v; });
-      if (!Object.keys(entry).length) entry = null;
+      entry = P.settleRoom(entry, unitsOf(id));
     }
     if (entry) group[id] = entry;
     else delete group[id];
@@ -419,10 +416,17 @@
     return Object.keys(day).length ? day : null;
   }
 
-  // Availability patch for `left` rooms (null: all open).
-  function availPatch(left) {
-    if (left == null || left === unitsOf(type)) return { left: null, soldOut: null };
-    return { left, soldOut: left === 0 ? true : null };
+  // The most rooms left the selected dates can have: what packages don't hold.
+  const maxLeft = (dates) => Math.min(...dates.map((d) => { const a = availOn(d); return Math.max(0, a.units - a.held); }));
+  // Availability patch for date `d` with `left` rooms to sell (null: all open).
+  // Stored as `out`, rooms taken elsewhere, so packages' holds stay separate.
+  function availPatch(d, left) {
+    const clear = { out: null, left: null, soldOut: null };
+    const u = unitsOf(type);
+    if (left == null) return clear;
+    if (u == null) return { ...clear, soldOut: left === 0 ? true : null };
+    const out = Math.max(0, u - availOn(d).held - left);
+    return { ...clear, out: out || null };
   }
 
   function readTable(kind) {
@@ -450,8 +454,9 @@
       const u = unitsOf(type);
       const s = String($("aLeft").value).trim();
       const n = Number(s);
-      if (s === "" || !Number.isInteger(n) || n < 0 || (u != null && n > u)) return `Type how many rooms are left: 0 to ${u}.`;
-      return availPatch(n);
+      const max = u != null ? maxLeft(sorted()) : null;
+      if (s === "" || !Number.isInteger(n) || n < 0 || (max != null && n > max)) return `Type how many rooms are left: 0 to ${max}` + (max < u ? " (confirmed packages hold the rest)." : ".");
+      return (d) => availPatch(d, n);
     }
     const nonac = readTable("nonac");
     const ac = readTable("ac");
@@ -471,20 +476,22 @@
     if (typeof e === "string") return toast(e);
     saveDays(sorted(), e);
   });
-  $("sReset").addEventListener("click", () => saveDays(sorted(), view === "rooms" ? { rate: null, ac: null } : view === "avail" ? availPatch(null) : null));
-  $("aSold").addEventListener("click", () => saveDays(sorted(), availPatch(0)));
+  $("sReset").addEventListener("click", () => saveDays(sorted(), view === "rooms" ? { rate: null, ac: null } : view === "avail" ? (d) => availPatch(d, null) : null));
+  $("aSold").addEventListener("click", () => saveDays(sorted(), (d) => availPatch(d, 0)));
   const step = (n) => {
     const u = unitsOf(type);
+    const max = u != null ? maxLeft(sorted()) : null;
     const cur = Number($("aLeft").value);
-    const next = (Number.isInteger(cur) ? cur : u ?? 0) + n;
-    $("aLeft").value = Math.max(0, u != null ? Math.min(u, next) : next);
+    const next = (Number.isInteger(cur) ? cur : max ?? 0) + n;
+    $("aLeft").value = Math.max(0, max != null ? Math.min(max, next) : next);
   };
   $("aMinus").addEventListener("click", () => step(-1));
   $("aPlus").addEventListener("click", () => step(1));
 
+  // `entry`: the change for every date, or a function giving each date's.
   async function saveDays(dates, entry) {
     const days = {};
-    dates.forEach((d) => (days[d] = withEntry(d, entry)));
+    dates.forEach((d) => (days[d] = withEntry(d, typeof entry === "function" ? entry(d) : entry)));
     if (await save({ days })) {
       sel.clear();
       rangeStart = null;
@@ -513,18 +520,20 @@
     saving = true;
     setBusy(true);
     try {
+      // Only if nobody (a manager, or a package being confirmed) saved since this page loaded.
+      let updateTime = "";
       if (demo) await new Promise((r) => setTimeout(r, 300));
-      else if (live) await P.saveCalendar(propKey, out, await A.token(), manager.id, false);
-      else await P.saveCalendar(propKey, { base: next.base, days: next.days }, await A.token(), manager.id, true);
+      else if (live) updateTime = await P.saveCalendar(propKey, out, await A.token(), manager.id, false, cal.updateTime);
+      else updateTime = await P.saveCalendar(propKey, { base: next.base, days: next.days }, await A.token(), manager.id, true);
       if (demo) demoCal[propKey] = { ...next, updatedAt: new Date().toISOString() };
-      cal = { ...next, updatedAt: new Date().toISOString() };
+      cal = { ...next, updatedAt: new Date().toISOString(), updateTime };
       live = true;
       toast(demo ? "Demo: not saved." : "Saved. The website and Package Generator show it now.");
       return true;
     } catch (e) {
       console.error(e);
       if (e.status === 403) toast("You can't change rates for this property.");
-      else if (e.status === 409 || e.status === 400) { toast("Someone else just saved. Reloading their rates; try again."); await load(); }
+      else if (e.status === 409 || e.status === 400) { toast("Someone else just saved (or a package was confirmed). Reloaded; try again."); await load(); }
       else toast("Couldn't save. Check your connection and try again.");
       return false;
     } finally {
@@ -584,7 +593,30 @@
     const missing = typesOf(prop).filter((t) => base.rooms[t.id].rate == null).map((t) => t.name);
     if (missing.length) return toast(`Type a normal rate for ${missing.join(", ")}.`);
     if (live && same(base, cal.base)) return toast("Nothing changed.");
-    save({ base }).then((ok) => ok && render());
+    // A type's room count changed: work out rooms left again on its dates.
+    const days = {};
+    const changedTypes = typesOf(prop).map((t) => t.id).filter((t) => P.unitsFor(prop, { base }, t) !== unitsOf(t));
+    Object.entries(cal.days).forEach(([d, day]) => {
+      if (d < today) return;
+      const rooms = { ...(day.rooms || {}) };
+      let touched = false;
+      changedTypes.forEach((t) => {
+        if (!rooms[t]) return;
+        // Keep what was taken elsewhere as it was before the count changed.
+        const e = { ...rooms[t] };
+        const old = P.availOn(prop, cal, t, d);
+        if (old.units != null && !Number.isInteger(e.out) && old.out) e.out = old.out;
+        const nx = P.settleRoom(e, P.unitsFor(prop, { base }, t));
+        if (nx) rooms[t] = nx;
+        else delete rooms[t];
+        touched = true;
+      });
+      if (!touched) return;
+      const nd = { ...day, rooms };
+      if (!Object.keys(rooms).length) delete nd.rooms;
+      days[d] = Object.keys(nd).length ? nd : null;
+    });
+    save({ base, days }).then((ok) => ok && render());
   });
 
   /* ---------- Toast ---------- */

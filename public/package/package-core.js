@@ -36,10 +36,14 @@
    * (JSON) is the normal rates; `days` maps "YYYY-MM-DD" to that date's
    * changes (JSON):
    *   base { rooms: { <type>: { rate, ac, units? } }, pkg: { <tier>: { nonac, ac } } }
-   *   day  { rooms: { <type>: { rate?, ac?, left?, soldOut? } }, pkg: { <tier>: { label?, nonac?, ac? } } }
-   * `units` is how many rooms of the type there are; a date's `left` how many
-   * are still to sell that night (no `left`: all of them). `soldOut` is true
-   * whenever `left` is 0, and is what the website reads.
+   *   day  { rooms: { <type>: { rate?, ac?, out?, held?, left?, soldOut? } }, pkg: { <tier>: { label?, nonac?, ac? } } }
+   * Availability: `units` is how many rooms of the type there are. On a date,
+   * `out` is rooms taken outside the Package Generator (Booking.com, phone)
+   * or closed, set in the calendar's Availability tab; `held` maps a confirmed
+   * package's code to the rooms it holds, set by the generator. `left` (rooms
+   * still to sell; none = all) and `soldOut` follow from those and are written
+   * with every change (settleRoom): the website reads only those two. A type
+   * with no `units` isn't counted: only a manual `soldOut` applies.
    * `nonac` / `ac` are package tables (adults sharing → price per adult). A
    * date's package entry replaces the tier's normal tables on that date, as a
    * rates.js season did; `label` names it on the package ("Celebration
@@ -66,7 +70,8 @@
     const res = await fetch(`${API}/rates/${propKey}`, { cache: "no-store" });
     if (res.status === 404) return null;
     if (!res.ok) throw new Error("calendar load failed: " + res.status);
-    return parseCalendar((await res.json()).fields || {});
+    const doc = await res.json();
+    return { ...parseCalendar(doc.fields || {}), updateTime: doc.updateTime || "" };
   }
 
   // A room type on one date. `rate` / `ac` null = not set in the calendar.
@@ -76,7 +81,120 @@
     const soldOut = !!d.soldOut || d.left === 0;
     // left: rooms still to sell that night, null when not limited (all open).
     const left = soldOut ? 0 : Number.isInteger(d.left) ? d.left : null;
-    return { rate: d.rate ?? b.rate ?? null, ac: d.ac ?? b.ac ?? null, soldOut, left, units: Number.isInteger(b.units) ? b.units : null, changed: d.rate != null || d.ac != null };
+    return { rate: d.rate ?? b.rate ?? null, ac: d.ac ?? b.ac ?? null, soldOut, left, units: Number.isInteger(b.units) ? b.units : null, held: heldSum(d), changed: d.rate != null || d.ac != null };
+  }
+
+  /* ---------- Availability (see "Rate calendar" above) ---------- */
+  // Rooms of a type: the calendar's `units`, else rates.js `rateTypes` units, else null.
+  function unitsFor(prop, cal, type) {
+    const b = (cal && cal.base.rooms[type]) || {};
+    if (Number.isInteger(b.units)) return b.units;
+    const meta = (prop.rateTypes || []).find((t) => t.id === type) || {};
+    return Number.isInteger(meta.units) ? meta.units : null;
+  }
+  const heldSum = (e) => Object.values((e && e.held) || {}).reduce((s, n) => s + (Number(n) || 0), 0);
+  // Rooms taken outside the generator. Dates saved before `out` existed have
+  // only `left` (or `soldOut`), which then meant the same thing.
+  function outOf(e, units) {
+    if (!e) return 0;
+    if (Number.isInteger(e.out)) return e.out;
+    if (units != null && !e.held && Number.isInteger(e.left)) return Math.max(0, units - e.left);
+    if (units != null && !e.held && e.soldOut) return units;
+    return 0;
+  }
+  // A room type's date entry with `left` / `soldOut` worked out again; null when nothing is left in it.
+  function settleRoom(e, units) {
+    if (!e) return null;
+    const x = { ...e };
+    const out = outOf(e, units);
+    delete x.left;
+    delete x.out;
+    if (x.held) {
+      Object.keys(x.held).forEach((k) => { if (!(Number(x.held[k]) > 0)) delete x.held[k]; });
+      if (!Object.keys(x.held).length) delete x.held;
+    }
+    if (units == null) {
+      if (!x.soldOut) delete x.soldOut;
+      if (out > 0 && Number.isInteger(e.out)) x.out = out;
+    } else {
+      if (out > 0) x.out = out;
+      const left = Math.max(0, units - out - heldSum(x));
+      delete x.soldOut;
+      if (left < units) x.left = left;
+      if (left === 0) x.soldOut = true;
+    }
+    return Object.keys(x).length ? x : null;
+  }
+  // One date's availability for a type.
+  function availOn(prop, cal, type, date) {
+    const units = unitsFor(prop, cal, type);
+    const e = (((cal.days[date] || {}).rooms) || {})[type] || null;
+    const held = heldSum(e);
+    const out = outOf(e, units);
+    if (units == null) return { units, held, out, left: null, soldOut: !!(e && e.soldOut), over: 0 };
+    const free = units - out - held;
+    return { units, held, out, left: Math.max(0, free), soldOut: free <= 0, over: Math.max(0, -free) };
+  }
+
+  /*
+   * Confirmed packages hold rooms. `holdsFromForm` reads what a package books
+   * from its saved generator form: { date: { type: rooms } } for each night.
+   * `holdChanges` returns the calendar's changed dates once package `code`
+   * holds exactly `holds` (an empty object releases it), and the nights it
+   * overbooks. Recorded per package, so doing it twice changes nothing.
+   */
+  function holdsFromForm(prop, form) {
+    const f = (form && form.f) || {};
+    const out = {};
+    const nights = nightsBetween(f.ci, f.co);
+    if (!(nights > 0)) return out;
+    (form.rooms || []).forEach((r) => {
+      const room = prop.rooms.find((x) => x.id === r.id);
+      const q = Math.max(0, parseInt(r.q, 10) || 0);
+      if (!room || !q) return;
+      for (let i = 0; i < nights; i++) {
+        const d = addDays(f.ci, i);
+        const t = typeOf(room);
+        (out[d] = out[d] || {})[t] = (out[d][t] || 0) + q;
+      }
+    });
+    return out;
+  }
+  function holdChanges(prop, cal, code, holds) {
+    const days = {};
+    const over = [];
+    const dates = new Set(Object.keys(holds));
+    Object.entries(cal.days).forEach(([d, day]) => {
+      if (Object.values(day.rooms || {}).some((e) => e.held && code in e.held)) dates.add(d);
+    });
+    [...dates].sort().forEach((d) => {
+      const day = JSON.parse(JSON.stringify(cal.days[d] || {}));
+      const rooms = day.rooms || {};
+      const want = holds[d] || {};
+      const types = new Set([...Object.keys(want), ...Object.keys(rooms).filter((t) => rooms[t].held && code in rooms[t].held)]);
+      let changed = false;
+      types.forEach((t) => {
+        const e = { ...(rooms[t] || {}) };
+        const before = (e.held || {})[code] || 0;
+        const n = want[t] || 0;
+        if (before === n) return;
+        changed = true;
+        const units = unitsFor(prop, cal, t);
+        if (!Number.isInteger(e.out)) { const o = outOf(e, units); if (o > 0) e.out = o; }
+        e.held = { ...(e.held || {}) };
+        if (n) e.held[code] = n;
+        else delete e.held[code];
+        const next = settleRoom(e, units);
+        if (next) rooms[t] = next;
+        else delete rooms[t];
+        if (n && units != null && units - outOf(next, units) - heldSum(next) < 0) over.push({ date: d, type: t, short: outOf(next, units) + heldSum(next) - units });
+      });
+      if (!changed) return;
+      if (Object.keys(rooms).length) day.rooms = rooms;
+      else delete day.rooms;
+      days[d] = Object.keys(day).length ? day : null;
+    });
+    return { days, over };
   }
 
   // A package tier's tables on one date: the date's own, else the normal ones.
@@ -93,8 +211,12 @@
    * Only those fields are written, so two managers editing different dates
    * don't overwrite each other. `create` writes the whole document, the first
    * time (`changes` must then hold the full base and every date).
+   * `updateTime` (from loadCalendar, or this function's last return): only
+   * save if nobody has saved since, else it fails with status 400 / 409 —
+   * so a stale page can't overwrite a package's rooms. Returns the new
+   * updateTime.
    */
-  async function saveCalendar(propKey, changes, idToken, phone, create) {
+  async function saveCalendar(propKey, changes, idToken, phone, create, updateTime) {
     const fields = { updatedBy: { stringValue: phone } };
     const mask = ["updatedBy"];
     if (changes.base) { fields.base = { stringValue: JSON.stringify(changes.base) }; mask.push("base"); }
@@ -110,13 +232,56 @@
     }
     const write = { update: { name: `${DB}/rates/${propKey}`, fields }, updateTransforms: [{ fieldPath: "updatedAt", setToServerValue: "REQUEST_TIME" }] };
     if (create) write.currentDocument = { exists: false };
-    else Object.assign(write, { updateMask: { fieldPaths: mask }, currentDocument: { exists: true } });
+    else Object.assign(write, { updateMask: { fieldPaths: mask }, currentDocument: updateTime ? { updateTime } : { exists: true } });
     const res = await fetch(API + ":commit", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
       body: JSON.stringify({ writes: [write] }),
     });
     if (!res.ok) throw Object.assign(new Error("calendar save failed: " + res.status), { status: res.status });
+    const out = await res.json().catch(() => ({}));
+    return (out.writeResults && out.writeResults[0] && out.writeResults[0].updateTime) || out.commitTime || "";
+  }
+
+  /*
+   * Makes package `code` hold `holds` in its property's calendar (see
+   * holdChanges), reloading and trying again if someone saved in between.
+   * Returns { over } (nights it overbooks), or { none: true } when the
+   * property has no calendar yet.
+   */
+  async function syncHolds(propKey, code, holds, idToken, phone) {
+    const prop = window.PACKAGE_CONFIG.properties[propKey];
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const cal = await loadCalendar(propKey);
+      if (!cal) return { none: true, over: [] };
+      const { days, over } = holdChanges(prop, cal, code, holds);
+      if (!Object.keys(days).length) return { over };
+      try {
+        await saveCalendar(propKey, { days }, idToken, phone, false, cal.updateTime);
+        return { over };
+      } catch (e) {
+        if (e.status !== 400 && e.status !== 409) throw e;
+      }
+    }
+    throw Object.assign(new Error("calendar busy"), { status: 409 });
+  }
+
+  // Confirmed packages, newest first (only managers can list them).
+  async function listConfirmed(idToken, limit = 300) {
+    const res = await fetch(API + ":runQuery", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + idToken },
+      body: JSON.stringify({
+        structuredQuery: { from: [{ collectionId: "quotes" }], where: { fieldFilter: { field: { fieldPath: "status" }, op: "EQUAL", value: { stringValue: "confirmed" } } }, limit },
+      }),
+    });
+    if (!res.ok) throw new Error("confirmed list failed: " + res.status);
+    return (await res.json()).filter((r) => r.document).map(({ document: d }) => {
+      const f = d.fields || {};
+      let q = {};
+      try { q = JSON.parse(str(f, "q")); } catch { /* unreadable */ }
+      return { code: d.name.split("/").pop(), p: str(f, "p"), q, by: str(f, "by") };
+    });
   }
 
   function nightlyRate(prop, room, ac, date) {
@@ -605,5 +770,5 @@
   }
   const legendHtml = () => `<ul class="legend" aria-label="Legend">${Object.entries(DISH_TYPES).map(([k, v]) => `<li class="${k}"><span class="dot"></span>${v}</li>`).join("")}</ul>`;
 
-  window.PKG = { API, DB, str, packageTable, listRequests, setRequestStatus, carQty, typeOf, loadCalendar, calRoom, calPackage, saveCalendar, nightlyRate, esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
+  window.PKG = { unitsFor, settleRoom, availOn, holdsFromForm, holdChanges, syncHolds, listConfirmed, heldSum, API, DB, str, packageTable, listRequests, setRequestStatus, carQty, typeOf, loadCalendar, calRoom, calPackage, saveCalendar, nightlyRate, esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
 })();

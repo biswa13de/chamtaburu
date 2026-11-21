@@ -54,17 +54,18 @@ guest on WhatsApp in one tap.
 
 ## Build status — v2: short links (2026-10-26)
 
-| Piece                                                    | What it is                                                                                                               |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `/package` → `public/package/index.html`, `generator.js` | Manager page: SMS sign-in, form, live price, Copy / Preview / Send on WhatsApp                                           |
-| `public/package/auth.js`                                 | Firebase phone sign-in (SDK from gstatic, invisible reCAPTCHA)                                                           |
-| `/p/<code>` → `view.html`, `view.js`                     | Guest page the WhatsApp link opens: breakdown, inclusions, pay + confirm buttons                                         |
-| `/package/menu` → `menu.html`, `menu.js`                 | The package menu to share: Share, Copy menu as text (for WhatsApp), Save as PDF (one A4 page)                            |
-| `/package/calendar` → `calendar.html`, `calendar.js`     | The rate calendar: room rates, availability (rooms left, sold out) and package rates by date (see "Rate calendar" below) |
-| `public/package/rates.js`                                | **The one file to edit** for prices — rates, meals, add-ons, GST, advance, UPI, approved contact numbers                 |
-| Firestore `managers` collection                          | Who may sign in (Firebase console, not in the repo)                                                                      |
-| `public/package/package-core.js`                         | Shared price maths + saving / loading quotes                                                                             |
-| `firestore.rules`                                        | Who may do what with saved quotes (read one by code; managers create; no more)                                           |
+| Piece                                                    | What it is                                                                                                                  |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `/package` → `public/package/index.html`, `generator.js` | Manager page: SMS sign-in, form, live price, Copy / Preview / Send on WhatsApp                                              |
+| `public/package/auth.js`                                 | Firebase phone sign-in (SDK from gstatic, invisible reCAPTCHA)                                                              |
+| `/p/<code>` → `view.html`, `view.js`                     | Guest page the WhatsApp link opens: breakdown, inclusions, pay + confirm buttons                                            |
+| `/package/menu` → `menu.html`, `menu.js`                 | The package menu to share: Share, Copy menu as text (for WhatsApp), Save as PDF (one A4 page)                               |
+| `/package/calendar` → `calendar.html`, `calendar.js`     | The rate calendar: room rates, availability (rooms left, sold out) and package rates by date (see "Rate calendar" below)    |
+| `/package/today` → `today.html`, `today.js`              | The day sheet for staff: arrivals, departures, stays, meal counts (see "Today, and rooms held by confirmed packages" below) |
+| `public/package/rates.js`                                | **The one file to edit** for prices — rates, meals, add-ons, GST, advance, UPI, approved contact numbers                    |
+| Firestore `managers` collection                          | Who may sign in (Firebase console, not in the repo)                                                                         |
+| `public/package/package-core.js`                         | Shared price maths + saving / loading quotes                                                                                |
+| `firestore.rules`                                        | Who may do what with saved quotes (read one by code; managers create; no more)                                              |
 
 Also: `/package` and `/p/` are `Disallow`ed in `robots.txt` and both pages are `noindex`. The guest page has a WhatsApp preview card (property photo + "Your stay package").
 
@@ -159,6 +160,24 @@ In the Package Generator, **Booking requests** (above the form) lists them, open
 3. Send the package as usual. Sending marks the request **Package sent** with the package's code. Otherwise set **Booked** or **Declined** in its status box.
 
 The guest then pays the advance from the package page (**Pay online** for the Village).
+
+### Today, and rooms held by confirmed packages (2026-11-21)
+
+**Rooms left follow confirmed packages.** Marking a package **Confirmed** in the Package Generator's list holds its rooms on its nights in the rate calendar, so rooms left (and the website's "Sold out" / "Only 2 left", and the partners' rates) drop by themselves. Any other status (Sent, Cancelled) gives them back; editing a confirmed package moves them to its new dates or rooms. Each package's hold is recorded under its code, so confirming twice changes nothing. If a confirmation needs more rooms than are left, it is still saved and the generator says **Overbooked** with the date: move a booking or fix Availability.
+
+The Availability tab is now for everything else: bookings from Booking.com or by phone without a package, or rooms closed for repairs. Set rooms left after those; packages' holds count themselves, and rooms left can't be set above what they leave free. Stored per room type and date as `out` (rooms taken elsewhere) and `held` (package code → rooms), with `left` / `soldOut` worked out from them on every save (`package-core.js`, "Availability"). A type with no room count (the Resort until its counts are set) records holds but can't count them: only Sold out applies there.
+
+Saves to the rate calendar now check nobody saved since the page loaded (a package confirmed meanwhile, another manager). If someone did, the calendar reloads and asks to try again, so a stale page can't undo a package's hold.
+
+**`/package/today`** (linked as **Today** under Property in the generator): pick a property and a date (Yesterday / Today / Tomorrow or any date). From confirmed packages:
+
+- **Arriving**, **Leaving**, **Staying on**: guest, Ref, dates, rooms with guests per room, meal plan, cars and other add-ons, the package note, and the balance to collect (total less the advance); Call / WhatsApp / Package buttons.
+- Summary: rooms to make ready and to clean, money to collect on arrival.
+- **Meals**: lunch, evening snacks and dinner for package guests staying that night; breakfast for those who stayed the night before (and, at the Resort, room-only guests too: `roomBreakfast` in `rates.js`).
+- **Send on WhatsApp** / **Copy**: the day as one message for the staff group.
+- A package confirmed before holds existed shows **Not in rooms left · Count it**: tap it once.
+
+Not here: bookings that never had a package. `today.html?demo` on localhost shows made-up bookings without signing in.
 
 ### Travel partners and B2B rates (2026-11-19)
 

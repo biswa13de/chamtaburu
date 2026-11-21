@@ -198,6 +198,8 @@ window.PACKAGE_CONFIG = {
       address: "Sankupi, Matha Forest, Baghmundi, Purulia, West Bengal 723152",
       prefix: "CER",
       // Confirmed rates (src/content/resort.ts), breakfast included.
+      // Breakfast comes with every room, room only too: /package/today counts it.
+      roomBreakfast: true,
       rooms: [
         { id: "bamboo-cottage", name: "Bamboo Cottage", tier: "bamboo", rate: 2000, adults: 2, children: 1, max: 2 },
         { id: "double-bedded", name: "Double Bedded", tier: "room", rate: 1600, adults: 2, children: 1, max: 2 },
