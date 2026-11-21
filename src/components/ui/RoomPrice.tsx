@@ -79,6 +79,11 @@ export function RoomPrice({ type, price, acPrice, large = false }: RoomPriceProp
           </p>
         )}
         {fewLeft(fewLeftLabel(type, stay.fewestLeft))}
+        {stay.minStay && (
+          <p className="text-palash text-[11px] leading-snug font-semibold">
+            Minimum {stay.minStay.need} nights ({shortDate(stay.minStay.date)})
+          </p>
+        )}
       </div>
     );
   }

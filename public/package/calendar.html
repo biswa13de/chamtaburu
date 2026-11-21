@@ -11,7 +11,7 @@
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js">
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
-<link rel="stylesheet" href="/package/cal.css?v=3">
+<link rel="stylesheet" href="/package/cal.css?v=4">
 </head>
 <body>
 
@@ -110,6 +110,13 @@
       <div class="acts">
         <button class="btn sold" type="button" id="aSold">Sold out</button>
       </div>
+      <div class="minRow">
+        <label class="f">Minimum stay (whole property)<select id="aMin">
+          <option value="">Any length</option><option value="2">2 nights</option><option value="3">3 nights</option>
+          <option value="4">4 nights</option><option value="5">5 nights</option><option value="7">7 nights</option>
+        </select></label>
+        <button class="btn" type="button" id="aMinSet">Set minimum stay</button>
+      </div>
     </div>
     <div id="sheetPkg">
       <label class="f">Name on the package (optional)<input id="sLabel" maxlength="60" placeholder="e.g. Celebration Package"></label>
@@ -127,7 +134,7 @@
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script src="/package/rates.js?v=3"></script>
-<script src="/package/package-core.js?v=4"></script>
-<script src="/package/calendar.js?v=5"></script>
+<script src="/package/package-core.js?v=5"></script>
+<script src="/package/calendar.js?v=6"></script>
 </body>
 </html>

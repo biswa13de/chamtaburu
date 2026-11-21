@@ -10,7 +10,8 @@
  *   base: JSON { rooms: { <type>: { rate, ac } }, … }  the normal rates
  *   days: map "YYYY-MM-DD" → JSON { rooms: { <type>: { rate?, ac?, left?, soldOut? } }, … }
  * `left` is how many rooms of the type are still to sell that night; 0 is
- * sold out (the calendar also sets `soldOut` then).
+ * sold out (the calendar also sets `soldOut` then). A day's `minNights`
+ * (beside `rooms`) is the minimum stay for any stay that includes it.
  * A room's type is its content `rateType`, else its slug.
  *
  * Pages are prerendered, so the first paint shows the content files' price;
@@ -37,6 +38,8 @@ interface RoomEntry {
 export interface LiveRates {
   base: Record<string, RoomEntry>;
   days: Record<string, Record<string, RoomEntry>>;
+  /** Minimum stay by date, for any stay that includes that night. */
+  minNights: Record<string, number>;
 }
 
 interface FirestoreDoc {
@@ -46,11 +49,15 @@ interface FirestoreDoc {
   };
 }
 
-function roomsOf(json: string | undefined): Record<string, RoomEntry> {
+interface DayJson {
+  rooms?: Record<string, RoomEntry>;
+  minNights?: number;
+}
+
+function dayOf(json: string | undefined): DayJson {
   if (!json) return {};
   try {
-    const parsed = JSON.parse(json) as { rooms?: Record<string, RoomEntry> };
-    return parsed.rooms ?? {};
+    return JSON.parse(json) as DayJson;
   } catch {
     return {};
   }
@@ -58,10 +65,15 @@ function roomsOf(json: string | undefined): Record<string, RoomEntry> {
 
 function parse(doc: FirestoreDoc): LiveRates {
   const days: LiveRates['days'] = {};
+  const minNights: LiveRates['minNights'] = {};
   for (const [date, value] of Object.entries(doc.fields?.days?.mapValue?.fields ?? {})) {
-    if (DATE_RE.test(date)) days[date] = roomsOf(value.stringValue);
+    if (!DATE_RE.test(date)) continue;
+    const day = dayOf(value.stringValue);
+    days[date] = day.rooms ?? {};
+    if (Number.isInteger(day.minNights) && (day.minNights ?? 0) > 1)
+      minNights[date] = day.minNights!;
   }
-  return { base: roomsOf(doc.fields?.base?.stringValue), days };
+  return { base: dayOf(doc.fields?.base?.stringValue).rooms ?? {}, days, minNights };
 }
 
 // One request per page load, shared by every price on the page. null = no
@@ -145,6 +157,27 @@ export interface StayRate {
   soldOutDates: string[];
   /** The fewest rooms left on any night of the stay; null when not limited. */
   fewestLeft: number | null;
+  /** Set when the stay is shorter than a minimum stay on one of its nights. */
+  minStay: MinStay | null;
+}
+
+export interface MinStay {
+  /** Nights the stay must be. */
+  need: number;
+  /** The night that asks for it. */
+  date: string;
+}
+
+/** The longest minimum stay among the stay's nights, when the stay is shorter; else null. */
+export function minStay(rates: LiveRates, checkIn: string, checkOut: string): MinStay | null {
+  const nights = nightsBetween(checkIn, checkOut);
+  let best: MinStay | null = null;
+  for (let i = 0; i < nights; i++) {
+    const date = addDays(checkIn, i);
+    const need = rates.minNights[date] ?? 0;
+    if (need > (best?.need ?? 0)) best = { need, date };
+  }
+  return best && best.need > nights ? best : null;
 }
 
 /** "Only 2 left" shows when this many rooms of a type, or fewer, are left. */
@@ -171,7 +204,15 @@ export function stayRate(
     total = total != null && n.rate != null ? total + n.rate : null;
     acTotal = acTotal != null && n.ac != null ? acTotal + n.ac : null;
   }
-  return { nights, total, acTotal, flat: seen.size <= 1, soldOutDates, fewestLeft };
+  return {
+    nights,
+    total,
+    acTotal,
+    flat: seen.size <= 1,
+    soldOutDates,
+    fewestLeft,
+    minStay: minStay(rates, checkIn, checkOut),
+  };
 }
 
 /**

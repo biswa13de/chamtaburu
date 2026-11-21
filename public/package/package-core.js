@@ -36,7 +36,9 @@
    * (JSON) is the normal rates; `days` maps "YYYY-MM-DD" to that date's
    * changes (JSON):
    *   base { rooms: { <type>: { rate, ac, units? } }, pkg: { <tier>: { nonac, ac } } }
-   *   day  { rooms: { <type>: { rate?, ac?, out?, held?, left?, soldOut? } }, pkg: { <tier>: { label?, nonac?, ac? } } }
+   *   day  { minNights?, rooms: { <type>: { rate?, ac?, out?, held?, left?, soldOut? } }, pkg: { <tier>: { label?, nonac?, ac? } } }
+   * `minNights` (2 or more): any stay that includes that night must be at
+   * least that long, for the whole property (minStay below).
    * Availability: `units` is how many rooms of the type there are. On a date,
    * `out` is rooms taken outside the Package Generator (Booking.com, phone)
    * or closed, set in the calendar's Availability tab; `held` maps a confirmed
@@ -82,6 +84,25 @@
     // left: rooms still to sell that night, null when not limited (all open).
     const left = soldOut ? 0 : Number.isInteger(d.left) ? d.left : null;
     return { rate: d.rate ?? b.rate ?? null, ac: d.ac ?? b.ac ?? null, soldOut, left, units: Number.isInteger(b.units) ? b.units : null, held: heldSum(d), changed: d.rate != null || d.ac != null };
+  }
+
+  /* ---------- Minimum stay ---------- */
+  // A date's minimum stay in nights; 0 when there is none.
+  function minNightsOn(cal, date) {
+    const n = cal && cal.days[date] && cal.days[date].minNights;
+    return Number.isInteger(n) && n > 1 ? n : 0;
+  }
+  // When a stay is shorter than the longest minimum among its nights:
+  // { need, date } (the date asking for the most); else null.
+  function minStay(cal, ci, co) {
+    const nights = nightsBetween(ci, co);
+    let need = 0, date = "";
+    for (let i = 0; i < nights; i++) {
+      const d = addDays(ci, i);
+      const n = minNightsOn(cal, d);
+      if (n > need) { need = n; date = d; }
+    }
+    return need > nights ? { need, date } : null;
   }
 
   /* ---------- Availability (see "Rate calendar" above) ---------- */
@@ -486,6 +507,8 @@
     });
 
     if (st.ci && st.co && nights <= 0) warnings.push("Check-out must be after check-in.");
+    const short = prop.calendar && nights > 0 ? minStay(prop.calendar, st.ci, st.co) : null;
+    if (short) warnings.push(`Minimum stay is ${plural(short.need, "night")} for stays that include ${fmtDate(short.date)} (rate calendar). Send it only if you mean to make an exception.`);
 
     const subtotal = items.reduce((s, l) => s + l.amount, 0);
     const exempt = items.filter((l) => !l.tax).reduce((s, l) => s + l.amount, 0);
@@ -770,5 +793,5 @@
   }
   const legendHtml = () => `<ul class="legend" aria-label="Legend">${Object.entries(DISH_TYPES).map(([k, v]) => `<li class="${k}"><span class="dot"></span>${v}</li>`).join("")}</ul>`;
 
-  window.PKG = { unitsFor, settleRoom, availOn, holdsFromForm, holdChanges, syncHolds, listConfirmed, heldSum, API, DB, str, packageTable, listRequests, setRequestStatus, carQty, typeOf, loadCalendar, calRoom, calPackage, saveCalendar, nightlyRate, esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
+  window.PKG = { minNightsOn, minStay, unitsFor, settleRoom, availOn, holdsFromForm, holdChanges, syncHolds, listConfirmed, heldSum, API, DB, str, packageTable, listRequests, setRequestStatus, carQty, typeOf, loadCalendar, calRoom, calPackage, saveCalendar, nightlyRate, esc, inr, addDays, nightsBetween, fmtDate, today, plural, kids, eventsFor, bookingCalls, mealsHtml, legendHtml, calculate, saveQuote, updateQuote, loadForm, listQuotes, setStatus, loadManager, contactFor, loadQuote, addonsFor, PLANS, encode, decode, waNumber, prettyPhone };
 })();

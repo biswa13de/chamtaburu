@@ -273,8 +273,9 @@
       const c = cellFor(d);
       const cls = ["day", c.changed && "changed", c.limited && "limited", c.open && "open", c.sold && "sold", sel.has(d) && "sel", d === today && "today"].filter(Boolean).join(" ");
       const full = P.fmtDate(d) + ": " + c.label;
-      return `<button type="button" class="${cls}" data-d="${d}"${past ? " disabled" : ""} aria-pressed="${sel.has(d)}" aria-label="${P.esc(full)}">
-        <span class="dn">${Number(d.slice(8))}</span>
+      const mn = P.minNightsOn(cal, d);
+      return `<button type="button" class="${cls}" data-d="${d}"${past ? " disabled" : ""} aria-pressed="${sel.has(d)}" aria-label="${P.esc(full + (mn ? `, minimum stay ${mn} nights` : ""))}">
+        <span class="dn">${Number(d.slice(8))}${mn ? `<i class="mn">${mn}N+</i>` : ""}</span>
         <span class="v">${c.v}</span>
         ${c.sold ? `<span class="so">${P.esc(c.so || "Sold out")}</span>` : c.v2 ? `<span class="v2">${P.esc(c.v2)}</span>` : ""}
       </button>`;
@@ -284,6 +285,7 @@
       view === "avail" ? `<li><i class="l-limited"></i>Fewer rooms left</li>` : `<li><i class="l-changed"></i>Changed from normal</li>`,
       byType(view) ? `<li><i class="l-sold"></i>Sold out</li>` : "",
       `<li><i class="l-sel"></i>Selected</li>`,
+      monthDates(month).some((d) => P.minNightsOn(cal, d)) ? `<li><b class="mn">2N+</b>Minimum stay</li>` : "",
     ].join("");
     $("calHint").textContent = sel.size ? "" : view === "avail"
       ? "Tap the dates you want to change, then set how many rooms are left, or Sold out."
@@ -356,6 +358,8 @@
       const v = availOn(first).left;
       mixed = dates.some((d) => availOn(d).left !== v);
       const held = Math.max(...dates.map((d) => availOn(d).held));
+      const mins = dates.map((d) => P.minNightsOn(cal, d));
+      $("aMin").value = mins.every((n) => n === mins[0]) && mins[0] ? String(mins[0]) : "";
       $("aStepRow").hidden = u == null;
       $("sSave").hidden = u == null;
       $("aLeft").max = u != null ? maxLeft(dates) : "";
@@ -375,7 +379,7 @@
       $("sAc").value = hasAc(type) ? c.ac ?? "" : "";
       mixed = dates.some((d) => { const x = P.calRoom(cal, type, d); return x.rate !== c.rate || x.ac !== c.ac; });
       $("sReset").textContent = "Back to normal rate";
-      $("sHint").textContent = (mixed ? `These dates have different rates; shown are ${P.fmtDate(first)}'s. Saving gives them all the rates above. ` : "") + `${name}: leave a box empty for the normal rate. Sold out and rooms left: the Availability tab.`;
+      $("sHint").textContent = (mixed ? `These dates have different rates; shown are ${P.fmtDate(first)}'s. Saving gives them all the rates above. ` : "") + `${name}: leave a box empty for the normal rate. Sold out, rooms left and minimum stay: the Availability tab.`;
     } else {
       const c = P.calPackage(cal, tier, first);
       mixed = dates.some((d) => !same(P.calPackage(cal, tier, d), c));
@@ -485,6 +489,22 @@
     const next = (Number.isInteger(cur) ? cur : max ?? 0) + n;
     $("aLeft").value = Math.max(0, max != null ? Math.min(max, next) : next);
   };
+  // Minimum stay is for the whole property, on the date itself (not a room type).
+  $("aMinSet").addEventListener("click", async () => {
+    const n = Number($("aMin").value) || 0;
+    const days = {};
+    sorted().forEach((d) => {
+      const day = clone(cal.days[d] || {});
+      if (n > 1) day.minNights = n;
+      else delete day.minNights;
+      days[d] = Object.keys(day).length ? day : null;
+    });
+    if (await save({ days })) {
+      sel.clear();
+      rangeStart = null;
+      render();
+    }
+  });
   $("aMinus").addEventListener("click", () => step(-1));
   $("aPlus").addEventListener("click", () => step(1));
 

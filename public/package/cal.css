@@ -132,3 +132,9 @@ h2 .count{color:var(--muted);font-size:1rem;font-weight:500}
 .bkRooms{margin:4px 0 0;padding-left:18px;font-size:.9rem}
 .bkActs{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
 #dayChips{margin-top:10px}
+
+/* Minimum stay: "2N+" on a date, and its control in the Availability panel */
+.day .mn,.legend .mn{font-style:normal;font-weight:700;font-size:.6rem;color:var(--palash);margin-left:4px;letter-spacing:.02em}
+.legend .mn{margin:0 6px 0 0;font-size:.72rem}
+.minRow{display:flex;align-items:flex-end;flex-wrap:wrap;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.minRow .f{flex:1 1 180px;margin:0}

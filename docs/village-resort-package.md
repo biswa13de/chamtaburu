@@ -161,6 +161,16 @@ In the Package Generator, **Booking requests** (above the form) lists them, open
 
 The guest then pays the advance from the package page (**Pay online** for the Village).
 
+### Minimum stay (2026-11-21)
+
+In the rate calendar's **Availability** tab, select dates, choose **Minimum stay** (2, 3, 4, 5 or 7 nights, or Any length) and **Set minimum stay**. It is for the whole property, not a room type, and those dates show **2N+**. Any stay that includes such a night must be at least that long, wherever it arrives: a 2-night minimum on 24 Dec turns away a stay of only 24 Dec, and a stay of 23–25 Dec is fine.
+
+- **Website**: room prices say "Minimum 2 nights (24 Dec)" for a shorter stay; `/book` explains under the dates and won't send it.
+- **Package Generator**: a warning only, so a manager can still make an exception.
+- **Partners**: the date's details say so.
+
+Stored as the date's `minNights` in `rates/{property}` (`package-core.js`, `minStay`; `src/lib/liveRates.ts`).
+
 ### Today, and rooms held by confirmed packages (2026-11-21)
 
 **Rooms left follow confirmed packages.** Marking a package **Confirmed** in the Package Generator's list holds its rooms on its nights in the rate calendar, so rooms left (and the website's "Sold out" / "Only 2 left", and the partners' rates) drop by themselves. Any other status (Sent, Cancelled) gives them back; editing a confirmed package moves them to its new dates or rooms. Each package's hold is recorded under its code, so confirming twice changes nothing. If a confirmation needs more rooms than are left, it is still saved and the generator says **Overbooked** with the date: move a booking or fix Availability.
