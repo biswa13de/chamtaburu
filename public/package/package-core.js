@@ -35,8 +35,11 @@
    * rates/{village|resort}, also read by the website's room pages. `base`
    * (JSON) is the normal rates; `days` maps "YYYY-MM-DD" to that date's
    * changes (JSON):
-   *   base { rooms: { <type>: { rate, ac } }, pkg: { <tier>: { nonac, ac } } }
-   *   day  { rooms: { <type>: { rate?, ac?, soldOut? } }, pkg: { <tier>: { label?, nonac?, ac? } } }
+   *   base { rooms: { <type>: { rate, ac, units? } }, pkg: { <tier>: { nonac, ac } } }
+   *   day  { rooms: { <type>: { rate?, ac?, left?, soldOut? } }, pkg: { <tier>: { label?, nonac?, ac? } } }
+   * `units` is how many rooms of the type there are; a date's `left` how many
+   * are still to sell that night (no `left`: all of them). `soldOut` is true
+   * whenever `left` is 0, and is what the website reads.
    * `nonac` / `ac` are package tables (adults sharing → price per adult). A
    * date's package entry replaces the tier's normal tables on that date, as a
    * rates.js season did; `label` names it on the package ("Celebration
@@ -70,7 +73,10 @@
   function calRoom(cal, type, date) {
     const b = (cal.base.rooms || {})[type] || {};
     const d = (((cal.days[date] || {}).rooms) || {})[type] || {};
-    return { rate: d.rate ?? b.rate ?? null, ac: d.ac ?? b.ac ?? null, soldOut: !!d.soldOut, changed: d.rate != null || d.ac != null };
+    const soldOut = !!d.soldOut || d.left === 0;
+    // left: rooms still to sell that night, null when not limited (all open).
+    const left = soldOut ? 0 : Number.isInteger(d.left) ? d.left : null;
+    return { rate: d.rate ?? b.rate ?? null, ac: d.ac ?? b.ac ?? null, soldOut, left, units: Number.isInteger(b.units) ? b.units : null, changed: d.rate != null || d.ac != null };
   }
 
   // A package tier's tables on one date: the date's own, else the normal ones.

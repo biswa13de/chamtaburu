@@ -11,7 +11,7 @@
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js">
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
-<link rel="stylesheet" href="/package/cal.css?v=1">
+<link rel="stylesheet" href="/package/cal.css?v=2">
 </head>
 <body>
 
@@ -40,8 +40,9 @@
       <p class="hint" id="updated"></p>
     </div>
 
-    <div class="tabs" role="tablist">
+    <div class="tabs four" role="tablist">
       <button type="button" role="tab" id="tab-rooms" data-view="rooms" aria-selected="true">Room rates</button>
+      <button type="button" role="tab" id="tab-avail" data-view="avail" aria-selected="false">Availability</button>
       <button type="button" role="tab" id="tab-pkg" data-view="pkg" aria-selected="false">Package rates</button>
       <button type="button" role="tab" id="tab-base" data-view="base" aria-selected="false">Normal rates</button>
     </div>
@@ -95,7 +96,20 @@
         <label class="f">Rate per night (₹)<input id="sRate" type="number" inputmode="numeric" min="1" placeholder="Normal rate"></label>
         <label class="f" id="sAcLbl">AC rate per night (₹)<input id="sAc" type="number" inputmode="numeric" min="1" placeholder="Normal rate"></label>
       </div>
-      <label class="chk"><input type="checkbox" id="sSold"> Sold out: the website shows “Sold out” for these dates</label>
+    </div>
+    <div id="sheetAvail">
+      <div class="stepRow" id="aStepRow">
+        <span class="lbl">Rooms left to sell</span>
+        <div class="stepper">
+          <button class="btn" type="button" id="aMinus" aria-label="One room fewer">−</button>
+          <input id="aLeft" type="number" inputmode="numeric" min="0" aria-label="Rooms left to sell">
+          <button class="btn" type="button" id="aPlus" aria-label="One room more">+</button>
+        </div>
+        <span class="of" id="aOf"></span>
+      </div>
+      <div class="acts">
+        <button class="btn sold" type="button" id="aSold">Sold out</button>
+      </div>
     </div>
     <div id="sheetPkg">
       <label class="f">Name on the package (optional)<input id="sLabel" maxlength="60" placeholder="e.g. Celebration Package"></label>
@@ -113,7 +127,7 @@
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script src="/package/rates.js?v=2"></script>
-<script src="/package/package-core.js?v=2"></script>
-<script src="/package/calendar.js?v=3"></script>
+<script src="/package/package-core.js?v=3"></script>
+<script src="/package/calendar.js?v=4"></script>
 </body>
 </html>

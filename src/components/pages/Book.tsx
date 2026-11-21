@@ -11,6 +11,7 @@ import { currentSite } from '../../content/site';
 import { bookables, type Bookable } from '../../content/bookable';
 import { resolveImage } from '../../content/manifest';
 import {
+  fewLeftLabel,
   nightsBetween,
   stayRate,
   todayIso,
@@ -55,6 +56,8 @@ interface Quote {
   nights: number;
   total: number | null;
   soldOutDates: string[];
+  /** Fewest rooms of this type left on any night; null when not limited. */
+  fewestLeft: number | null;
 }
 
 // The room-only price for the stay: the rate calendar's when loaded, else the
@@ -72,10 +75,15 @@ function quoteFor(
     const s = stayRate(rates, unit.type, checkIn, checkOut);
     const total = useAc ? s.acTotal : s.total;
     if (total != null || s.soldOutDates.length)
-      return { nights, total, soldOutDates: s.soldOutDates };
+      return { nights, total, soldOutDates: s.soldOutDates, fewestLeft: s.fewestLeft };
   }
   const per = useAc ? unit.acPrice : unit.price;
-  return { nights, total: typeof per === 'number' ? per * nights : null, soldOutDates: [] };
+  return {
+    nights,
+    total: typeof per === 'number' ? per * nights : null,
+    soldOutDates: [],
+    fewestLeft: null,
+  };
 }
 
 const labelClass = 'mb-1.5 block text-[10px] font-bold tracking-widest text-stone uppercase';
@@ -165,6 +173,15 @@ export function Book() {
   const nights = checkIn && checkOut ? nightsBetween(checkIn, checkOut) : 0;
   const soldOutLines = chosen.filter((l) => l.quote && l.quote.soldOutDates.length > 0);
   const soldOut = soldOutLines.length > 0;
+  // More rooms of a type asked for than are left (lines of the same type add up).
+  const askedByType = new Map<string, number>();
+  chosen.forEach((l) => askedByType.set(l.unit.type, (askedByType.get(l.unit.type) ?? 0) + l.qty));
+  const tooMany = chosen.find(
+    (l) =>
+      l.quote?.fewestLeft != null &&
+      l.quote.fewestLeft > 0 &&
+      (askedByType.get(l.unit.type) ?? 0) > l.quote.fewestLeft,
+  );
   const grandTotal =
     chosen.length && chosen.every((l) => l.total != null)
       ? chosen.reduce((sum, l) => sum + (l.total ?? 0), 0)
@@ -185,6 +202,8 @@ export function Book() {
     else if (checkIn < todayIso()) next.dates = 'Pick dates from today onwards.';
     else if (soldOut)
       next.dates = `${soldOutLines.map((l) => l.unit.name).join(', ')}: sold out on some of these dates. Try other dates or another room.`;
+    else if (!next.room && tooMany?.quote?.fewestLeft != null)
+      next.room = `${fewLeftLabel(tooMany.unit.type, tooMany.quote.fewestLeft) ?? `Only ${tooMany.quote.fewestLeft} left`} on these dates. Ask for fewer, or try other dates.`;
     const a = Number(adults);
     const k = Number(children || 0);
     if (!(Number.isInteger(a) && a >= 1 && a <= 30)) next.adults = 'Between 1 and 30 adults.';
@@ -431,6 +450,13 @@ export function Book() {
                                 : l.total != null
                                   ? `${inr(l.total)} for ${l.qty > 1 ? `${l.qty} rooms, ` : ''}${nights} night${nights === 1 ? '' : 's'}`
                                   : 'Price on request'}
+                              {!l.quote.soldOutDates.length &&
+                                fewLeftLabel(l.unit.type, l.quote.fewestLeft) && (
+                                  <span className="text-palash font-semibold">
+                                    {' · '}
+                                    {fewLeftLabel(l.unit.type, l.quote.fewestLeft)}
+                                  </span>
+                                )}
                             </p>
                           )}
                         </div>
