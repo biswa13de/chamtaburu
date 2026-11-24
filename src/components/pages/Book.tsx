@@ -700,7 +700,7 @@ export function Book() {
                   <li>Pay the advance online to confirm.</li>
                 </ol>
                 <p className="text-stone text-xs">
-                  Free cancellation up to 25 days before check-in.{' '}
+                  Free cancellation within 24 hours of booking.{' '}
                   <Link to="/legal#cancellation" className="text-forest font-semibold">
                     Cancellation policy
                   </Link>
