@@ -150,7 +150,7 @@
 
   // The property's cancellation and refund terms (its website's /legal page).
   function terms() {
-    return `<p class="muted" style="margin:8px 0 0;font-size:.85rem">Free cancellation up to 25 days before check-in. <a href="https://${P.esc(prop.domain)}/legal#cancellation" target="_blank" rel="noopener">Cancellation &amp; refund policy</a></p>`;
+    return `<p class="muted" style="margin:8px 0 0;font-size:.85rem">Free cancellation within 24 hours of booking. <a href="https://${P.esc(prop.domain)}/legal#cancellation" target="_blank" rel="noopener">Cancellation &amp; refund policy</a></p>`;
   }
 
   function payment() {
