@@ -58,7 +58,7 @@ naming? Vegetarian and Jain options? This is among the top three questions guest
 before booking, and there is currently nothing about it on the site.
 
 ### Q5 — Cancellation and refund policy — ANSWERED 2026-11-08
-Full refund if cancelled within 24 hours of booking; after that, one night's tariff per room booked is charged (changed 2026-11-24, replacing the 25-day / 90% rule); cancellations by email only; no-shows not refunded; refunds in 3–7 business days; 50% advance confirms a booking; government ID from all guests and visitors. On /legal (src/content/shared.ts), with drafted Privacy Policy and Terms the owner approved. Still open: pets, smoking, alcohol, quiet hours.
+Full refund if cancelled within 24 hours of booking; after that, one night's tariff per room booked is charged on stays of 2+ nights, and 50% of the tariff per room on 1-night stays (changed 2026-11-24 and 2026-11-25, replacing the 25-day / 90% rule); refunds in 3–7 business days of the cancellation being confirmed; cancellations by email only; no-shows not refunded; 50% advance confirms a booking; government ID from all guests and visitors. On /legal (src/content/shared.ts), with drafted Privacy Policy and Terms the owner approved. Still open: pets, smoking, alcohol, quiet hours.
 
 _Original question:_
 Your actual terms. For example: *free cancellation up to 7 days before check-in; 50%
