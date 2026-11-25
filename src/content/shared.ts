@@ -4,7 +4,7 @@
  *
  * The booking terms (cancellation, refunds, advance, ID, tariff, check-in and
  * check-out, children) are the owner's own, given 2026-11-08; the
- * cancellation terms were changed by the owner on 2026-11-24. The Privacy
+ * cancellation terms were changed by the owner on 2026-11-24 and 2026-11-25. The Privacy
  * Policy and the general terms around them are a standard draft written to
  * fit, approved for use by the owner; have a lawyer or CA look over them when
  * convenient (docs/03-content-model.md §6). Nothing here may promise what the
@@ -18,7 +18,7 @@ export const groupInfo = {
 };
 
 /** When the policies below last changed: shown on /legal. */
-export const POLICIES_UPDATED = '24 November 2026';
+export const POLICIES_UPDATED = '25 November 2026';
 
 /** A paragraph, or a bulleted list. */
 export type PolicyBlock = string | { list: string[] };
@@ -51,9 +51,10 @@ export function policiesFor(site: SiteConfig): PolicySection[] {
         {
           list: [
             'Cancellations made within 24 hours of booking are eligible for a full refund, with no cancellation charges.',
-            'For cancellations made more than 24 hours after booking, one night’s room tariff for each room booked is charged as a cancellation fee.',
-            'No-shows are not refunded.',
-            'Refunds are processed within 3–7 business days.',
+            'For cancellations made more than 24 hours after booking, on stays of 2 nights or more, one night’s room tariff for each room booked is charged as a cancellation fee.',
+            'For cancellations made more than 24 hours after booking, on 1-night stays, 50% of the room tariff for each room booked is charged as a cancellation fee.',
+            'No-shows are non-refundable.',
+            'Refunds are processed within 3–7 business days of the cancellation being confirmed.',
           ],
         },
         `Cancellation requests are accepted only by email, at ${site.email}. The time your email reaches us counts as the time of cancellation.`,
