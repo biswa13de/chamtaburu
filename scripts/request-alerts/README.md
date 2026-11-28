@@ -8,7 +8,8 @@ How it works: the website's `/book` page and Contact page enquiry form save
 every request to Firestore `bookingRequests` (`src/lib/bookingRequest.ts`). The
 Package Generator lists them under **Booking requests**. Every 5 minutes this
 script, running in the Firebase project owner's Google account, reads any new
-ones, emails each to `info@chamtaburu.in` and adds it to the Sheet.
+ones, emails each to `info@chamtaburu.in`, posts it to a Telegram group if one
+is set up, and adds it to the Sheet.
 
 - **Cost:** ₹0. Gmail lets a script email about 100 recipients a day from a
   free account (1,500 on Google Workspace). Each address counts: with 2
@@ -55,6 +56,33 @@ Either way is free:
   that inbox forward the alerts (a Gmail filter on the sender *Chamtaburu
   website*, or a Google Group). Forwarding doesn't use the script's limit, so
   everyone gets them and it stays at about 100 requests a day.
+
+## Telegram group alerts (optional, free)
+
+Each new request is also posted to a Telegram group, so everyone in it gets an
+instant phone notification. There's no daily limit, and if Gmail's limit is
+reached, Telegram carries on by itself.
+
+1. **Make a bot.** In Telegram, open **@BotFather** (the one with the blue
+   tick), send `/newbot`, give it a name (e.g. *Chamtaburu Bookings*) and a
+   username ending in `bot`. BotFather replies with a **token** like
+   `123456789:AA…`. Treat it as a password: never put it in `Code.gs` or on
+   GitHub.
+2. **Make the group.** Create a group (e.g. *Chamtaburu Bookings*), add the
+   staff who should get alerts, then add the bot by its username. Send any
+   message in the group, such as `hello`.
+3. **Give the script the token.** In Apps Script, paste in the latest
+   [`Code.gs`](Code.gs) (keep your own `ALERT_TO` line) and click **Save**.
+   Open **Project Settings** (the gear icon), and under **Script properties**
+   click **Add script property**. Enter `TELEGRAM_BOT_TOKEN` as the property
+   and the token as the value, then click **Save script properties**.
+4. **Connect the group.** Back in the **Editor**, choose
+   **findTelegramGroup** and click **Run**. It finds the group, saves it as
+   `TELEGRAM_CHAT_ID`, and posts a test message there.
+
+You don't need to run setup again. To test later, run **sendTestTelegram**.
+Each alert includes the guest's name and number, so only add staff to the
+group. To stop the Telegram alerts, delete the two script properties.
 
 ## Website side
 
