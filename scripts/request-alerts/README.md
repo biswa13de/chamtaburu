@@ -6,17 +6,26 @@ stopped at 50 a month.
 
 How it works: the website's `/book` page and Contact page enquiry form save
 every request to Firestore `bookingRequests` (`src/lib/bookingRequest.ts`). The
-Package Generator lists them under **Booking requests**. Every 5 minutes this
-script, running in the Firebase project owner's Google account, reads any new
-ones, emails each to `info@chamtaburu.in`, posts it to a Telegram group if one
-is set up, and adds it to the Sheet.
+Package Generator lists them under **Booking requests**. This script, running
+in the Firebase project owner's Google account, posts each new one to a
+Telegram group (if set up), emails it to `info@chamtaburu.in` and adds it to
+the Sheet:
+
+- **Instantly:** once a request is saved, the website sends its code to this
+  script's web app (`src/lib/requestAlert.ts`). Alerts arrive within seconds.
+- **Every 5 minutes, as a backup:** a timer catches any the website couldn't
+  report. Google runs timers loosely, so these can take 5–10 minutes.
+
+Each request is alerted once, whichever way gets there first.
 
 - **Cost:** ₹0. Gmail lets a script email about 100 recipients a day from a
   free account (1,500 on Google Workspace). Each address counts: with 2
   addresses that's about 50 requests a day. If it hits the limit, the rest go
   out the next day.
-- **Safe:** nothing is public. The website never calls the script, so nobody
-  can use it to send email. It only reads Firestore.
+- **Safe:** the website only sends the web app a request's code. The script
+  reads that request from Firestore itself and alerts only if it's real and
+  not yet alerted, so nobody can use the link to send made-up alerts. It only
+  reads Firestore, and answers at most 30 calls in 10 minutes.
 - **If it stops:** requests are still saved and listed in the Package
   Generator, and the guest's WhatsApp message still arrives. Google emails the
   script's owner when a run fails.
@@ -43,6 +52,22 @@ the one you sign in to console.firebase.google.com with.
 
 The only requests it emails are those sent after `setup` ran. To check more
 often, change `EVERY_MINUTES` at the top of `Code.gs`, then run **setup** again.
+
+## Instant alerts (web app, once)
+
+1. In Apps Script, click **Deploy → New deployment**. Click the gear next to
+   *Select type* and choose **Web app**.
+2. Set **Execute as** to **Me** and **Who has access** to **Anyone**. (Anyone
+   can call it, but it only alerts for real new requests: see *Safe* above.)
+3. Click **Deploy**, allow access if asked, and copy the **Web app URL**
+   (`https://script.google.com/macros/s/…/exec`). Opening it in a browser
+   should show *Chamtaburu request alerts: running.*
+4. That link goes in `ALERT_URL` in `src/lib/requestAlert.ts` on the website.
+
+**After pasting in a new `Code.gs`,** the web app keeps running the old code
+until you update it: **Deploy → Manage deployments**, click the pencil, set
+**Version** to **New version**, then **Deploy**. The link stays the same. The
+timer always runs the latest code.
 
 ## More than one person getting the alerts
 

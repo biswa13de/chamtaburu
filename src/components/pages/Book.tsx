@@ -22,6 +22,7 @@ import {
 import { useStayDates } from '../../lib/stayDates';
 import { normalizePhone } from '../../lib/phone';
 import { saveBookingRequest } from '../../lib/bookingRequest';
+import { alertNewRequest } from '../../lib/requestAlert';
 import { extraGroups, extraLabel } from '../../content/extras';
 
 // Each site uses its own photo: Village photos never appear on the Resort.
@@ -285,6 +286,7 @@ export function Book() {
         extras,
         estimate: grandTotal ?? 0,
       });
+      alertNewRequest(ref);
     } catch {
       // Not saved: the WhatsApp message below is then the request.
     }
