@@ -4,6 +4,7 @@ import { cottages, rooms } from '../../content/village';
 import { Button } from './Button';
 import { normalizePhone } from '../../lib/phone';
 import { saveBookingRequest } from '../../lib/bookingRequest';
+import { alertNewRequest } from '../../lib/requestAlert';
 
 /**
  * Enquiry form — docs/02-architecture.md §8 and docs/05-build-phases.md
@@ -177,10 +178,12 @@ export function EnquiryForm({
       estimate: 0,
       extras: [],
       source: 'contact',
-    }).catch(() => {
-      // Fire-and-forget: WhatsApp is the path of record, so a failed save is
-      // not surfaced to the guest as an error.
-    });
+    })
+      .then(alertNewRequest)
+      .catch(() => {
+        // Fire-and-forget: WhatsApp is the path of record, so a failed save is
+        // not surfaced to the guest as an error.
+      });
   }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {

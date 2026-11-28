@@ -2,14 +2,21 @@
  * Chamtaburu website request alerts: a Google Apps Script (script.google.com),
  * not part of the website build. Setup steps are in README.md next to this file.
  *
- * Every few minutes it reads the new booking requests the website saved to
- * Firestore `bookingRequests` (from /book and the Contact page's enquiry form),
- * emails each one to the office, posts it to a Telegram group when one is set
- * up, and adds it as a row to a Google Sheet.
+ * For each new booking request the website saves to Firestore
+ * `bookingRequests` (from /book and the Contact page's enquiry form), it posts
+ * to a Telegram group when one is set up, emails the office, and adds a row to
+ * a Google Sheet. Each request is alerted once, two ways:
+ *
+ * - Instantly: once a request is saved, the website sends its code to this
+ *   script's web app (doPost, src/lib/requestAlert.ts). The script reads that
+ *   request from Firestore itself and alerts only if it's real and new, so
+ *   calling the web app can't send made-up alerts.
+ * - Every few minutes, a timer (checkNewRequests) catches any the website
+ *   couldn't send, e.g. when the guest closed the page at once.
  *
  * It runs as the Google account that owns the Firebase project and reads with
- * that account's own access, so the website needs no email service, nothing
- * here is public, and nobody can use it to send email. Gmail allows it about
+ * that account's own access, so the website needs no email service and no
+ * keys. Gmail allows it about
  * 100 recipients a day on a free account (1,500 on Google Workspace): each
  * address in ALERT_TO counts, so 2 addresses is about 50 requests a day.
  *
@@ -45,6 +52,13 @@ const HEADERS = ['Received', 'Code', 'Property', 'From', 'Name', 'Phone', 'Rooms
 const DB = `projects/${PROJECT_ID}/databases/(default)/documents`;
 const LAST_KEY = 'lastCreated';
 const SHEET_KEY = 'sheetId';
+// Requests already alerted, { code: when }, kept 2 days: the web app and the
+// timer can each see the same request, and it must go out once.
+const ALERTED_KEY = 'alerted';
+const CODE_RE = /^[2-9A-HJKMNP-Z]{6}$/;
+// The web app answers at most this many calls in 10 minutes; past that the
+// timer still alerts, a few minutes later.
+const PUSH_LIMIT = 30;
 // Telegram, optional. Kept in Project Settings → Script properties, never in
 // this file: the bot token is a password. TELEGRAM_CHAT_ID is filled in by
 // findTelegramGroup.
@@ -65,7 +79,7 @@ function setup() {
     .filter((t) => t.getHandlerFunction() === 'checkNewRequests')
     .forEach((t) => ScriptApp.deleteTrigger(t));
   ScriptApp.newTrigger('checkNewRequests').timeBased().everyMinutes(EVERY_MINUTES).create();
-  Logger.log(`Ready. New requests are emailed to ${ALERT_TO} within ${EVERY_MINUTES} minutes and listed in ${sheet.getParent().getUrl()}`);
+  Logger.log(`Ready. New requests are alerted (${ALERT_TO}${telegramReady() ? ' and Telegram' : ''}) and listed in ${sheet.getParent().getUrl()}. Deploy the web app for instant alerts (README.md).`);
 }
 
 /** Run from the editor to see what an alert looks like. */
@@ -81,9 +95,51 @@ function sendTestEmail() {
 }
 
 /**
- * Run by the timer: emails, posts to Telegram and lists every request since
- * the last one handled. Past Gmail's daily limit, Telegram alone carries on;
- * with no Telegram either, the rest wait for tomorrow.
+ * The web app: the website posts { code } here as soon as a request is saved
+ * (src/lib/requestAlert.ts). Alerts at once if that request exists, is newer
+ * than the last one the timer handled, and hasn't been alerted yet.
+ */
+function doPost(e) {
+  try {
+    const code = codeFrom(e);
+    if (!CODE_RE.test(code) || overPushLimit()) return reply('ignored');
+    const lock = LockService.getScriptLock();
+    if (!lock.tryLock(20000)) return reply('busy'); // the timer will get it
+    try {
+      const props = PropertiesService.getScriptProperties();
+      const last = props.getProperty(LAST_KEY);
+      if (!last) return reply('not set up');
+      const r = fetchOne(code);
+      // Older than `last` means the timer already handled it.
+      if (!r || timeKey(r.created) <= timeKey(last) || alerted()[code]) return reply('ignored');
+      alertOnce(r, sheetGetter());
+      return reply('ok');
+    } finally {
+      lock.releaseLock();
+    }
+  } catch (err) {
+    console.error(err);
+    return reply('error');
+  }
+}
+
+function codeFrom(e) {
+  try {
+    return String(JSON.parse((e && e.postData && e.postData.contents) || '{}').code || '');
+  } catch (err) {
+    return '';
+  }
+}
+
+/** Open the web app's link in a browser to check it's deployed. */
+function doGet() {
+  return reply('Chamtaburu request alerts: running.');
+}
+
+/**
+ * Run by the timer: alerts every request since the last one handled that the
+ * web app didn't already. Past Gmail's daily limit, Telegram alone carries
+ * on; with no Telegram either, the rest wait for tomorrow.
  */
 function checkNewRequests() {
   const lock = LockService.getScriptLock();
@@ -92,23 +148,67 @@ function checkNewRequests() {
     const props = PropertiesService.getScriptProperties();
     const last = props.getProperty(LAST_KEY);
     if (!last) throw new Error('Run setup first.');
-    const sheet = getSheet();
-    const tg = telegramReady();
+    const sheet = sheetGetter();
     for (const r of fetchSince(last, 50)) {
-      const canEmail = MailApp.getRemainingDailyQuota() >= ALERT_TO.split(',').length;
-      if (!canEmail && !tg) {
+      if (!alerted()[r.code] && !alertOnce(r, sheet)) {
         Logger.log('Gmail daily limit reached; the rest are sent tomorrow.');
         return;
       }
-      if (canEmail) MailApp.sendEmail({ to: ALERT_TO, subject: subject(r), body: body(r), name: 'Chamtaburu website' });
-      else Logger.log(`Gmail daily limit reached: ${r.code} went to Telegram only.`);
-      if (tg) telegram(telegramText(r));
-      sheet.appendRow(row(r));
       props.setProperty(LAST_KEY, r.created);
     }
   } finally {
     lock.releaseLock();
   }
+}
+
+// Telegram first (it's the instant one), then email, then the Sheet. False
+// when it could send nothing: past Gmail's limit with no Telegram.
+function alertOnce(r, sheet) {
+  const tg = telegramReady();
+  const canEmail = MailApp.getRemainingDailyQuota() >= ALERT_TO.split(',').length;
+  if (!canEmail && !tg) return false;
+  if (tg) telegram(telegramText(r));
+  if (canEmail) MailApp.sendEmail({ to: ALERT_TO, subject: subject(r), body: body(r), name: 'Chamtaburu website' });
+  else Logger.log(`Gmail daily limit reached: ${r.code} went to Telegram only.`);
+  markAlerted(r.code);
+  sheet().appendRow(row(r));
+  return true;
+}
+
+// RFC 3339 times compare as text once the fraction has the same length:
+// Firestore gives up to 9 digits ("…05.123456Z"), JavaScript 3 ("…05.123Z").
+function timeKey(t) {
+  const m = /^(.*?)(?:\.(\d+))?Z$/.exec(t);
+  return m ? m[1] + '.' + (m[2] || '').padEnd(9, '0') : t;
+}
+
+function alerted() {
+  return JSON.parse(PropertiesService.getScriptProperties().getProperty(ALERTED_KEY) || '{}');
+}
+
+function markAlerted(code) {
+  const now = Date.now();
+  const keep = {};
+  Object.entries(alerted()).forEach(([c, t]) => { if (now - t < 2 * 86400000) keep[c] = t; });
+  keep[code] = now;
+  PropertiesService.getScriptProperties().setProperty(ALERTED_KEY, JSON.stringify(keep));
+}
+
+function overPushLimit() {
+  const cache = CacheService.getScriptCache();
+  const n = Number(cache.get('pushes') || 0) + 1;
+  cache.put('pushes', String(n), 600);
+  return n > PUSH_LIMIT;
+}
+
+function reply(text) {
+  return ContentService.createTextOutput(text);
+}
+
+// Opens the Sheet only when a row is added, not on every timer run.
+function sheetGetter() {
+  let sheet = null;
+  return () => sheet || (sheet = getSheet());
 }
 
 /* ---------- Telegram ---------- */
@@ -202,17 +302,30 @@ function telegramText(r) {
   ].filter((line) => line !== null).join('\n');
 }
 
+const firestoreHeaders = () => ({
+  Authorization: 'Bearer ' + ScriptApp.getOAuthToken(),
+  // Bill the read to the Firebase project, where Firestore is switched on,
+  // not to this script's own hidden Cloud project.
+  'x-goog-user-project': PROJECT_ID,
+});
+
+// One request by its code, or null when there's none.
+function fetchOne(code) {
+  const res = UrlFetchApp.fetch(`https://firestore.googleapis.com/v1/${DB}/bookingRequests/${code}`, {
+    headers: firestoreHeaders(),
+    muteHttpExceptions: true,
+  });
+  if (res.getResponseCode() === 404) return null;
+  if (res.getResponseCode() !== 200) throw new Error(`Couldn't read request ${code} (${res.getResponseCode()}): ${res.getContentText().slice(0, 300)}`);
+  return parse(JSON.parse(res.getContentText()));
+}
+
 // Requests created after `since` (an RFC 3339 time), oldest first.
 function fetchSince(since, limit) {
   const res = UrlFetchApp.fetch(`https://firestore.googleapis.com/v1/${DB}:runQuery`, {
     method: 'post',
     contentType: 'application/json',
-    headers: {
-      Authorization: 'Bearer ' + ScriptApp.getOAuthToken(),
-      // Bill the read to the Firebase project, where Firestore is switched on,
-      // not to this script's own hidden Cloud project.
-      'x-goog-user-project': PROJECT_ID,
-    },
+    headers: firestoreHeaders(),
     muteHttpExceptions: true,
     payload: JSON.stringify({
       structuredQuery: {
