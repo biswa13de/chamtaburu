@@ -170,7 +170,9 @@ under ~200 kB.
 - [x] WhatsApp deep link with pre-composed message, routed per property
       (Village `919242748100`, Resort `918918550242`)
 - [x] Email fallback to `info@chamtaburu.in` via Formspree (see note — Web3Forms was
-      tried first and dropped)
+      tried first and dropped). Replaced on 2026-11-27, when Formspree's free 50 a month
+      ran out: enquiries are saved to Firestore and emailed by a Google Apps Script
+      (`scripts/request-alerts/README.md`)
 - [x] Fixed mobile call/WhatsApp bar
 - [x] **Remove the fake checkout** — done in Phase 1 (App.tsx deleted)
 - [x] **Remove the false payment claims** — done in Phase 1

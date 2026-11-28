@@ -2,6 +2,9 @@
  * Saves a guest's booking request to Firestore `bookingRequests/<code>`, where
  * the Package Generator lists it for managers (firestore.rules checks the
  * shape and keeps them private). Plain REST, like the rest of the site.
+ * Requests come from /book and from the Contact page's enquiry form
+ * (`source: 'contact'`). The office is emailed about each new one by a Google
+ * Apps Script that reads this collection (scripts/request-alerts).
  *
  * Nothing is paid here: a manager checks availability (rooms are also sold
  * on Booking.com and by phone) and replies with a package and payment link.
@@ -38,6 +41,8 @@ export interface BookingRequest {
   extras: string[];
   /** Every room type asked for; the first is also `room` / `roomName` / `ac`. */
   items: { room: string; name: string; qty: number; ac: boolean }[];
+  /** Where it was sent from: left out for /book. */
+  source?: 'contact';
 }
 
 /** Returns the request's code, e.g. "R6X6K2". Throws if it couldn't be saved. */
@@ -56,6 +61,7 @@ export async function saveBookingRequest(r: BookingRequest): Promise<string> {
     note: { stringValue: r.note.slice(0, 500) },
     est: { integerValue: String(Math.max(0, Math.round(r.estimate))) },
     status: { stringValue: 'new' },
+    ...(r.source ? { src: { stringValue: r.source } } : {}),
     extras: { arrayValue: { values: r.extras.map((id) => ({ stringValue: id })) } },
     items: {
       arrayValue: {

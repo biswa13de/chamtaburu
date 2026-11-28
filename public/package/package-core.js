@@ -675,8 +675,8 @@
   }
 
   /*
-   * Booking requests from the website's /book page (src/lib/bookingRequest.ts),
-   * newest first. Only managers can read them (firestore.rules): they hold
+   * Booking requests from the website's /book page and Contact page enquiry
+   * form (`src` "contact"; src/lib/bookingRequest.ts), newest first. Only managers can read them (firestore.rules): they hold
    * the guest's name and number. `status` is new, quoted (a package was
    * sent; `quote` is its code), booked or declined.
    */
@@ -696,7 +696,7 @@
         code: d.name.split("/").pop(), p: str(f, "p"), room: str(f, "room"), roomName: str(f, "roomName"),
         ac: !!(f.ac && f.ac.booleanValue), ci: str(f, "ci"), co: str(f, "co"), a: int(f, "a"), k: int(f, "k"),
         name: str(f, "name"), phone: str(f, "phone"), note: str(f, "note"), est: int(f, "est"),
-        status: str(f, "status") || "new", quote: str(f, "quote"), statusBy: str(f, "statusBy"),
+        status: str(f, "status") || "new", quote: str(f, "quote"), statusBy: str(f, "statusBy"), src: str(f, "src"),
         extras: ((f.extras && f.extras.arrayValue && f.extras.arrayValue.values) || []).map((v) => v.stringValue),
         // Every room type asked for; requests from before this have only `room`.
         items: ((f.items && f.items.arrayValue && f.items.arrayValue.values) || []).map((v) => {

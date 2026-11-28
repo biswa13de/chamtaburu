@@ -129,7 +129,7 @@ charge.
 |---|---|---|
 | Hosting + CDN + SSL | Firebase Hosting Spark (free) | **₹0** — 10 GB/mo transfer, 360 MB storage |
 | CI/CD | GitHub Actions | **₹0** |
-| Enquiry email fallback | Formspree free tier | **₹0** — 50 submissions/mo |
+| Request email alerts | Google Apps Script reading Firestore (`scripts/request-alerts`) | **₹0** — ~100 emails/day (replaced Formspree, 50/mo, on 2026-11-27) |
 | Analytics | GA4 or Cloudflare Web Analytics | **₹0** |
 | Search Console | Google | **₹0** |
 | Domain | existing `chamtaburu.in` | ~₹900/yr (already paid) |
@@ -253,8 +253,11 @@ Phone: ...
 Routed by property — Village → **9242748100**, Resort → **8918550242**. Arriving with
 full details means fewer round-trips before a confirmed booking.
 
-**Secondary — email.** The same form also posts to Formspree (free) so nothing is lost
-if WhatsApp fails or the guest is on desktop. Delivered to **info@chamtaburu.in**.
+**Secondary — saved and emailed.** The same form also saves the enquiry to Firestore
+`bookingRequests` (like `/book`), so nothing is lost if WhatsApp fails or the guest is
+on desktop. Managers see it in the Package Generator, and a Google Apps Script emails
+it to **info@chamtaburu.in** within a few minutes (`scripts/request-alerts/README.md`).
+This replaced Formspree on 2026-11-27, when its free 50 a month ran out.
 
 Plus persistent click-to-call and click-to-WhatsApp buttons — a fixed bottom bar on
 mobile, where most visitors are.

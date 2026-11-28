@@ -42,8 +42,6 @@ const PRICE_NOTE =
     ? 'Room only, with breakfast, before GST.'
     : 'Room only, before GST.';
 
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/meajprwj';
-
 const inr = (n: number) => `₹${n.toLocaleString('en-IN')}`;
 const longDate = (d: string) =>
   new Date(`${d}T00:00:00Z`).toLocaleDateString('en-IN', {
@@ -117,8 +115,8 @@ type Errors = Partial<Record<'room' | 'dates' | 'adults' | 'name' | 'phone', str
  * payment here: rooms are also sold on Booking.com and by phone, so a manager
  * checks availability and replies on WhatsApp with a package and its payment
  * link (the Package Generator lists these requests). Saved to Firestore
- * (src/lib/bookingRequest.ts), with an email copy through Formspree and an
- * optional WhatsApp message from the guest.
+ * (src/lib/bookingRequest.ts), which also gets the office an email about it,
+ * with an optional WhatsApp message from the guest.
  */
 export function Book() {
   const [params] = useSearchParams();
@@ -294,18 +292,6 @@ export function Book() {
     setWhatsappHref(`https://wa.me/${currentSite.whatsapp}?text=${encodeURIComponent(text)}`);
     setCode(ref);
     setState(ref ? 'sent' : 'failed');
-    void fetch(FORMSPREE_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        _subject: `Booking request${ref ? ` ${ref}` : ''} — ${currentSite.name}`,
-        name: name.trim(),
-        phone: normalizedPhone,
-        message: text,
-      }),
-    }).catch(() => {
-      // Email is a copy; the request (or WhatsApp) is the record.
-    });
   }
 
   return (
