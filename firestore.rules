@@ -214,7 +214,10 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time;
     }
 
-    // Booking requests from the website's /book page (src/lib/bookingRequest.ts).
+    // Booking requests from the website's /book page and its Contact page
+    // enquiry form (`src` "contact"), src/lib/bookingRequest.ts. A Google Apps
+    // Script run by the project's owner reads new ones to email the office
+    // (scripts/request-alerts): it uses the owner's own access, not these rules.
     // Anyone can send one, in exactly this shape, as status "new"; it holds the
     // guest's name and number, so only managers can read them. Managers move
     // it on (a package sent, booked, declined), recording who; nobody deletes.
@@ -222,7 +225,7 @@ service cloud.firestore {
       allow get, list: if isManager();
       allow delete: if false;
       allow create: if code.matches('^[2-9A-HJKMNP-Z]{6}$')
-        && request.resource.data.keys().hasOnly(['p', 'room', 'roomName', 'ac', 'ci', 'co', 'a', 'k', 'name', 'phone', 'note', 'est', 'extras', 'items', 'status', 'created'])
+        && request.resource.data.keys().hasOnly(['p', 'room', 'roomName', 'ac', 'ci', 'co', 'a', 'k', 'name', 'phone', 'note', 'est', 'extras', 'items', 'src', 'status', 'created'])
         && request.resource.data.keys().hasAll(['p', 'room', 'roomName', 'ac', 'ci', 'co', 'a', 'k', 'name', 'phone', 'status', 'created'])
         && request.resource.data.p in ['village', 'resort']
         && request.resource.data.room is string && request.resource.data.room.matches('^[a-z0-9-]{1,40}$')
@@ -237,6 +240,7 @@ service cloud.firestore {
         && request.resource.data.phone is string && request.resource.data.phone.matches('^91[6-9][0-9]{9}$')
         && (!('note' in request.resource.data) || (request.resource.data.note is string && request.resource.data.note.size() <= 500))
         && (!('est' in request.resource.data) || (request.resource.data.est is int && request.resource.data.est >= 0))
+        && (!('src' in request.resource.data) || request.resource.data.src == 'contact')
         // Extras the guest asked for: ids from src/content/extras.ts.
         && (!('extras' in request.resource.data) || (request.resource.data.extras is list
           && request.resource.data.extras.size() <= 12

@@ -875,7 +875,7 @@
     renderPackages();
   });
 
-  /* ---------- Booking requests from the website (/book) ---------- */
+  /* ---------- Booking requests from the website (/book, Contact page) ---------- */
   const REQ_STATUS = { new: "New", quoted: "Package sent", booked: "Booked", declined: "Declined" };
   // The extras a guest ticked (src/content/extras.ts): add-on ids, plus "meals".
   const extraName = (p, id) => id === "meals" ? "All meals"
@@ -912,7 +912,7 @@
       const nights = P.nightsBetween(x.ci, x.co);
       const roomsText = reqItems(x).map((it) => (it.q > 1 ? it.q + " × " : "") + it.name + (it.ac ? " (AC)" : "")).join(", ");
       const what = [
-        (both ? C.properties[x.p].name.replace("Chamtaburu ", "") + " · " : "") + roomsText,
+        (x.src === "contact" ? "Contact form enquiry · " : "") + (both ? C.properties[x.p].name.replace("Chamtaburu ", "") + " · " : "") + roomsText,
         `${P.fmtDate(x.ci)} → ${P.fmtDate(x.co)} · ${P.plural(nights, "night")}`,
         P.plural(x.a, "adult") + (x.k ? ", " + P.kids(x.k) : ""),
         x.est ? "shown " + P.inr(x.est) : "",

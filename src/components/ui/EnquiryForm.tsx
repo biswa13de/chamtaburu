@@ -3,6 +3,7 @@ import { currentSite } from '../../content/site';
 import { cottages, rooms } from '../../content/village';
 import { Button } from './Button';
 import { normalizePhone } from '../../lib/phone';
+import { saveBookingRequest } from '../../lib/bookingRequest';
 
 /**
  * Enquiry form — docs/02-architecture.md §8 and docs/05-build-phases.md
@@ -14,10 +15,12 @@ import { normalizePhone } from '../../lib/phone';
  *    message is built), not a JS-only `window.open`, so it's long-press/
  *    right-click-able on mobile and works even if popup-blocking interferes
  *    with a script-triggered `window.open`.
- * 2. Secondary — a fire-and-forget POST to Formspree so nothing is lost if
- *    a guest is on desktop without WhatsApp, or WhatsApp fails to open.
- *    Submissions land in the Formspree dashboard for info@chamtaburu.in.
- *    Never blocks the WhatsApp link — a failed POST is swallowed silently.
+ * 2. Secondary — a fire-and-forget save to Firestore `bookingRequests`
+ *    (src/lib/bookingRequest.ts, marked as from the Contact page) so nothing
+ *    is lost if a guest is on desktop without WhatsApp, or WhatsApp fails to
+ *    open. It shows under Booking requests in the Package Generator, and the
+ *    office gets an email about it (scripts/request-alerts). Never blocks the
+ *    WhatsApp link — a failed save is swallowed silently.
  *
  * `currentSite.whatsapp`/`currentSite.name` make this component work
  * unmodified on both Village and Resort builds — never hardcode a number
@@ -52,6 +55,9 @@ const INITIAL_STATE: FormState = {
 
 type Errors = Partial<Record<keyof FormState, string>>;
 
+// firestore.rules allows up to 30 adults and 30 children on a request.
+const MAX_GUESTS = 30;
+
 interface EnquiryFormProps {
   /** Preselect a cottage (e.g. arriving from a cottage detail page's "Enquire" button). */
   initialCottage?: string;
@@ -78,6 +84,7 @@ export function EnquiryForm({
   const [errors, setErrors] = useState<Errors>({});
   const [whatsappHref, setWhatsappHref] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [website, setWebsite] = useState(''); // honeypot: people never see it, bots fill it
 
   function setField<K extends keyof FormState>(key: K, value: FormState[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -101,11 +108,15 @@ export function EnquiryForm({
     const adultsNum = Number(values.adults);
     if (!values.adults || !Number.isInteger(adultsNum) || adultsNum < 1) {
       next.adults = 'At least 1 adult is required.';
+    } else if (adultsNum > MAX_GUESTS) {
+      next.adults = `For more than ${MAX_GUESTS} adults, please call or WhatsApp us.`;
     }
     if (values.children) {
       const childrenNum = Number(values.children);
       if (!Number.isInteger(childrenNum) || childrenNum < 0) {
         next.children = 'Number of children must be 0 or more.';
+      } else if (childrenNum > MAX_GUESTS) {
+        next.children = `For more than ${MAX_GUESTS} children, please call or WhatsApp us.`;
       }
     }
 
@@ -143,23 +154,32 @@ export function EnquiryForm({
     return lines.join('\n');
   }
 
-  // Formspree endpoint for this site's enquiry form (info@chamtaburu.in is
-  // the account owner and receives submissions from the Formspree dashboard).
-  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/meajprwj';
-
-  function postToFormspree(message: string, normalizedPhone: string) {
-    fetch(FORMSPREE_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({
-        _subject: `New enquiry — ${currentSite.name}`,
-        name: values.name.trim(),
-        phone: normalizedPhone,
-        message,
-      }),
+  // The enquiry as a booking request, so managers see it with the others and
+  // can make a package from it. On the Resort the guest types what they're
+  // interested in: that goes in the note, with no room picked.
+  function saveEnquiry(normalizedPhone: string) {
+    const unit = isVillage ? [...cottages, ...rooms].find((c) => c.slug === values.cottage) : undefined;
+    const room = unit?.slug ?? 'any';
+    const roomName = unit?.name ?? 'Any room';
+    const interest = !isVillage && values.cottage.trim() ? `Interested in: ${values.cottage.trim()}` : '';
+    saveBookingRequest({
+      room,
+      roomName,
+      ac: false,
+      items: [{ room, name: roomName, qty: 1, ac: false }],
+      checkIn: values.checkIn,
+      checkOut: values.checkOut,
+      adults: Number(values.adults),
+      children: Number(values.children) || 0,
+      name: values.name.trim(),
+      phone: normalizedPhone.replace(/\D/g, ''),
+      note: interest,
+      estimate: 0,
+      extras: [],
+      source: 'contact',
     }).catch(() => {
-      // Fire-and-forget: WhatsApp is the path of record, so a failed email
-      // fallback is not surfaced to the guest as an error.
+      // Fire-and-forget: WhatsApp is the path of record, so a failed save is
+      // not surfaced to the guest as an error.
     });
   }
 
@@ -177,7 +197,7 @@ export function EnquiryForm({
     const href = `https://wa.me/${currentSite.whatsapp}?text=${encodeURIComponent(message)}`;
     setWhatsappHref(href);
     setSubmitted(true);
-    postToFormspree(message, normalizedPhone);
+    if (!website) saveEnquiry(normalizedPhone); // a bot: WhatsApp link only, save nothing
   }
 
   const fieldId = (name: string) => `${idPrefix}-${name}`;
@@ -367,6 +387,19 @@ export function EnquiryForm({
             {errors.phone}
           </p>
         )}
+      </div>
+
+      {/* Honeypot: hidden from people, filled in by bots. */}
+      <div className="hidden" aria-hidden="true">
+        <label>
+          Website
+          <input
+            tabIndex={-1}
+            autoComplete="off"
+            value={website}
+            onChange={(e) => setWebsite(e.target.value)}
+          />
+        </label>
       </div>
 
       <div className="flex flex-col items-start gap-4">
