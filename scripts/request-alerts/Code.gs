@@ -4,7 +4,8 @@
  *
  * Every few minutes it reads the new booking requests the website saved to
  * Firestore `bookingRequests` (from /book and the Contact page's enquiry form),
- * emails each one to the office and adds it as a row to a Google Sheet.
+ * emails each one to the office, posts it to a Telegram group when one is set
+ * up, and adds it as a row to a Google Sheet.
  *
  * It runs as the Google account that owns the Firebase project and reads with
  * that account's own access, so the website needs no email service, nothing
@@ -44,6 +45,11 @@ const HEADERS = ['Received', 'Code', 'Property', 'From', 'Name', 'Phone', 'Rooms
 const DB = `projects/${PROJECT_ID}/databases/(default)/documents`;
 const LAST_KEY = 'lastCreated';
 const SHEET_KEY = 'sheetId';
+// Telegram, optional. Kept in Project Settings → Script properties, never in
+// this file: the bot token is a password. TELEGRAM_CHAT_ID is filled in by
+// findTelegramGroup.
+const TG_TOKEN_KEY = 'TELEGRAM_BOT_TOKEN';
+const TG_CHAT_KEY = 'TELEGRAM_CHAT_ID';
 
 /**
  * Run once from the editor (choose "setup", then Run). Checks it can read the
@@ -74,7 +80,11 @@ function sendTestEmail() {
   Logger.log('Test email sent to ' + ALERT_TO);
 }
 
-/** Run by the timer: emails and lists every request since the last one handled. */
+/**
+ * Run by the timer: emails, posts to Telegram and lists every request since
+ * the last one handled. Past Gmail's daily limit, Telegram alone carries on;
+ * with no Telegram either, the rest wait for tomorrow.
+ */
 function checkNewRequests() {
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(1000)) return; // the previous run is still going
@@ -83,18 +93,113 @@ function checkNewRequests() {
     const last = props.getProperty(LAST_KEY);
     if (!last) throw new Error('Run setup first.');
     const sheet = getSheet();
+    const tg = telegramReady();
     for (const r of fetchSince(last, 50)) {
-      if (MailApp.getRemainingDailyQuota() < ALERT_TO.split(',').length) {
+      const canEmail = MailApp.getRemainingDailyQuota() >= ALERT_TO.split(',').length;
+      if (!canEmail && !tg) {
         Logger.log('Gmail daily limit reached; the rest are sent tomorrow.');
         return;
       }
-      MailApp.sendEmail({ to: ALERT_TO, subject: subject(r), body: body(r), name: 'Chamtaburu website' });
+      if (canEmail) MailApp.sendEmail({ to: ALERT_TO, subject: subject(r), body: body(r), name: 'Chamtaburu website' });
+      else Logger.log(`Gmail daily limit reached: ${r.code} went to Telegram only.`);
+      if (tg) telegram(telegramText(r));
       sheet.appendRow(row(r));
       props.setProperty(LAST_KEY, r.created);
     }
   } finally {
     lock.releaseLock();
   }
+}
+
+/* ---------- Telegram ---------- */
+
+/**
+ * Run after adding the bot to your Telegram group (README.md). Finds the
+ * group from the bot's recent messages and saves it, then posts a test.
+ */
+function findTelegramGroup() {
+  const props = PropertiesService.getScriptProperties();
+  if (!props.getProperty(TG_TOKEN_KEY)) throw new Error(`Add the bot token as the script property ${TG_TOKEN_KEY} first.`);
+  const updates = telegramApi('getUpdates', {}).result || [];
+  const groups = {};
+  updates.forEach((u) => {
+    const m = u.message || u.my_chat_member || u.channel_post || {};
+    if (m.chat && m.chat.type !== 'private') groups[m.chat.id] = m.chat.title;
+  });
+  const ids = Object.keys(groups);
+  if (!ids.length) {
+    throw new Error('No group found. Add the bot to the group (or remove and add it again), send a message in the group, then run this again within a day.');
+  }
+  if (ids.length > 1) {
+    throw new Error('The bot is in more than one group: ' + ids.map((id) => `${groups[id]} (${id})`).join(', ')
+      + `. Put the right ID in the script property ${TG_CHAT_KEY}, then run sendTestTelegram.`);
+  }
+  props.setProperty(TG_CHAT_KEY, ids[0]);
+  Logger.log(`Saved the group "${groups[ids[0]]}". Sending a test…`);
+  sendTestTelegram();
+}
+
+/** Run from the editor to see what a Telegram alert looks like. */
+function sendTestTelegram() {
+  if (!telegramReady()) throw new Error('Telegram is not set up yet: see README.md.');
+  const r = {
+    code: 'TEST42', p: 'village', src: '', name: 'Test Guest', phone: '919876543210',
+    items: [{ name: 'AC Cottage', q: 2, ac: true }], ci: '2026-12-24', co: '2026-12-26',
+    a: 4, k: 1, extras: ['pickup-purulia', 'bonfire'], est: 22000, note: 'This is a test alert.', created: new Date().toISOString(),
+  };
+  if (!telegram('[Test] ' + telegramText(r))) throw new Error("Couldn't post to the group: see the log above.");
+  Logger.log('Test posted to the Telegram group.');
+}
+
+function telegramReady() {
+  const props = PropertiesService.getScriptProperties();
+  return !!(props.getProperty(TG_TOKEN_KEY) && props.getProperty(TG_CHAT_KEY));
+}
+
+// Posts to the group. A failure is logged, not thrown, so one Telegram
+// problem never stops the emails or sends them twice.
+function telegram(text) {
+  const props = PropertiesService.getScriptProperties();
+  const send = () => telegramApi('sendMessage', {
+    chat_id: props.getProperty(TG_CHAT_KEY), text, link_preview_options: { is_disabled: true },
+  });
+  let res = send();
+  // A group that became a supergroup gets a new ID: switch to it and retry.
+  const moved = res.parameters && res.parameters.migrate_to_chat_id;
+  if (!res.ok && moved) {
+    props.setProperty(TG_CHAT_KEY, String(moved));
+    res = send();
+  }
+  if (!res.ok) console.error(`Telegram: ${res.error_code} ${res.description}`);
+  return !!res.ok;
+}
+
+function telegramApi(method, payload) {
+  const token = PropertiesService.getScriptProperties().getProperty(TG_TOKEN_KEY);
+  const res = UrlFetchApp.fetch(`https://api.telegram.org/bot${token}/${method}`, {
+    method: 'post', contentType: 'application/json', payload: JSON.stringify(payload), muteHttpExceptions: true,
+  });
+  try {
+    return JSON.parse(res.getContentText());
+  } catch (e) {
+    return { ok: false, error_code: res.getResponseCode(), description: res.getContentText().slice(0, 200) };
+  }
+}
+
+function telegramText(r) {
+  return [
+    `🛎 ${kind(r)} ${r.code} · ${site(r).name}`,
+    `${r.name} · ${phone(r.phone)}`,
+    rooms(r),
+    `${day(r.ci)} → ${day(r.co)} · ${plural(nights(r), 'night')}`,
+    guests(r),
+    r.extras.length ? `Also: ${extras(r)}` : null,
+    r.est ? `Price shown: ${inr(r.est)}` : null,
+    r.note ? `Note: ${r.note}` : null,
+    '',
+    `WhatsApp: https://wa.me/${r.phone}`,
+    `Generator: https://${site(r).domain}/package`,
+  ].filter((line) => line !== null).join('\n');
 }
 
 // Requests created after `since` (an RFC 3339 time), oldest first.
